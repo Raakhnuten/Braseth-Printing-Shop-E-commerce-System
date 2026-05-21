@@ -1,0 +1,143 @@
+<app-page-header [title]="pageTitle" />
+
+<div class="admin-content">
+  <div class="toolbar">
+    <button class="btn btn-primary" (click)="openCreateForm()">
+      <i class="pi pi-plus"></i> Add Payment Method
+    </button>
+  </div>
+
+  @if (successMessage()) {
+    <div class="alert-success">{{ successMessage() }}</div>
+  }
+
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else if (error()) {
+    <div class="error-message">{{ error() }}</div>
+  } @else if (paymentMethods().length === 0) {
+    <app-empty-state title="No Payment Methods" message="No payment methods found. Click Add Payment Method to create one." icon="pi pi-credit-card" />
+  } @else {
+    <div class="cards-grid">
+      @for (pm of paymentMethods(); track pm.id) {
+        <div class="method-card">
+          <div class="card-header">
+            <h3 class="card-name">{{ pm.name }}</h3>
+            <span class="type-badge type-{{ pm.type | lowercase }}">{{ pm.type }}</span>
+          </div>
+          <p class="card-description">{{ pm.description }}</p>
+          <div class="card-meta">
+            <div class="meta-item">
+              <span class="meta-label">Enabled</span>
+              @if (pm.enabled) {
+                <span class="badge badge-success">Yes</span>
+              } @else {
+                <span class="badge badge-secondary">No</span>
+              }
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Sort Order</span>
+              <span class="meta-value">{{ pm.sortOrder }}</span>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-sm btn-outline" (click)="openEditForm(pm)" title="Edit">
+              <i class="pi pi-pencil"></i> Edit
+            </button>
+            <button class="btn btn-sm btn-outline-danger" (click)="deletePaymentMethod(pm.id)" title="Delete">
+              <i class="pi pi-trash"></i> Delete
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+@if (showForm()) {
+  <div class="modal-overlay" (click)="closeForm()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ formMode() === 'create' ? 'Add Payment Method' : 'Edit Payment Method' }}</h3>
+        <button class="modal-close" (click)="closeForm()">&times;</button>
+      </div>
+      <div class="modal-body">
+        @if (formError()) {
+          <div class="alert alert-error" style="padding:12px 16px;background:#ffebee;color:#c62828;border-radius:8px;margin-bottom:1rem;font-size:0.9rem;">{{ formError() }}</div>
+        }
+        <div class="form-group">
+          <label for="pm-name">Name *</label>
+          <input
+            id="pm-name"
+            type="text"
+            [formControl]="$any(form.controls['name'])"
+            [class.input-error]="submitted() && form.controls['name'].invalid"
+          />
+          @if (submitted() && form.controls['name'].invalid) {
+            <span class="field-error">Name is required</span>
+          }
+        </div>
+        <div class="form-group">
+          <label for="pm-type">Type *</label>
+          <select
+            id="pm-type"
+            [formControl]="$any(form.controls['type'])"
+            [class.input-error]="submitted() && form.controls['type'].invalid"
+          >
+            <option value="CARD">CARD</option>
+            <option value="PAYPAL">PAYPAL</option>
+            <option value="STRIPE">STRIPE</option>
+            <option value="BANK_TRANSFER">BANK_TRANSFER</option>
+            <option value="COD">COD</option>
+          </select>
+          @if (submitted() && form.controls['type'].invalid) {
+            <span class="field-error">Type is required</span>
+          }
+        </div>
+        <div class="form-group">
+          <label for="pm-description">Description</label>
+          <textarea
+            id="pm-description"
+            rows="3"
+            [formControl]="$any(form.controls['description'])"
+          ></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="pm-sort">Sort Order</label>
+            <input
+              id="pm-sort"
+              type="number"
+              min="0"
+              [formControl]="$any(form.controls['sortOrder'])"
+            />
+          </div>
+          <div class="form-group">
+            <label for="pm-config">Configuration Details</label>
+            <textarea
+              id="pm-config"
+              rows="4"
+              [formControl]="$any(form.controls['configDetails'])"
+              placeholder="Optional configuration notes or JSON"
+            ></textarea>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [formControl]="$any(form.controls['enabled'])"
+            />
+            Enabled
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeForm()">Cancel</button>
+        <button class="btn btn-primary" (click)="onSubmit()" [disabled]="saving()">
+          {{ saving() ? 'Saving...' : 'Save' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

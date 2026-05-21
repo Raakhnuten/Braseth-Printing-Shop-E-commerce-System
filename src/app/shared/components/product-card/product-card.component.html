@@ -1,0 +1,79 @@
+<article class="product-card" [class.product-card--out-of-stock]="!inStock">
+  <a [routerLink]="['/products', product.id]" class="product-card__image-wrap">
+    <img
+      [src]="imageUrl"
+      [alt]="product.name"
+      loading="lazy"
+      class="product-card__image"
+      (error)="onImgError($event)"
+    />
+    @if (cardBadges.length) {
+      <div class="product-card__badges">
+        @for (badge of cardBadges; track badge.label) {
+          <span class="product-card__badge" [class]="'product-card__badge--' + badge.type">
+            {{ badge.label }}
+          </span>
+        }
+      </div>
+    }
+    <button
+      class="product-card__wishlist"
+      [class.product-card__wishlist--active]="isInWishlist"
+      (click)="toggleWishlist($event)"
+      aria-label="Toggle wishlist"
+    >
+      <i class="pi" [ngClass]="isInWishlist ? 'pi-heart-fill' : 'pi-heart'"></i>
+    </button>
+    @if (!inStock) {
+      <div class="product-card__out-overlay">
+        <span>Out of Stock</span>
+      </div>
+    }
+  </a>
+
+  <div class="product-card__body">
+    <span class="product-card__category">{{ product.categoryName }}</span>
+    <a [routerLink]="['/products', product.id]" class="product-card__name">{{ product.name }}</a>
+
+    @if (product.rating) {
+      <div class="product-card__rating">
+        @for (_ of fullStars; track $index) {
+          <i class="pi pi-star-fill product-card__star product-card__star--filled"></i>
+        }
+        @if (hasHalfStar) {
+          <i class="pi pi-star-half product-card__star product-card__star--filled"></i>
+        }
+        @for (_ of emptyStars; track $index) {
+          <i class="pi pi-star product-card__star"></i>
+        }
+        @if (product.reviewCount) {
+          <span class="product-card__review-count">({{ product.reviewCount }})</span>
+        }
+      </div>
+    }
+
+    <div class="product-card__price">
+      @if (hasSale) {
+        <span class="product-card__price-current">{{ displayPrice }}</span>
+        <span class="product-card__price-original">{{ originalPrice }}</span>
+      } @else {
+        <span class="product-card__price-current">{{ displayPrice }}</span>
+      }
+    </div>
+
+    <div class="product-card__footer">
+      <button
+        class="product-card__add-btn"
+        [disabled]="!inStock || !product.allowCart"
+        (click)="onAddToCart($event)"
+      >
+        @if (inStock && product.allowCart) {
+          <i class="pi pi-shopping-cart"></i>
+          <span>Add to Cart</span>
+        } @else {
+          Unavailable
+        }
+      </button>
+    </div>
+  </div>
+</article>

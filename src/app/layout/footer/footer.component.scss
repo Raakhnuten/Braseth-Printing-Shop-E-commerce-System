@@ -1,0 +1,441 @@
+.footer {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%);
+  color: #ffffff;
+  margin-top: auto;
+  position: relative;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+
+  // Decorative wave top section
+  &__wave-top {
+    position: relative;
+    height: 80px;
+    overflow: hidden;
+  }
+
+  &__wave-svg {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  // Shoe silhouettes
+  &__shoe {
+    position: absolute;
+    width: 80px;
+    height: 50px;
+    background: #ffffff;
+    z-index: 2;
+    
+    &--left {
+      left: 10%;
+      top: 20px;
+      clip-path: polygon(0% 70%, 15% 50%, 30% 40%, 50% 35%, 70% 40%, 85% 50%, 95% 60%, 100% 70%, 95% 85%, 85% 95%, 70% 100%, 30% 100%, 15% 95%, 5% 85%);
+      transform: rotate(-15deg);
+    }
+
+    &--right {
+      right: 10%;
+      top: 15px;
+      clip-path: polygon(0% 70%, 15% 50%, 30% 40%, 50% 35%, 70% 40%, 85% 50%, 95% 60%, 100% 70%, 95% 85%, 85% 95%, 70% 100%, 30% 100%, 15% 95%, 5% 85%);
+      transform: rotate(15deg) scaleX(-1);
+    }
+  }
+
+  &__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 0;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    margin-bottom: 3rem;
+  }
+
+  &__section {
+    &--newsletter {
+      max-width: 100%;
+    }
+  }
+
+  &__heading {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 1.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  // Newsletter styles
+  &__newsletter-desc {
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+
+  &__newsletter-form {
+    display: flex;
+    gap: 0.5rem;
+    flex-direction: column;
+  }
+
+  &__newsletter-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 25px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    font-size: 0.9rem;
+    outline: none;
+    transition: all 0.3s ease;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    &:focus {
+      border-color: rgba(255, 255, 255, 0.5);
+      background: rgba(255, 255, 255, 0.15);
+    }
+  }
+
+  &__newsletter-btn {
+    padding: 0.75rem 2rem;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+
+    &:hover {
+      background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  // Links styles
+  &__links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    li {
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.9);
+      line-height: 1.6;
+    }
+
+    a {
+      color: rgba(255, 255, 255, 0.85);
+      transition: color 0.2s ease;
+      text-decoration: none;
+
+      &:hover {
+        color: #ffffff;
+        text-decoration: underline;
+      }
+    }
+
+    strong {
+      color: #ffffff;
+      font-weight: 600;
+    }
+  }
+
+  &__links--contact li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+
+    i {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.7);
+      width: 18px;
+      text-align: center;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+  }
+
+  // Bottom section
+  &__bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 2rem 0;
+  }
+
+  &__bottom-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+    text-align: center;
+  }
+
+  // Trust badges
+  &__trust-badges {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  &__badge {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.9);
+    padding: 0.4rem 0.8rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  // Company info
+  &__company-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__company-text {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 500;
+  }
+
+  &__copyright {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  &__flags {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  &__flag {
+    font-size: 1.2rem;
+  }
+
+  // Payment methods
+  &__payment-methods {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: center;
+  }
+
+  &__payment-label {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 500;
+  }
+
+  &__payment-logos {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  &__payment-logo {
+    padding: 0.4rem 0.8rem;
+    background: rgba(255, 255, 255, 0.95);
+    color: #4a148c;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+// Tablet breakpoint
+@media (min-width: 576px) {
+  .footer {
+    &__newsletter-form {
+      flex-direction: row;
+    }
+
+    &__newsletter-btn {
+      flex-shrink: 0;
+    }
+  }
+}
+
+// Tablet landscape breakpoint
+@media (min-width: 768px) {
+  .footer {
+    &__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    &__section--newsletter {
+      grid-column: 1 / -1;
+      max-width: 500px;
+    }
+
+    &__bottom-content {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-start;
+      text-align: left;
+    }
+
+    &__company-info {
+      align-items: center;
+      flex: 1;
+    }
+
+    &__copyright {
+      flex-direction: row;
+      gap: 1rem;
+    }
+
+    &__trust-badges {
+      justify-content: flex-start;
+    }
+
+    &__payment-methods {
+      align-items: flex-end;
+    }
+
+    &__payment-logos {
+      justify-content: flex-end;
+    }
+  }
+}
+
+// Desktop breakpoint
+@media (min-width: 992px) {
+  .footer {
+    &__grid {
+      grid-template-columns: 1.5fr 1fr 1fr 1fr;
+    }
+
+    &__section--newsletter {
+      grid-column: auto;
+      max-width: 100%;
+    }
+
+    &__shoe {
+      width: 100px;
+      height: 60px;
+
+      &--left {
+        left: 8%;
+      }
+
+      &--right {
+        right: 8%;
+      }
+    }
+  }
+}
+
+// Mobile specific improvements
+@media (max-width: 575px) {
+  .footer {
+    &__container {
+      padding: 2rem 1rem 0;
+    }
+
+    &__grid {
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    &__heading {
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+
+    &__newsletter-desc {
+      font-size: 0.8125rem;
+    }
+
+    &__newsletter-input {
+      padding: 0.625rem 0.875rem;
+      font-size: 0.85rem;
+    }
+
+    &__newsletter-btn {
+      padding: 0.625rem 1.5rem;
+      font-size: 0.85rem;
+    }
+
+    &__links {
+      gap: 0.625rem;
+
+      li {
+        font-size: 0.8125rem;
+      }
+    }
+
+    &__links--contact li {
+      font-size: 0.8125rem;
+    }
+
+    &__bottom {
+      padding: 1.5rem 0;
+    }
+
+    &__bottom-content {
+      gap: 1.25rem;
+    }
+
+    &__trust-badges {
+      gap: 0.75rem;
+    }
+
+    &__badge {
+      font-size: 0.75rem;
+      padding: 0.35rem 0.7rem;
+    }
+
+    &__company-text {
+      font-size: 0.8rem;
+    }
+
+    &__copyright {
+      font-size: 0.75rem;
+    }
+
+    &__payment-label {
+      font-size: 0.75rem;
+    }
+
+    &__payment-logo {
+      padding: 0.35rem 0.7rem;
+      font-size: 0.7rem;
+    }
+
+    &__wave-top {
+      height: 60px;
+    }
+
+    &__shoe {
+      display: none;
+    }
+  }
+}

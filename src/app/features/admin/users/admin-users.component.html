@@ -1,0 +1,72 @@
+<app-page-header [title]="pageTitle" />
+
+<div class="admin-page">
+  <div class="toolbar">
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Search by name or email..."
+      [ngModel]="searchQuery()"
+      (ngModelChange)="searchQuery.set($event)"
+    />
+    <select
+      class="filter-select"
+      [ngModel]="roleFilter()"
+      (ngModelChange)="roleFilter.set($event)"
+    >
+      <option value="ALL">All Roles</option>
+      <option value="CUSTOMER">Customer</option>
+      <option value="ADMIN">Admin</option>
+    </select>
+    <select
+      class="filter-select"
+      [ngModel]="statusFilter()"
+      (ngModelChange)="statusFilter.set($event)"
+    >
+      <option value="ALL">All Status</option>
+      <option value="enabled">Active</option>
+      <option value="disabled">Disabled</option>
+    </select>
+  </div>
+
+  @if (filteredUsers().length === 0) {
+    <app-empty-state title="No Users Found" message="Try adjusting your search or filters." />
+  } @else {
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (user of filteredUsers(); track user.id) {
+          <tr>
+            <td>{{ user.firstName }} {{ user.lastName }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.phone }}</td>
+            <td>
+              <span class="badge" [class.badge-purple]="user.role === 'ADMIN'" [class.badge-blue]="user.role === 'CUSTOMER'">
+                {{ user.role }}
+              </span>
+            </td>
+            <td>
+              <span class="badge" [class.badge-green]="user.enabled" [class.badge-red]="!user.enabled">
+                {{ user.enabled ? 'Active' : 'Disabled' }}
+              </span>
+            </td>
+            <td>
+              <button class="btn-small" (click)="editUser(user)">
+                <i class="pi pi-pencil"></i> Edit
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>

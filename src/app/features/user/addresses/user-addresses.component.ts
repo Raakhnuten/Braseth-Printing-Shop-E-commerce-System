@@ -1,0 +1,46 @@
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
+import { Address } from '../../../core/models/address.model';
+import { AddressService } from '../../../core/services/address.service';
+
+@Component({
+  selector: 'app-user-addresses',
+  templateUrl: './user-addresses.component.html',
+  styleUrl: './user-addresses.component.scss',
+  imports: [PageHeaderComponent, RouterLink, EmptyStateComponent, LoadingSpinnerComponent],
+})
+export class UserAddressesComponent implements OnInit {
+  private addressService = inject(AddressService);
+
+  loading = signal(true);
+  error = signal('');
+  addresses = signal<Address[]>([]);
+
+  ngOnInit(): void {
+    this.loadAddresses();
+  }
+
+  private loadAddresses(): void {
+    this.loading.set(true);
+    this.addressService.getAddresses().subscribe({
+      next: (res) => {
+        this.addresses.set(res.data || []);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.error.set('Failed to load addresses.');
+        this.loading.set(false);
+      },
+    });
+  }
+
+  onDelete(id: string): void {
+    if (!confirm('Delete this address?')) return;
+    this.addressService.deleteAddress(id).subscribe({
+      next: () => this.loadAddresses(),
+    });
+  }
+}

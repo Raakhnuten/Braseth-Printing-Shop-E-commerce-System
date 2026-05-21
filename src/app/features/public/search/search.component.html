@@ -1,0 +1,33 @@
+<div class="container search-page">
+  <div class="search-page__header">
+    <h1 class="search-page__title">Search Results</h1>
+    @if (keyword()) {
+      <p class="search-page__query">
+        Showing results for "<strong>{{ keyword() }}</strong>"
+      </p>
+    }
+    @if (!loading() && keyword()) {
+      <p class="search-page__count">{{ results().length }} product(s) found</p>
+    }
+  </div>
+
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else if (!keyword()) {
+    <app-empty-state
+      title="Enter a search term"
+      message="Use the search bar to find products."
+    />
+  } @else if (results().length === 0) {
+    <app-empty-state
+      title="No results found"
+      message="We couldn't find any products matching your search. Try different keywords."
+    />
+  } @else {
+    <div class="search-grid">
+      @for (product of results(); track product.id) {
+        <app-product-card [product]="product" />
+      }
+    </div>
+  }
+</div>

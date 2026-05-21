@@ -1,0 +1,137 @@
+<app-page-header [title]="pageTitle" />
+
+<div class="admin-content">
+  <div class="toolbar">
+    <button class="btn btn-primary" (click)="openCreateForm()">
+      <i class="pi pi-plus"></i> Add Feature Control
+    </button>
+  </div>
+
+  @if (successMessage()) {
+    <div class="alert-success">{{ successMessage() }}</div>
+  }
+
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else if (error()) {
+    <div class="error-message">{{ error() }}</div>
+  } @else if (featureControls().length === 0) {
+    <app-empty-state title="No Feature Controls" message="No product feature controls found. Click Add Feature Control to create one." icon="pi pi-sliders-h" />
+  } @else {
+    <div class="cards-grid">
+      @for (fc of featureControls(); track fc.id) {
+        <div class="fc-card">
+          <div class="card-header">
+            <h3 class="card-name">Product: {{ fc.productId }}</h3>
+            @if (fc.isCustomizable) {
+              <span class="badge badge-success">Customizable</span>
+            } @else {
+              <span class="badge badge-secondary">Standard</span>
+            }
+          </div>
+          <div class="card-meta">
+            <div class="meta-item">
+              <span class="meta-label">Enabled Features</span>
+              <span class="meta-value">{{ getFeatureLabel(fc) }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Max Files</span>
+              <span class="meta-value">{{ fc.maxUploadFiles }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Max File Size</span>
+              <span class="meta-value">{{ fc.maxFileSizeMb }}MB</span>
+            </div>
+          </div>
+          @if (fc.allowedFileTypes.length > 0) {
+            <div class="card-filetypes">
+              <span class="meta-label">Allowed Types</span>
+              <span class="filetype-tags">
+                @for (type of fc.allowedFileTypes; track type) {
+                  <span class="filetype-tag">{{ type }}</span>
+                }
+              </span>
+            </div>
+          }
+          <div class="card-actions">
+            <button class="btn btn-sm btn-outline" (click)="openEditForm(fc)" title="Edit">
+              <i class="pi pi-pencil"></i> Edit
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+@if (showForm()) {
+  <div class="modal-overlay" (click)="closeForm()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ formMode() === 'create' ? 'Add Feature Control' : 'Edit Feature Control' }}</h3>
+        <button class="modal-close" (click)="closeForm()">&times;</button>
+      </div>
+      <div class="modal-body">
+        @if (formError()) {
+          <div class="alert alert-error" style="padding:12px 16px;background:#ffebee;color:#c62828;border-radius:8px;margin-bottom:1rem;font-size:0.9rem;">{{ formError() }}</div>
+        }
+        <div class="form-group">
+          <label for="fc-product">Product ID *</label>
+          <input
+            id="fc-product"
+            type="text"
+            [formControl]="$any(form.controls['productId'])"
+            [class.input-error]="submitted() && form.controls['productId'].invalid"
+          />
+          @if (submitted() && form.controls['productId'].invalid) {
+            <span class="field-error">Product ID is required</span>
+          }
+        </div>
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" [formControl]="$any(form.controls['isCustomizable'])" />
+            Is Customizable
+          </label>
+        </div>
+        <h4 class="form-section-title">Feature Toggles</h4>
+        <div class="toggle-grid">
+          <label class="checkbox-label"><input type="checkbox" [formControl]="$any(form.controls['enableSizeSelection'])" /> Size Selection</label>
+          <label class="checkbox-label"><input type="checkbox" [formControl]="$any(form.controls['enableColorSelection'])" /> Color Selection</label>
+          <label class="checkbox-label"><input type="checkbox" [formControl]="$any(form.controls['enableDesignUpload'])" /> Design Upload</label>
+          <label class="checkbox-label"><input type="checkbox" [formControl]="$any(form.controls['enableDecorationMethod'])" /> Decoration Method</label>
+          <label class="checkbox-label"><input type="checkbox" [formControl]="$any(form.controls['enablePrintPosition'])" /> Print Position</label>
+          <label class="checkbox-label"><input type="checkbox" [formControl]="$any(form.controls['enablePrintColor'])" /> Print Color</label>
+          <label class="checkbox-label"><input type="checkbox" [formControl]="$any(form.controls['enablePriceBreak'])" /> Price Break</label>
+          <label class="checkbox-label"><input type="checkbox" [formControl]="$any(form.controls['enableProductionTime'])" /> Production Time</label>
+          <label class="checkbox-label"><input type="checkbox" [formControl]="$any(form.controls['enableCustomizationFee'])" /> Customization Fee</label>
+        </div>
+        <h4 class="form-section-title">Upload Settings</h4>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="fc-maxfiles">Max Upload Files</label>
+            <input id="fc-maxfiles" type="number" min="1" [formControl]="$any(form.controls['maxUploadFiles'])" />
+          </div>
+          <div class="form-group">
+            <label for="fc-maxsize">Max File Size (MB)</label>
+            <input id="fc-maxsize" type="number" min="1" [formControl]="$any(form.controls['maxFileSizeMb'])" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="fc-filetypes">Allowed File Types (comma-separated)</label>
+          <input
+            id="fc-filetypes"
+            type="text"
+            [formControl]="$any(form.controls['allowedFileTypes'])"
+            placeholder="image/png, image/jpeg, image/svg"
+          />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeForm()">Cancel</button>
+        <button class="btn btn-primary" (click)="onSubmit()" [disabled]="saving()">
+          {{ saving() ? 'Saving...' : 'Save' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -1,0 +1,100 @@
+<div class="shop-page">
+  <section class="shop-hero">
+    <div class="shop-hero__bg"></div>
+    <div class="shop-hero__content">
+      <span class="shop-hero__tag">New Season</span>
+      <h1 class="shop-hero__title">Shop Our Collection</h1>
+      <p class="shop-hero__subtitle">
+        Discover amazing products at unbeatable prices. Free shipping on orders over $100.
+      </p>
+    </div>
+  </section>
+
+  <div class="shop-container">
+    <div class="product-toolbar">
+      <div class="product-toolbar__count">
+        New In <span>({{ filteredProducts().length }} Items)</span>
+      </div>
+
+      <button class="product-toolbar__filter-btn" (click)="clearFilters()">
+        <i class="pi pi-sliders-h"></i>
+        Filter
+      </button>
+
+      <button
+        class="product-toolbar__arrow"
+        (click)="scrollCategories('left')"
+        [class.product-toolbar__arrow--hidden]="!canScrollLeft()"
+        aria-label="Scroll categories left"
+      >
+        <i class="pi pi-chevron-left"></i>
+      </button>
+
+      <div class="product-toolbar__scroll" #categoryScroll (scroll)="0">
+        @for (cat of categories(); track cat.id) {
+          <button
+            class="product-toolbar__pill"
+            [class.product-toolbar__pill--active]="selectedCategory() === cat.id"
+            (click)="onCategoryChange(selectedCategory() === cat.id ? '' : cat.id)"
+            [title]="cat.name + ' (' + (categoryCounts().get(cat.id) ?? 0) + ')'"
+          >
+            <span class="product-toolbar__pill-text">{{ cat.name }} ({{ categoryCounts().get(cat.id) ?? 0 }})</span>
+          </button>
+        }
+      </div>
+
+      <button
+        class="product-toolbar__arrow"
+        (click)="scrollCategories('right')"
+        [class.product-toolbar__arrow--hidden]="!canScrollRight()"
+        aria-label="Scroll categories right"
+      >
+        <i class="pi pi-chevron-right"></i>
+      </button>
+
+      <div class="product-toolbar__sort">
+        <label class="product-toolbar__sort-label" for="toolbar-sort">Sort by</label>
+        <select
+          id="toolbar-sort"
+          class="product-toolbar__sort-select"
+          [ngModel]="sortBy()"
+          (ngModelChange)="onSortChange($event)"
+        >
+          <option value="recommend">Recommend</option>
+          <option value="newest">Newest</option>
+          <option value="price-asc">Price: Low to High</option>
+          <option value="price-desc">Price: High to Low</option>
+          <option value="name-asc">Name: A-Z</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Content -->
+    @if (loading()) {
+      <div class="shop-grid">
+        @for (_ of skeletonItems; track $index) {
+          <div class="shop-skeleton-card">
+            <div class="shop-skeleton-card__image skeleton-pulse"></div>
+            <div class="shop-skeleton-card__body">
+              <div class="skeleton-pulse" style="height: 14px; width: 85%; margin-bottom: 10px"></div>
+              <div class="skeleton-pulse" style="height: 12px; width: 55%; margin-bottom: 8px"></div>
+              <div class="skeleton-pulse" style="height: 24px; width: 35%; margin-bottom: 12px"></div>
+              <div class="skeleton-pulse" style="height: 10px; width: 40%"></div>
+            </div>
+          </div>
+        }
+      </div>
+    } @else if (filteredProducts().length === 0) {
+      <app-empty-state
+        title="No products found"
+        message="Try adjusting your filters or search terms."
+      />
+    } @else {
+      <div class="shop-grid">
+        @for (product of filteredProducts(); track product.id) {
+          <app-product-card [product]="product" />
+        }
+      </div>
+    }
+  </div>
+</div>

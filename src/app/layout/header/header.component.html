@@ -1,0 +1,206 @@
+<header class="header">
+  <!-- TOP ROW -->
+  <div class="header__top">
+    <div class="header__left">
+      <a routerLink="/" class="header__logo" (click)="closeMobileMenu()">
+        Seth Store
+      </a>
+
+      <a routerLink="/categories" class="header__icon-btn header__icon-btn--label" (click)="closeMobileMenu()" aria-label="Categories">
+        <i class="pi pi-th-large"></i>
+        <span class="header__icon-label">Categories</span>
+      </a>
+
+      <a routerLink="/products" class="header__icon-btn header__icon-btn--label" (click)="closeMobileMenu()" aria-label="Deals">
+        <i class="pi pi-percentage"></i>
+        <span class="header__icon-label">Deals</span>
+      </a>
+    </div>
+
+    <div class="header__search" [class.header__search--open]="searchMobileOpen">
+      <i class="pi pi-search header__search-icon"></i>
+      <input
+        type="text"
+        class="header__search-input"
+        placeholder="Search for products, brands and more"
+        [(ngModel)]="searchQuery"
+        (keydown.enter)="onSearch()"
+      />
+      <button class="header__search-clear" (click)="searchQuery = ''" aria-label="Clear search" [class.header__search-clear--visible]="searchQuery.length > 0">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+
+    <div class="header__right">
+      <button class="header__icon-btn header__search-mobile-btn" (click)="toggleSearch()" aria-label="Search">
+        <i class="pi pi-search"></i>
+      </button>
+
+      <a [routerLink]="isLoggedIn ? '/user/dashboard' : '/auth/login'" class="header__icon-btn" (click)="closeMobileMenu()" aria-label="Account">
+        <i class="pi pi-user"></i>
+      </a>
+
+      <a routerLink="/cart" class="header__icon-btn header__cart" (click)="closeMobileMenu()" aria-label="Cart">
+        <i class="pi pi-shopping-cart"></i>
+        @if (cartCount > 0) {
+          <span class="header__cart-badge">{{ cartCount > 99 ? '99+' : cartCount }}</span>
+        }
+      </a>
+
+      <button class="header__menu-btn" (click)="toggleMobileMenu()" aria-label="Menu">
+        <i class="pi" [ngClass]="mobileMenuOpen ? 'pi-times' : 'pi-bars'"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- BOTTOM ROW -->
+  <div class="header__bottom" (mouseleave)="closeDropdown()">
+    <nav class="header__nav">
+      <a routerLink="/" class="header__nav-link header__nav-link--home" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" (click)="closeMobileMenu()">Home</a>
+
+      @for (cat of navCategories; track cat.name) {
+        <div
+          class="header__nav-item"
+          (mouseenter)="openDropdown(cat.name)"
+        >
+          <a
+            [routerLink]="cat.route"
+            class="header__nav-link"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{exact:true}"
+            (click)="closeMobileMenu()"
+          >
+            {{ cat.name }}
+            @if (cat.subcategories.length) {
+              <i class="pi pi-chevron-down header__nav-chevron"></i>
+            }
+          </a>
+
+          @if (activeDropdown() === cat.name) {
+            <div class="header__mega">
+              <div class="header__mega-body">
+                <div class="header__mega-links">
+                  <h4 class="header__mega-title">{{ cat.name }}</h4>
+                  @for (sub of cat.subcategories; track sub.name) {
+                    <a [routerLink]="sub.route" class="header__mega-link" (click)="closeMobileMenu()">
+                      {{ sub.name }}
+                    </a>
+                  }
+                </div>
+
+                @if (cat.featured?.length) {
+                  <div class="header__mega-featured">
+                    @for (item of cat.featured; track item.label) {
+                      <a [routerLink]="item.route" class="header__mega-feat-link" (click)="closeMobileMenu()">
+                        <span class="header__mega-feat-icon">
+                          <i class="pi" [ngClass]="item.label.includes('Sale') ? 'pi-tag' : item.label.includes('Trend') ? 'pi-fire' : 'pi-star'"></i>
+                        </span>
+                        <span>{{ item.label }}</span>
+                      </a>
+                    }
+                    @if (cat.isMore) {
+                      <div class="header__mega-feat-divider"></div>
+                      <a routerLink="/products" class="header__mega-feat-link header__mega-feat-link--sale" (click)="closeMobileMenu()">
+                        <span class="header__mega-feat-icon"><i class="pi pi-percentage"></i></span>
+                        <span>Shop All Sales</span>
+                      </a>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </nav>
+
+    <div class="header__dropdowns">
+      <div class="header__dropdown">
+        <i class="pi pi-globe"></i>
+        <select>
+          <option value="EN">EN</option>
+        </select>
+      </div>
+      <div class="header__dropdown">
+        <i class="pi pi-dollar"></i>
+        <select>
+          <option value="USD">USD $</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- MOBILE OVERLAY & MENU -->
+  @if (mobileMenuOpen) {
+    <div class="header__overlay" (click)="closeMobileMenu()"></div>
+    <div class="header__mobile-menu">
+      <div class="header__mobile-menu-header">
+        @if (isLoggedIn) {
+          <div class="header__mobile-user">
+            <i class="pi pi-user"></i>
+            <span>{{ displayName }}</span>
+          </div>
+          @if (isAdmin) {
+            <a routerLink="/admin/dashboard" class="header__mobile-admin-link" (click)="closeMobileMenu()">Admin Panel</a>
+          }
+        } @else {
+          <div class="header__mobile-auth">
+            <a routerLink="/auth/login" class="btn btn-primary btn-sm" (click)="closeMobileMenu()">Login</a>
+            <a routerLink="/auth/register" class="btn btn-outline btn-sm" (click)="closeMobileMenu()">Register</a>
+          </div>
+        }
+      </div>
+
+      <nav class="header__mobile-nav">
+        <a routerLink="/" class="header__mobile-link" (click)="closeMobileMenu()"><i class="pi pi-home"></i> Home</a>
+
+        @for (cat of navCategories; track cat.name) {
+          <div class="header__mobile-cat">
+            <button class="header__mobile-link header__mobile-link--cat" (click)="toggleMobileCategory(cat.name)">
+              <span>{{ cat.name }}</span>
+              <i class="pi" [ngClass]="expandedMobileCategory() === cat.name ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+            </button>
+            @if (expandedMobileCategory() === cat.name) {
+              <div class="header__mobile-subs">
+                @for (sub of cat.subcategories; track sub.name) {
+                  <a [routerLink]="sub.route" class="header__mobile-sublink" (click)="closeMobileMenu()">{{ sub.name }}</a>
+                }
+              </div>
+            }
+          </div>
+        }
+      </nav>
+
+      <div class="header__mobile-divider"></div>
+
+      <nav class="header__mobile-nav">
+        <a routerLink="/categories" class="header__mobile-link" (click)="closeMobileMenu()"><i class="pi pi-th-large"></i> Categories</a>
+        <a routerLink="/products" class="header__mobile-link" (click)="closeMobileMenu()"><i class="pi pi-percentage"></i> Deals</a>
+      </nav>
+
+      <div class="header__mobile-divider"></div>
+
+      <div class="header__mobile-footer">
+        <div class="header__mobile-dropdowns">
+          <div class="header__dropdown">
+            <i class="pi pi-globe"></i>
+            <select>
+              <option value="EN">EN</option>
+            </select>
+          </div>
+          <div class="header__dropdown">
+            <i class="pi pi-dollar"></i>
+            <select>
+              <option value="USD">USD $</option>
+            </select>
+          </div>
+        </div>
+        @if (isLoggedIn) {
+          <button class="header__mobile-logout" (click)="onLogout()">
+            <i class="pi pi-sign-out"></i> Logout
+          </button>
+        }
+      </div>
+    </div>
+  }
+</header>

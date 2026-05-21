@@ -1,0 +1,27 @@
+<div class="container categories-page">
+  <div class="categories-page__header">
+    <h1 class="categories-page__title">Categories</h1>
+    <p class="categories-page__count">{{ categories().length }} categories</p>
+  </div>
+
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else {
+    <div class="categories-grid">
+      @for (cat of categories(); track cat.id) {
+        <a [routerLink]="['/products']" [queryParams]="{category: cat.id}" class="category-card">
+          <div class="category-card__image-wrap">
+            <img [src]="cat.imageUrl" [alt]="cat.name" loading="lazy" />
+          </div>
+          <div class="category-card__body">
+            <h2 class="category-card__name">{{ cat.name }}</h2>
+            @if (cat.description) {
+              <p class="category-card__desc">{{ cat.description }}</p>
+            }
+            <span class="category-card__link">Browse Products <i class="pi pi-arrow-right"></i></span>
+          </div>
+        </a>
+      }
+    </div>
+  }
+</div>

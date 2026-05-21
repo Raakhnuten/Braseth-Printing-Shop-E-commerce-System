@@ -1,0 +1,154 @@
+<app-page-header [title]="pageTitle" />
+
+<div class="admin-content">
+  <div class="toolbar">
+    <button class="btn btn-primary" (click)="openCreateForm()">
+      <i class="pi pi-plus"></i> Add Shipping Zone
+    </button>
+  </div>
+
+  @if (successMessage()) {
+    <div class="alert-success">{{ successMessage() }}</div>
+  }
+
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else if (error()) {
+    <div class="error-message">{{ error() }}</div>
+  } @else if (shippingZones().length === 0) {
+    <app-empty-state title="No Shipping Zones" message="No shipping zones found. Click Add Shipping Zone to create one." icon="pi pi-map-marker" />
+  } @else {
+    <div class="cards-grid">
+      @for (zone of shippingZones(); track zone.id) {
+        <div class="zone-card">
+          <div class="card-header">
+            <h3 class="card-name">{{ zone.name }}</h3>
+            <span class="code-badge">{{ zone.code }}</span>
+          </div>
+          <p class="card-description">{{ zone.description }}</p>
+          <div class="card-meta">
+            <div class="meta-item">
+              <span class="meta-label">Zone Fee</span>
+              <span class="meta-value">${{ zone.fee.toFixed(2) }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Active</span>
+              @if (zone.isActive) {
+                <span class="badge badge-success">Yes</span>
+              } @else {
+                <span class="badge badge-secondary">No</span>
+              }
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Sort Order</span>
+              <span class="meta-value">{{ zone.sortOrder }}</span>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-sm btn-outline" (click)="toggleActive(zone)" [title]="zone.isActive ? 'Deactivate' : 'Activate'">
+              <i class="pi {{ zone.isActive ? 'pi-eye-slash' : 'pi-eye' }}"></i>
+              {{ zone.isActive ? 'Deactivate' : 'Activate' }}
+            </button>
+            <button class="btn btn-sm btn-outline" (click)="openEditForm(zone)" title="Edit">
+              <i class="pi pi-pencil"></i> Edit
+            </button>
+            <button class="btn btn-sm btn-outline-danger" (click)="deleteShippingZone(zone.id)" title="Delete">
+              <i class="pi pi-trash"></i> Delete
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+@if (showForm()) {
+  <div class="modal-overlay" (click)="closeForm()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ formMode() === 'create' ? 'Add Shipping Zone' : 'Edit Shipping Zone' }}</h3>
+        <button class="modal-close" (click)="closeForm()">&times;</button>
+      </div>
+      <div class="modal-body">
+        @if (formError()) {
+          <div class="alert alert-error" style="padding:12px 16px;background:#ffebee;color:#c62828;border-radius:8px;margin-bottom:1rem;font-size:0.9rem;">{{ formError() }}</div>
+        }
+        <div class="form-row">
+          <div class="form-group">
+            <label for="sz-name">Name *</label>
+            <input
+              id="sz-name"
+              type="text"
+              [formControl]="$any(form.controls['name'])"
+              [class.input-error]="submitted() && form.controls['name'].invalid"
+            />
+            @if (submitted() && form.controls['name'].invalid) {
+              <span class="field-error">Name is required</span>
+            }
+          </div>
+          <div class="form-group">
+            <label for="sz-code">Code *</label>
+            <input
+              id="sz-code"
+              type="text"
+              [formControl]="$any(form.controls['code'])"
+              [class.input-error]="submitted() && form.controls['code'].invalid"
+              placeholder="e.g. PP"
+            />
+            @if (submitted() && form.controls['code'].invalid) {
+              <span class="field-error">Code is required</span>
+            }
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="sz-description">Description</label>
+          <textarea
+            id="sz-description"
+            rows="2"
+            [formControl]="$any(form.controls['description'])"
+          ></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="sz-fee">Zone Fee ($) *</label>
+            <input
+              id="sz-fee"
+              type="number"
+              min="0"
+              step="0.01"
+              [formControl]="$any(form.controls['fee'])"
+              [class.input-error]="submitted() && form.controls['fee'].invalid"
+            />
+            @if (submitted() && form.controls['fee'].invalid) {
+              <span class="field-error">Fee is required</span>
+            }
+          </div>
+          <div class="form-group">
+            <label for="sz-sort">Sort Order</label>
+            <input
+              id="sz-sort"
+              type="number"
+              min="0"
+              [formControl]="$any(form.controls['sortOrder'])"
+            />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [formControl]="$any(form.controls['isActive'])"
+            />
+            Active
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeForm()">Cancel</button>
+        <button class="btn btn-primary" (click)="onSubmit()" [disabled]="saving()">
+          {{ saving() ? 'Saving...' : 'Save' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

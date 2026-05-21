@@ -1,0 +1,84 @@
+<app-page-header [title]="pageTitle" />
+
+<div class="admin-content">
+  @if (successMessage()) {
+    <div class="alert-success">{{ successMessage() }}</div>
+  }
+
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else if (error()) {
+    <app-empty-state title="Error" [message]="error()" />
+  } @else if (reviews().length === 0) {
+    <app-empty-state title="No Reviews" message="No reviews found." icon="pi pi-comments" />
+  } @else {
+    <div class="table-responsive">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>User</th>
+            <th>Rating</th>
+            <th>Comment</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (review of reviews(); track review.id) {
+            <tr>
+              <td>{{ review.productName }}</td>
+              <td>{{ review.userName }}</td>
+              <td>
+                <span class="rating-stars">{{ ratingStars(review.rating) }}</span>
+                <span class="rating-number">({{ review.rating }})</span>
+              </td>
+              <td class="comment-cell">{{ truncate(review.comment, 100) }}</td>
+              <td>
+                <span class="status-badge status-{{ review.status | lowercase }}">
+                  {{ review.status }}
+                </span>
+              </td>
+              <td>{{ review.createdAt | date: 'mediumDate' }}</td>
+              <td class="actions">
+                @if (review.status === 'PENDING') {
+                  <button class="btn btn-sm btn-approve" (click)="approveReview(review.id)" title="Approve">
+                    <i class="pi pi-check"></i> Approve
+                  </button>
+                  <button class="btn btn-sm btn-reject" (click)="rejectReview(review.id)" title="Reject">
+                    <i class="pi pi-times"></i> Reject
+                  </button>
+                }
+                @if (review.status === 'APPROVED') {
+                  <button class="btn btn-sm btn-reject" (click)="rejectReview(review.id)" title="Reject">
+                    <i class="pi pi-times"></i> Reject
+                  </button>
+                }
+                <button class="btn btn-sm btn-outline-danger" (click)="deleteReview(review.id)" title="Delete">
+                  <i class="pi pi-trash"></i>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+
+@if (showConfirm()) {
+  <div class="modal-overlay" (click)="closeConfirm()">
+    <div class="modal-content modal-confirm" (click)="$event.stopPropagation()">
+      <div class="modal-body" style="text-align:center;padding:2rem;">
+        <i class="pi pi-exclamation-triangle" style="font-size:2.5rem;color:#f59e0b;margin-bottom:1rem;display:block;"></i>
+        <h3 style="margin:0 0 0.5rem;font-size:1.15rem;color:#111;">{{ confirmTitle() }}</h3>
+        <p style="margin:0 0 1.5rem;color:#6b7280;font-size:0.9rem;">{{ confirmMessage() }}</p>
+        <div class="modal-footer" style="justify-content:center;border:none;padding:0;">
+          <button class="btn btn-secondary" (click)="closeConfirm()">Cancel</button>
+          <button class="btn btn-danger" (click)="confirmAction()">{{ confirmButtonText() }}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

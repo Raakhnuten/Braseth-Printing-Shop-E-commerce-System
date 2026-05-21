@@ -1,0 +1,87 @@
+<header class="admin-topbar">
+  <div class="admin-topbar__inner">
+    <button class="admin-topbar__menu-btn" (click)="toggleSidebar()" aria-label="Menu">
+      <i class="pi pi-bars"></i>
+    </button>
+    <a routerLink="/admin/dashboard" class="admin-topbar__logo">
+      <span class="admin-topbar__logo-icon">S</span>
+      <span class="admin-topbar__logo-text">Admin</span>
+    </a>
+    <div class="admin-topbar__spacer"></div>
+    <span class="admin-topbar__user">{{ displayName }}</span>
+    <a routerLink="/" class="admin-topbar__store-link" title="View Store">
+      <i class="pi pi-external-link"></i>
+    </a>
+    <button class="admin-topbar__logout" (click)="onLogout()" aria-label="Logout">
+      <i class="pi pi-sign-out"></i>
+    </button>
+  </div>
+</header>
+
+<div class="admin-layout">
+  <aside class="admin-sidebar" [class.admin-sidebar--open]="sidebarOpen">
+    <div class="admin-sidebar__user">
+      <div class="admin-sidebar__avatar">{{ displayName.charAt(0) }}</div>
+      <div class="admin-sidebar__greeting">
+        <span class="admin-sidebar__hello">Admin,</span>
+        <span class="admin-sidebar__name">{{ displayName }}</span>
+      </div>
+    </div>
+
+    <nav class="admin-sidebar__nav">
+      <a routerLink="/admin/dashboard" routerLinkActive="active" class="admin-sidebar__link" (click)="closeSidebar()">
+        <i class="pi pi-th-large"></i> Dashboard
+      </a>
+      <a routerLink="/admin/products" routerLinkActive="active" class="admin-sidebar__link" (click)="closeSidebar()">
+        <i class="pi pi-box"></i> Products
+      </a>
+      <a routerLink="/admin/categories" routerLinkActive="active" class="admin-sidebar__link" (click)="closeSidebar()">
+        <i class="pi pi-tags"></i> Categories
+      </a>
+      <a routerLink="/admin/orders" routerLinkActive="active" class="admin-sidebar__link" (click)="closeSidebar()">
+        <i class="pi pi-shopping-cart"></i> Orders
+      </a>
+      <a routerLink="/admin/shipments" routerLinkActive="active" class="admin-sidebar__link" (click)="closeSidebar()">
+        <i class="pi pi-truck"></i> Shipments
+      </a>
+      <a routerLink="/admin/invoices" routerLinkActive="active" class="admin-sidebar__link" (click)="closeSidebar()">
+        <i class="pi pi-receipt"></i> Invoices
+      </a>
+      <a routerLink="/admin/users" routerLinkActive="active" class="admin-sidebar__link" (click)="closeSidebar()">
+        <i class="pi pi-users"></i> Users
+      </a>
+      <a routerLink="/admin/banners" routerLinkActive="active" class="admin-sidebar__link" (click)="closeSidebar()">
+        <i class="pi pi-images"></i> Banners
+      </a>
+      <a routerLink="/admin/coupons" routerLinkActive="active" class="admin-sidebar__link" (click)="closeSidebar()">
+        <i class="pi pi-percentage"></i> Coupons
+      </a>
+      <a routerLink="/admin/reviews" routerLinkActive="active" class="admin-sidebar__link" (click)="closeSidebar()">
+        <i class="pi pi-star"></i> Reviews
+      </a>
+      <a routerLink="/admin/payment-methods" routerLinkActive="active" class="admin-sidebar__link" (click)="closeSidebar()">
+        <i class="pi pi-credit-card"></i> Payment Methods
+      </a>
+      <a routerLink="/admin/settings" routerLinkActive="active" class="admin-sidebar__link" (click)="closeSidebar()">
+        <i class="pi pi-cog"></i> Settings
+      </a>
+    </nav>
+
+    <div class="admin-sidebar__footer">
+      <a routerLink="/" class="admin-sidebar__link admin-sidebar__link--back" (click)="closeSidebar()">
+        <i class="pi pi-arrow-left"></i> Back to Store
+      </a>
+      <button class="admin-sidebar__link admin-sidebar__link--logout" (click)="onLogout()">
+        <i class="pi pi-sign-out"></i> Logout
+      </button>
+    </div>
+  </aside>
+
+  @if (sidebarOpen) {
+    <div class="admin-sidebar-overlay" (click)="closeSidebar()"></div>
+  }
+
+  <main class="admin-content">
+    <router-outlet />
+  </main>
+</div>

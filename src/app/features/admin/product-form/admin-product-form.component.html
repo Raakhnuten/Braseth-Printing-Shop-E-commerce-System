@@ -1,0 +1,149 @@
+<app-page-header [title]="isEditMode() ? 'Edit Product' : 'Create Product'" />
+
+<div class="admin-product-form-page">
+  <div class="form-card">
+    @if (successMessage()) {
+      <div class="alert alert-success">{{ successMessage() }}</div>
+    }
+
+    @if (errorMessage()) {
+      <div class="alert alert-error">{{ errorMessage() }}</div>
+    }
+
+    @if (loading()) {
+      <p class="loading-text">Loading product data...</p>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="name">Name <span class="required">*</span></label>
+          <input id="name" type="text" formControlName="name" placeholder="Product name" [class.error]="submitted() && form.controls.name.invalid" />
+          @if (submitted() && form.controls.name.invalid) {
+            <span class="field-error">Name is required.</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="slug">Slug <span class="required">*</span></label>
+          <input id="slug" type="text" formControlName="slug" placeholder="product-slug" [class.error]="submitted() && form.controls.slug.invalid" />
+          @if (submitted() && form.controls.slug.invalid) {
+            <span class="field-error">Slug is required.</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="price">Price ($) <span class="required">*</span></label>
+          <input id="price" type="number" formControlName="price" placeholder="0.00" step="0.01" [class.error]="submitted() && form.controls.price.invalid" />
+          @if (submitted() && form.controls.price.invalid) {
+            <span class="field-error">Price must be 0 or greater.</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="salePrice">Sale Price ($)</label>
+          <input id="salePrice" type="number" formControlName="salePrice" placeholder="0.00" step="0.01" [class.error]="submitted() && form.controls.salePrice.invalid" />
+          @if (submitted() && form.controls.salePrice.invalid) {
+            <span class="field-error">Sale price must be 0 or greater.</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="stockQuantity">Stock Quantity <span class="required">*</span></label>
+          <input id="stockQuantity" type="number" formControlName="stockQuantity" placeholder="0" [class.error]="submitted() && form.controls.stockQuantity.invalid" />
+          @if (submitted() && form.controls.stockQuantity.invalid) {
+            <span class="field-error">Stock quantity must be 0 or greater.</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="sku">SKU <span class="required">*</span></label>
+          <input id="sku" type="text" formControlName="sku" placeholder="SKU-001" [class.error]="submitted() && form.controls.sku.invalid" />
+          @if (submitted() && form.controls.sku.invalid) {
+            <span class="field-error">SKU is required.</span>
+          }
+        </div>
+
+        <div class="form-group full-width">
+          <label for="description">Description <span class="required">*</span></label>
+          <textarea id="description" formControlName="description" placeholder="Product description" rows="4" [class.error]="submitted() && form.controls.description.invalid"></textarea>
+          @if (submitted() && form.controls.description.invalid) {
+            <span class="field-error">Description is required.</span>
+          }
+        </div>
+
+        <div class="form-group full-width">
+          <label for="thumbnailUrl">Thumbnail URL <span class="required">*</span></label>
+          <input id="thumbnailUrl" type="text" formControlName="thumbnailUrl" placeholder="https://example.com/image.jpg" [class.error]="submitted() && form.controls.thumbnailUrl.invalid" />
+          @if (submitted() && form.controls.thumbnailUrl.invalid) {
+            <span class="field-error">Thumbnail URL is required.</span>
+          }
+        </div>
+
+        <div class="form-group full-width">
+          <label for="categoryId">Category <span class="required">*</span></label>
+          <select id="categoryId" formControlName="categoryId" [class.error]="submitted() && form.controls.categoryId.invalid">
+            <option value="">Select a category</option>
+            @for (cat of categories(); track cat.id) {
+              <option [value]="cat.id">{{ cat.name }}</option>
+            }
+          </select>
+          @if (submitted() && form.controls.categoryId.invalid) {
+            <span class="field-error">Category is required.</span>
+          }
+        </div>
+
+        <div class="form-group full-width">
+          <label for="status">Status <span class="required">*</span></label>
+          <select id="status" formControlName="status" [class.error]="submitted() && form.controls.status.invalid">
+            <option value="">Select status</option>
+            <option value="DRAFT">Draft</option>
+            <option value="ACTIVE">Active</option>
+            <option value="INACTIVE">Inactive</option>
+            <option value="OUT_OF_STOCK">Out of Stock</option>
+          </select>
+          @if (submitted() && form.controls.status.invalid) {
+            <span class="field-error">Status is required.</span>
+          }
+        </div>
+      </div>
+
+      <div class="toggle-section">
+        <h3>Feature Toggles</h3>
+        <div class="toggle-row">
+          <label class="toggle-item">
+            <input type="checkbox" formControlName="featured" />
+            <span>Featured</span>
+          </label>
+          <label class="toggle-item">
+            <input type="checkbox" formControlName="enabled" />
+            <span>Enabled</span>
+          </label>
+          <label class="toggle-item">
+            <input type="checkbox" formControlName="allowCart" />
+            <span>Allow Cart</span>
+          </label>
+          <label class="toggle-item">
+            <input type="checkbox" formControlName="allowCheckout" />
+            <span>Allow Checkout</span>
+          </label>
+          <label class="toggle-item">
+            <input type="checkbox" formControlName="allowCoupon" />
+            <span>Allow Coupon</span>
+          </label>
+          <label class="toggle-item">
+            <input type="checkbox" formControlName="allowReview" />
+            <span>Allow Review</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" [disabled]="loading()">
+          {{ isEditMode() ? 'Update Product' : 'Create Product' }}
+        </button>
+        <a class="btn btn-secondary" routerLink="/admin/products">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>

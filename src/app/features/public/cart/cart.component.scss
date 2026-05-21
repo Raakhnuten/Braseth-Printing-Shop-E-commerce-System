@@ -1,0 +1,403 @@
+.cart-page {
+  padding: 2rem 1rem;
+
+  &__header {
+    margin-bottom: 1.5rem;
+  }
+
+  &__title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 0.25rem;
+  }
+
+  &__count {
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+
+  &__clear-btn {
+    margin-top: 1rem;
+  }
+}
+
+.cart-empty {
+  text-align: center;
+  padding: 4rem 1rem;
+
+  &__icon {
+    font-size: 4rem;
+    color: #d1d5db;
+    margin-bottom: 1rem;
+  }
+
+  &__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 0.5rem;
+  }
+
+  &__message {
+    font-size: 0.95rem;
+    color: #6b7280;
+    margin-bottom: 2rem;
+  }
+}
+
+.cart-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+.cart-item {
+  display: grid;
+  grid-template-columns: 80px 1fr auto auto auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 1.25rem;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  margin-bottom: 0.875rem;
+  border: 1px solid #f3f4f6;
+  transition: all 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border-color: #e5e7eb;
+  }
+
+  &__image {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f3f4f6;
+    display: block;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__info {
+    min-width: 0;
+  }
+
+  &__name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #111;
+    text-decoration: none;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+
+    &:hover {
+      color: #2563eb;
+    }
+  }
+
+  &__price-current {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #111;
+  }
+
+  &__qty {
+    display: flex;
+    align-items: center;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  &__qty-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: #f9fafb;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+    cursor: pointer;
+    transition: background 0.15s;
+
+    &:hover:not(:disabled) {
+      background: #e5e7eb;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+
+  &__qty-value {
+    width: 36px;
+    text-align: center;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #111;
+  }
+
+  &__custom {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    margin-top: 0.375rem;
+  }
+
+  &__custom-tag {
+    font-size: 0.7rem;
+    font-weight: 500;
+    padding: 2px 8px;
+    background: #f0f7ff;
+    color: #2563eb;
+    border-radius: 4px;
+    white-space: nowrap;
+
+    &--fee {
+      background: #fef3c7;
+      color: #d97706;
+    }
+  }
+
+  &__total {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #111;
+    white-space: nowrap;
+  }
+
+  &__remove {
+    border: none;
+    background: none;
+    color: #9ca3af;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.25rem;
+    transition: color 0.15s;
+
+    &:hover {
+      color: #ef4444;
+    }
+  }
+}
+
+.cart-summary {
+  background: #fff;
+  border-radius: 14px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  height: fit-content;
+  border: 1px solid #f3f4f6;
+  position: sticky;
+  top: 100px;
+
+  &__title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 1rem;
+  }
+
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    font-size: 0.9rem;
+    color: #4b5563;
+
+    &--total {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #111;
+      padding: 0.75rem 0;
+    }
+  }
+
+  &__discount {
+    color: #10b981;
+  }
+
+  &__free {
+    color: #10b981;
+    font-weight: 600;
+  }
+
+  &__divider {
+    height: 1px;
+    background: #e5e7eb;
+    margin: 0.5rem 0;
+  }
+
+  &__checkout {
+    margin-top: 1rem;
+  }
+
+  &__continue {
+    margin-top: 0.5rem;
+  }
+}
+
+@media (max-width: 575px) {
+  .cart-page {
+    padding: 1.5rem 0.75rem;
+
+    &__title {
+      font-size: 1.5rem;
+    }
+  }
+
+  .cart-item {
+    grid-template-columns: 70px 1fr;
+    gap: 0.75rem;
+    padding: 1rem;
+    position: relative;
+
+    &__image {
+      width: 70px;
+      height: 70px;
+      grid-row: 1 / span 2;
+    }
+
+    &__info {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    &__name {
+      font-size: 0.875rem;
+      -webkit-line-clamp: 2;
+      margin-bottom: 0.25rem;
+    }
+
+    &__price-current {
+      font-size: 0.85rem;
+      margin-bottom: 0.5rem;
+    }
+
+    &__qty {
+      grid-column: 2;
+      grid-row: 2;
+      justify-self: start;
+    }
+
+    &__qty-btn {
+      width: 32px;
+      height: 32px;
+      font-size: 0.9rem;
+    }
+
+    &__qty-value {
+      width: 36px;
+      font-size: 0.8rem;
+    }
+
+    &__total {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      font-size: 0.9rem;
+    }
+
+    &__remove {
+      position: absolute;
+      bottom: 1rem;
+      right: 1rem;
+      font-size: 0.95rem;
+    }
+  }
+
+  .cart-summary {
+    padding: 1.25rem;
+
+    &__title {
+      font-size: 1rem;
+    }
+
+    &__row {
+      font-size: 0.85rem;
+
+      &--total {
+        font-size: 1rem;
+      }
+    }
+  }
+
+  .cart-layout {
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 576px) and (max-width: 767px) {
+  .cart-item {
+    grid-template-columns: 80px 1fr auto;
+    gap: 1rem;
+
+    &__image {
+      width: 80px;
+      height: 80px;
+      grid-row: 1 / span 2;
+    }
+
+    &__info {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+    }
+
+    &__qty {
+      grid-column: 3;
+      grid-row: 1;
+      align-self: start;
+    }
+
+    &__total {
+      grid-column: 3;
+      grid-row: 2;
+      align-self: end;
+    }
+
+    &__remove {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+    }
+  }
+}
+
+@media (min-width: 768px) {
+  .cart-layout {
+    grid-template-columns: 1fr 360px;
+    gap: 2rem;
+  }
+
+  .cart-item {
+    grid-template-columns: 100px 1fr auto auto auto;
+  }
+
+  .cart-summary {
+    position: sticky;
+    top: 100px;
+  }
+}
+
+@media (min-width: 992px) {
+  .cart-layout {
+    grid-template-columns: 1fr 380px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .cart-layout {
+    grid-template-columns: 1fr 400px;
+  }
+}

@@ -1,0 +1,58 @@
+import { ShippingZone } from '../core/models/shipping.model';
+
+export const MOCK_SHIPPING_ZONES: ShippingZone[] = [
+  {
+    id: 'sz-1',
+    name: 'Phnom Penh',
+    code: 'PP',
+    description: 'Phnom Penh city center and surrounding areas.',
+    fee: 0,
+    isActive: true,
+    sortOrder: 1,
+  },
+  {
+    id: 'sz-2',
+    name: 'Kandal',
+    code: 'KD',
+    description: 'Kandal province surrounding Phnom Penh.',
+    fee: 1,
+    isActive: true,
+    sortOrder: 2,
+  },
+  {
+    id: 'sz-3',
+    name: 'Siem Reap',
+    code: 'SR',
+    description: 'Siem Reap province and surrounding areas.',
+    fee: 2,
+    isActive: true,
+    sortOrder: 3,
+  },
+  {
+    id: 'sz-4',
+    name: 'Battambang',
+    code: 'BT',
+    description: 'Battambang province.',
+    fee: 2.5,
+    isActive: true,
+    sortOrder: 4,
+  },
+  {
+    id: 'sz-5',
+    name: 'Sihanoukville',
+    code: 'SV',
+    description: 'Sihanoukville province and coastal areas.',
+    fee: 2,
+    isActive: true,
+    sortOrder: 5,
+  },
+  {
+    id: 'sz-6',
+    name: 'Remote Provinces',
+    code: 'REMOTE',
+    description: 'Remote provinces with limited delivery access.',
+    fee: 5,
+    isActive: true,
+    sortOrder: 6,
+  },
+];

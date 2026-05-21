@@ -1,0 +1,47 @@
+.search-page {
+  padding: 2rem 1rem;
+
+  &__header {
+    margin-bottom: 2rem;
+  }
+
+  &__title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 0.25rem;
+  }
+
+  &__query {
+    font-size: 0.95rem;
+    color: #4b5563;
+    margin-bottom: 0.25rem;
+
+    strong {
+      color: #111;
+    }
+  }
+
+  &__count {
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+}
+
+.search-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .search-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 900px) {
+  .search-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

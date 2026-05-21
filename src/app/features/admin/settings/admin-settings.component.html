@@ -1,0 +1,92 @@
+<app-page-header title="Settings" subtitle="Store configuration" />
+
+<div class="admin-settings-page">
+  @if (successMessage()) {
+    <div class="success-alert">
+      <i class="pi pi-check-circle"></i> {{ successMessage() }}
+    </div>
+  }
+
+  <form [formGroup]="settingsForm" (ngSubmit)="onSubmit()" class="settings-card">
+    <h3>General Settings</h3>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="storeName">Store Name</label>
+        <input id="storeName" type="text" formControlName="storeName" placeholder="Seth Store" />
+        @if (submitted && settingsForm.get('storeName')?.errors?.['required']) {
+          <small class="field-error">Store name is required</small>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="storeEmail">Store Email</label>
+        <input id="storeEmail" type="email" formControlName="storeEmail" placeholder="admin@sethstore.com" />
+        @if (submitted && settingsForm.get('storeEmail')?.errors?.['required']) {
+          <small class="field-error">Store email is required</small>
+        }
+        @if (submitted && settingsForm.get('storeEmail')?.errors?.['email']) {
+          <small class="field-error">Enter a valid email address</small>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="storePhone">Store Phone</label>
+        <input id="storePhone" type="tel" formControlName="storePhone" placeholder="+1 555-0100" />
+      </div>
+
+      <div class="form-group">
+        <label for="currency">Default Currency</label>
+        <select id="currency" formControlName="currency">
+          <option value="USD">USD ($)</option>
+          <option value="EUR">EUR (€)</option>
+          <option value="GBP">GBP (£)</option>
+        </select>
+        @if (submitted && settingsForm.get('currency')?.errors?.['required']) {
+          <small class="field-error">Currency is required</small>
+        }
+      </div>
+    </div>
+
+    <h3>Shipping Settings</h3>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="freeShippingThreshold">Free Shipping Threshold ($)</label>
+        <input id="freeShippingThreshold" type="number" formControlName="freeShippingThreshold" placeholder="100" min="0" step="0.01" />
+        @if (submitted && settingsForm.get('freeShippingThreshold')?.errors?.['min']) {
+          <small class="field-error">Value must be 0 or greater</small>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="flatShippingRate">Flat Shipping Rate ($)</label>
+        <input id="flatShippingRate" type="number" formControlName="flatShippingRate" placeholder="9.99" min="0" step="0.01" />
+        @if (submitted && settingsForm.get('flatShippingRate')?.errors?.['min']) {
+          <small class="field-error">Value must be 0 or greater</small>
+        }
+      </div>
+    </div>
+
+    <h3>Tax Settings</h3>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="taxPercentage">Tax Percentage (%)</label>
+        <input id="taxPercentage" type="number" formControlName="taxPercentage" placeholder="10" min="0" max="100" step="0.1" />
+        @if (submitted && settingsForm.get('taxPercentage')?.errors?.['min']) {
+          <small class="field-error">Value must be 0 or greater</small>
+        }
+        @if (submitted && settingsForm.get('taxPercentage')?.errors?.['max']) {
+          <small class="field-error">Value must be 100 or less</small>
+        }
+      </div>
+    </div>
+
+    <div class="settings-actions">
+      <button type="submit" class="btn btn-primary">
+        <i class="pi pi-save"></i> Save Settings
+      </button>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,45 @@
+<app-page-header title="My Wishlist" />
+
+<div class="wishlist-page">
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else {
+    @if (wishlistItems().length) {
+      <div class="wishlist-grid">
+        @for (item of wishlistItems(); track item.id) {
+          <div class="wishlist-item">
+            <a [routerLink]="['/products', item.id]" class="wishlist-item__image-link">
+              <img [src]="item.thumbnailUrl" [alt]="item.name" class="wishlist-item__image" />
+            </a>
+            <div class="wishlist-item__info">
+              <a [routerLink]="['/products', item.id]" class="wishlist-item__name">
+                {{ item.name }}
+              </a>
+              <p class="wishlist-item__price">
+                @if (item.salePrice) {
+                  <span class="wishlist-item__sale">${{ item.salePrice.toFixed(2) }}</span>
+                  <span class="wishlist-item__original">${{ item.price.toFixed(2) }}</span>
+                } @else {
+                  <span>${{ item.price.toFixed(2) }}</span>
+                }
+              </p>
+            </div>
+            <div class="wishlist-item__actions">
+              <button class="btn-primary-sm" (click)="addToCart(item)">
+                <i class="pi pi-shopping-cart"></i> Add to Cart
+              </button>
+              <button class="btn-danger-sm" (click)="removeFromWishlist(item.id)">
+                <i class="pi pi-trash"></i> Remove
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <app-empty-state
+        title="Your Wishlist is Empty"
+        message="Save items you love by clicking the heart icon on any product."
+      />
+    }
+  }
+</div>

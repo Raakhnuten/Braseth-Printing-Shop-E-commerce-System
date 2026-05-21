@@ -1,0 +1,101 @@
+<footer class="footer">
+  <!-- Decorative wave top with shoe silhouettes -->
+  <div class="footer__wave-top">
+    <div class="footer__shoe footer__shoe--left"></div>
+    <div class="footer__shoe footer__shoe--right"></div>
+    <svg class="footer__wave-svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+      <path d="M0,0 Q150,60 300,40 T600,50 T900,30 T1200,50 L1200,120 L0,120 Z" fill="#ffffff"/>
+    </svg>
+  </div>
+
+  <div class="footer__container">
+    <div class="footer__grid">
+      <!-- Newsletter Section -->
+      <div class="footer__section footer__section--newsletter">
+        <h4 class="footer__heading">Seth Store Newsletter</h4>
+        <p class="footer__newsletter-desc">Stay updated with our latest offers and products</p>
+        <form class="footer__newsletter-form" (ngSubmit)="onSubscribe()">
+          <input 
+            type="email" 
+            class="footer__newsletter-input" 
+            placeholder="Your email"
+            [(ngModel)]="newsletterEmail"
+            name="email"
+            required
+          />
+          <button type="submit" class="footer__newsletter-btn">Subscribe</button>
+        </form>
+      </div>
+
+      <!-- Terms and Conditions Section -->
+      <div class="footer__section">
+        <h4 class="footer__heading">Terms and Conditions</h4>
+        <ul class="footer__links">
+          <li><a href="#">Free returns</a></li>
+          <li><a href="#">30 days return policy</a></li>
+          <li><a href="#">All items in stock</a></li>
+        </ul>
+      </div>
+
+      <!-- Information Section -->
+      <div class="footer__section">
+        <h4 class="footer__heading">Information</h4>
+        <ul class="footer__links">
+          <li><a href="#">FAQs</a></li>
+          <li><a href="#">About us</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Shipping & Delivery</a></li>
+          <li><a href="#">Return Policy</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact Section -->
+      <div class="footer__section">
+        <h4 class="footer__heading">Contact</h4>
+        <ul class="footer__links footer__links--contact">
+          <li><strong>Seth Store</strong></li>
+          <li><i class="pi pi-send"></i> Telegram: &#64;sethstore</li>
+          <li><i class="pi pi-phone"></i> 0800 098 830</li>
+          <li><i class="pi pi-envelope"></i> support&#64;sethstore.com</li>
+          <li><i class="pi pi-map-marker"></i> Head office:<br/>Phnom Penh, Cambodia</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Bottom Section -->
+    <div class="footer__bottom">
+      <div class="footer__bottom-content">
+        <!-- Trust Badges -->
+        <div class="footer__trust-badges">
+          <span class="footer__badge">🔒 Secure Shopping</span>
+          <span class="footer__badge">✓ Trusted Shop</span>
+        </div>
+
+        <!-- Company Info & Copyright -->
+        <div class="footer__company-info">
+          <p class="footer__company-text">Part of Seth Store Group</p>
+          <div class="footer__copyright">
+            <span>&copy; {{ year }} Seth Store. All rights reserved.</span>
+            <div class="footer__flags">
+              <span class="footer__flag">🇰🇭</span>
+              <span class="footer__flag">🇺🇸</span>
+              <span class="footer__flag">🇬🇧</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="footer__payment-methods">
+          <span class="footer__payment-label">We accept:</span>
+          <div class="footer__payment-logos">
+            <span class="footer__payment-logo">ABA</span>
+            <span class="footer__payment-logo">Mastercard</span>
+            <span class="footer__payment-logo">Visa</span>
+            <span class="footer__payment-logo">Wing</span>
+            <span class="footer__payment-logo">KHQR</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>

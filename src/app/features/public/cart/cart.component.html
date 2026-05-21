@@ -1,0 +1,133 @@
+<div class="container cart-page">
+  <div class="cart-page__header">
+    <h1 class="cart-page__title">Shopping Cart</h1>
+    @if (items().length) {
+      <p class="cart-page__count">{{ items().length }} item(s)</p>
+    }
+  </div>
+
+  @if (items().length === 0) {
+    <div class="cart-empty">
+      <div class="cart-empty__icon">
+        <i class="pi pi-shopping-cart"></i>
+      </div>
+      <h2 class="cart-empty__title">Your cart is empty</h2>
+      <p class="cart-empty__message">Looks like you haven't added anything yet. Start shopping!</p>
+      <a routerLink="/products" class="btn btn-primary btn-lg">Browse Products</a>
+    </div>
+  } @else {
+    <div class="cart-layout">
+      <div class="cart-items">
+        @for (item of items(); track item.id) {
+          <div class="cart-item">
+            <a [routerLink]="['/products', item.productId]" class="cart-item__image">
+              <img [src]="item.productImage" [alt]="item.productName" />
+            </a>
+            <div class="cart-item__info">
+              <a [routerLink]="['/products', item.productId]" class="cart-item__name">{{ item.productName }}</a>
+              <div class="cart-item__price">
+                <span class="cart-item__price-current">${{ item.unitPrice.toFixed(2) }}</span>
+              </div>
+              @if (item.selectedSize) {
+                <div class="cart-item__custom">
+                  <span class="cart-item__custom-tag">Size: {{ item.selectedSize }}</span>
+                </div>
+              }
+              @if (item.selectedColor) {
+                <div class="cart-item__custom">
+                  <span class="cart-item__custom-tag">Color: {{ item.selectedColor }}</span>
+                </div>
+              }
+              @if (item.selectedDecorationMethod) {
+                <div class="cart-item__custom">
+                  <span class="cart-item__custom-tag">Decoration: {{ item.selectedDecorationMethod }}</span>
+                </div>
+              }
+              @if (item.selectedPrintPosition) {
+                <div class="cart-item__custom">
+                  <span class="cart-item__custom-tag">Position: {{ item.selectedPrintPosition }}</span>
+                </div>
+              }
+              @if (item.uploadedDesignFiles && item.uploadedDesignFiles.length > 0) {
+                <div class="cart-item__custom">
+                  @for (file of item.uploadedDesignFiles; track file.position) {
+                    <span class="cart-item__custom-tag">{{ file.position }}: {{ file.fileName }}</span>
+                  }
+                </div>
+              }
+              @if (item.customizationFee > 0) {
+                <div class="cart-item__custom">
+                  <span class="cart-item__custom-tag cart-item__custom-tag--fee">
+                    Customization fee: +${{ item.customizationFee.toFixed(2) }}
+                  </span>
+                </div>
+              }
+            </div>
+            <div class="cart-item__qty">
+              <button
+                class="cart-item__qty-btn"
+                (click)="updateQty(item.id, item.quantity - 1)"
+                [disabled]="item.quantity <= 1"
+              >-</button>
+              <span class="cart-item__qty-value">{{ item.quantity }}</span>
+              <button
+                class="cart-item__qty-btn"
+                (click)="updateQty(item.id, item.quantity + 1)"
+                [disabled]="item.quantity >= item.maxQuantity"
+              >+</button>
+            </div>
+            <div class="cart-item__total">
+              ${{ getItemLineTotal(item).toFixed(2) }}
+            </div>
+            <button class="cart-item__remove" (click)="removeItem(item.id)" aria-label="Remove">
+              <i class="pi pi-trash"></i>
+            </button>
+          </div>
+        }
+
+        <button class="cart-page__clear-btn btn btn-secondary btn-sm" (click)="clearCart()">
+          Clear Cart
+        </button>
+      </div>
+
+      <div class="cart-summary">
+        <h3 class="cart-summary__title">Order Summary</h3>
+        <div class="cart-summary__row">
+          <span>Subtotal ({{ cartSummary().totalItems }} items)</span>
+          <span>${{ cartSummary().subtotal.toFixed(2) }}</span>
+        </div>
+        @if (cartSummary().customizationFeeTotal > 0) {
+          <div class="cart-summary__row">
+            <span>Customization Fees</span>
+            <span>${{ cartSummary().customizationFeeTotal.toFixed(2) }}</span>
+          </div>
+        }
+        <div class="cart-summary__row">
+          <span>Discount</span>
+          <span class="cart-summary__discount">-${{ cartSummary().discount.toFixed(2) }}</span>
+        </div>
+        <div class="cart-summary__row">
+          <span>Shipping</span>
+          <span>
+            @if (cartSummary().shippingFee === 0) {
+              <span class="cart-summary__free">FREE</span>
+            } @else {
+              <span>${{ cartSummary().shippingFee.toFixed(2) }}</span>
+            }
+          </span>
+        </div>
+        <div class="cart-summary__divider"></div>
+        <div class="cart-summary__row cart-summary__row--total">
+          <span>Total</span>
+          <span>${{ cartSummary().total.toFixed(2) }}</span>
+        </div>
+        <a routerLink="/checkout" class="btn btn-primary btn-lg btn-block cart-summary__checkout">
+          Proceed to Checkout
+        </a>
+        <a routerLink="/products" class="btn btn-secondary btn-block cart-summary__continue">
+          Continue Shopping
+        </a>
+      </div>
+    </div>
+  }
+</div>

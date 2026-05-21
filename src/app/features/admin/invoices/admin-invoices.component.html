@@ -1,0 +1,58 @@
+<app-page-header [title]="pageTitle" />
+
+<div class="admin-content">
+  <div class="toolbar">
+    <div class="search-box">
+      <i class="pi pi-search"></i>
+      <input type="text" placeholder="Search invoices..." [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)" />
+    </div>
+    <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+      <option value="">All Statuses</option>
+      @for (s of invoiceStatuses; track s) { <option [value]="s">{{ s }}</option> }
+    </select>
+  </div>
+
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else if (error()) {
+    <div class="error-message">{{ error() }}</div>
+  } @else if (filteredInvoices().length === 0) {
+    <app-empty-state title="No Invoices" message="No invoices found." icon="pi pi-receipt" />
+  } @else {
+    <div class="table-responsive">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Invoice #</th>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Issued</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (invoice of filteredInvoices(); track invoice.id) {
+            <tr>
+              <td><strong>{{ invoice.invoiceNumber }}</strong></td>
+              <td>{{ invoice.orderId }}</td>
+              <td>
+                <div>{{ invoice.customerName }}</div>
+                <div class="sub-text">{{ invoice.customerEmail }}</div>
+              </td>
+              <td>{{ invoice.issuedAt | date:'mediumDate' }}</td>
+              <td><strong>{{ invoice.grandTotal | currency }}</strong></td>
+              <td><span class="status-badge" [class]="getStatusClass(invoice.status)">{{ invoice.status }}</span></td>
+              <td class="actions">
+                @if (invoice.status !== 'PAID') {
+                  <button class="btn btn-sm btn-success" (click)="markPaid(invoice.id)"><i class="pi pi-check"></i> Mark Paid</button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

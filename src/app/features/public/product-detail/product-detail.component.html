@@ -1,0 +1,406 @@
+<div class="pd-page">
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else if (product(); as p) {
+    <div class="pd-container">
+      <!-- Breadcrumb -->
+      <nav class="pd-breadcrumb">
+        <a routerLink="/">Home</a><span class="pd-breadcrumb__sep">/</span>
+        <a routerLink="/products">Products</a><span class="pd-breadcrumb__sep">/</span>
+        <span>{{ p.categoryName }}</span>
+      </nav>
+
+      <div class="pd-main">
+        <!-- LEFT COLUMN -->
+        <div class="pd-left">
+          <!-- Gallery -->
+          <div class="pd-gallery" (mouseenter)="zoomed.set(true)" (mouseleave)="zoomed.set(false)">
+            <div class="pd-gallery__main" [class.pd-gallery__main--zoomed]="zoomed()">
+              <img [src]="validImages[selectedImageIndex]" [alt]="p.name" (error)="onImgError($event)" />
+            </div>
+            @if (validImages.length > 1) {
+              <div class="pd-gallery__thumbs">
+                @for (img of validImages; track $index) {
+                  <button
+                    class="pd-gallery__thumb"
+                    [class.pd-gallery__thumb--active]="$index === selectedImageIndex"
+                    (click)="selectImage($index)"
+                  >
+                    <img [src]="img" [alt]="'View ' + ($index + 1)" (error)="onImgError($event)" />
+                  </button>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Product Basic Info -->
+          <div class="pd-basic-info">
+            <span class="pd-basic-info__cat">{{ p.categoryName }}</span>
+            <h1 class="pd-basic-info__name">{{ p.name }}</h1>
+
+            @if (p.rating) {
+              <div class="pd-basic-info__rating">
+                @for (_ of fullStars; track $index) { <i class="pi pi-star-fill pd-star--filled"></i> }
+                @if (hasHalfStar) { <i class="pi pi-star-half pd-star--filled"></i> }
+                @for (_ of emptyStars; track $index) { <i class="pi pi-star"></i> }
+                <span>{{ p.rating.toFixed(1) }} ({{ p.reviewCount ?? 0 }} reviews)</span>
+              </div>
+            }
+
+            <div class="pd-basic-info__price">
+              @if (p.salePrice) {
+                <span class="pd-basic-info__price-current">${{ p.salePrice.toFixed(2) }}</span>
+                <span class="pd-basic-info__price-original">${{ p.price.toFixed(2) }}</span>
+                <span class="pd-basic-info__price-badge">{{ discountPercent }}</span>
+              } @else {
+                <span class="pd-basic-info__price-current">${{ p.price.toFixed(2) }}</span>
+              }
+            </div>
+
+            <p class="pd-basic-info__desc">{{ p.description || 'No description available for this product.' }}</p>
+
+            <div class="pd-basic-info__footer">
+              <span class="pd-basic-info__stock">
+                <span class="pd-dot" [class.pd-dot--green]="inStock" [class.pd-dot--red]="!inStock"></span>
+                {{ stockLabel }}
+              </span>
+              <div class="pd-basic-info__actions">
+                <button class="pd-basic-info__action-btn" (click)="toggleWishlist()" aria-label="Wishlist">
+                  <i class="pi" [ngClass]="isInWishlist ? 'pi-heart-fill' : 'pi-heart'"></i>
+                </button>
+                <button class="pd-basic-info__action-btn" (click)="shareProduct()" aria-label="Share">
+                  <i class="pi pi-share-alt"></i>
+                </button>
+              </div>
+            </div>
+
+            @if (p.sku) {
+              <div class="pd-basic-info__sku">SKU: <strong>{{ p.sku }}</strong></div>
+            }
+          </div>
+
+          <!-- Info Cards -->
+          <div class="pd-info-cards">
+            <div class="pd-info-card">
+              <div class="pd-info-card__icon"><i class="pi pi-truck"></i></div>
+              <div class="pd-info-card__text">
+                <strong>Free Shipping</strong>
+                <span>On orders over $100</span>
+              </div>
+            </div>
+            <div class="pd-info-card">
+              <div class="pd-info-card__icon"><i class="pi pi-refresh"></i></div>
+              <div class="pd-info-card__text">
+                <strong>Easy Returns</strong>
+                <span>30-day return policy</span>
+              </div>
+            </div>
+            <div class="pd-info-card">
+              <div class="pd-info-card__icon"><i class="pi pi-lock"></i></div>
+              <div class="pd-info-card__text">
+                <strong>Secure Checkout</strong>
+                <span>SSL encrypted payment</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabs -->
+          <div class="pd-tabs">
+            <div class="pd-tabs__nav">
+              @for (tab of ['description', 'shipping', 'reviews']; track tab) {
+                <button
+                  class="pd-tabs__btn"
+                  [class.pd-tabs__btn--active]="activeTab() === tab"
+                  (click)="activeTab.set(tab)"
+                >
+                  {{ tab === 'description' ? 'Description' : tab === 'shipping' ? 'Shipping & Returns' : 'Reviews' }}
+                </button>
+              }
+            </div>
+            <div class="pd-tabs__panel">
+              @if (activeTab() === 'description') {
+                <p>{{ p.description || 'No description available for this product.' }}</p>
+                @if (p.sku) {
+                  <p class="pd-tabs__sku">SKU: <strong>{{ p.sku }}</strong></p>
+                }
+              } @else if (activeTab() === 'shipping') {
+                <p><strong>Standard Shipping</strong> — 5–8 business days. Free for orders over $100.</p>
+                <p><strong>Express Shipping</strong> — 2–3 business days. Flat rate $12.99.</p>
+                <p><strong>Returns</strong> — You may return unused items within 30 days of delivery for a full refund. Items must be in original packaging.</p>
+              } @else {
+                <div class="pd-reviews">
+                  @if (p.rating) {
+                    <div class="pd-reviews__overall">
+                      <span class="pd-reviews__score">{{ p.rating.toFixed(1) }}</span>
+                      <div class="pd-reviews__stars">
+                        @for (_ of fullStars; track $index) { <i class="pi pi-star-fill pd-star--filled"></i> }
+                        @if (hasHalfStar) { <i class="pi pi-star-half pd-star--filled"></i> }
+                        @for (_ of emptyStars; track $index) { <i class="pi pi-star"></i> }
+                      </div>
+                      <span>{{ p.reviewCount ?? 0 }} review{{ (p.reviewCount ?? 0) !== 1 ? 's' : '' }}</span>
+                    </div>
+                  } @else {
+                    <p class="pd-reviews__empty">No reviews yet. Be the first to review this product.</p>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="pd-right">
+          <div class="pd-right__inner">
+            <!-- Customization Card -->
+            <div class="pd-custom">
+              <div class="pd-custom__head">
+                <i class="pi pi-sliders-h"></i>
+                <span>{{ isCustomizable ? 'Customize Your Order' : 'Order Options' }}</span>
+              </div>
+
+              <!-- Validation errors -->
+              @if (validationErrors().length > 0) {
+                <div class="pd-custom__errors">
+                  @for (err of validationErrors(); track $index) {
+                    <span>{{ err }}</span>
+                  }
+                </div>
+              }
+
+              <!-- Size Selection -->
+              @if (enableSizeSelection) {
+                <div class="pd-custom__section">
+                  <div class="pd-custom__section-title">
+                    <span class="pd-custom__step-badge">1</span> Select Size
+                  </div>
+                  <div class="pd-custom__sizes">
+                    @for (size of availableSizes(); track size.id) {
+                      <button
+                        class="pd-custom__size"
+                        [class.pd-custom__size--sel]="selectedSizeId() === size.id"
+                        (click)="selectSize(size.id)"
+                      >{{ size.name }}</button>
+                    }
+                  </div>
+                </div>
+              }
+
+              <!-- Color Selection -->
+              @if (enableColorSelection) {
+                <div class="pd-custom__section">
+                  <div class="pd-custom__section-title">
+                    <span class="pd-custom__step-badge">{{ enableSizeSelection ? '2' : '1' }}</span> Choose Color
+                  </div>
+                  <div class="pd-custom__colors">
+                    @for (c of availableColors(); track c.id) {
+                      <button
+                        class="pd-custom__color"
+                        [class.pd-custom__color--sel]="selectedColorId() === c.id"
+                        (click)="selectColor(c.id)"
+                        [attr.aria-label]="c.name"
+                      >
+                        <span class="pd-custom__swatch" [style.background]="c.hexCode" [class.pd-custom__swatch--light]="c.hexCode === '#FFFFFF'"></span>
+                        <span>{{ c.name }}</span>
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
+
+              <!-- Decoration Method -->
+              @if (enableDecorationMethod) {
+                <div class="pd-custom__section">
+                  <div class="pd-custom__section-title">
+                    <span class="pd-custom__step-badge">{{ (enableSizeSelection ? 1 : 0) + (enableColorSelection ? 1 : 0) + 1 }}</span> Decoration Method
+                  </div>
+                  <div class="pd-custom__methods">
+                    @for (m of availableDecorationMethods(); track m.id) {
+                      <button
+                        class="pd-custom__method"
+                        [class.pd-custom__method--sel]="selectedDecorationMethodId() === m.id"
+                        (click)="selectDecoration(m.id)"
+                      >{{ m.name }}</button>
+                    }
+                  </div>
+                  @if (selectedDecorationMethod) {
+                    <div class="pd-custom__info">{{ selectedDecorationMethod.description }}</div>
+                  }
+                </div>
+              }
+
+              <!-- Print Position -->
+              @if (enablePrintPosition) {
+                <div class="pd-custom__section">
+                  <div class="pd-custom__section-title">
+                    <span class="pd-custom__step-badge">P</span> Print Position
+                  </div>
+                  <div class="pd-custom__positions">
+                    @for (pos of availablePrintPositions(); track pos.id) {
+                      <button
+                        class="pd-custom__position"
+                        [class.pd-custom__position--sel]="selectedPrintPositionId() === pos.id"
+                        (click)="selectPrintPosition(pos.id)"
+                      >
+                        <span>{{ pos.name }}</span>
+                        @if (pos.extraFee > 0) {
+                          <span class="pd-custom__position-fee">+${{ pos.extraFee.toFixed(2) }}</span>
+                        }
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
+
+              <!-- Print Colors -->
+              @if (enablePrintColor) {
+                <div class="pd-custom__section">
+                  <div class="pd-custom__section-title">
+                    <span class="pd-custom__step-badge">C</span> Print Colors
+                  </div>
+                  <div class="pd-custom__print-colors">
+                    @for (pc of availablePrintColors(); track pc.id) {
+                      <button
+                        class="pd-custom__print-color"
+                        [class.pd-custom__print-color--sel]="selectedPrintColorIds().includes(pc.id)"
+                        (click)="togglePrintColor(pc.id)"
+                        [attr.aria-label]="pc.name"
+                      >
+                        <span class="pd-custom__swatch" [style.background]="pc.hexCode"></span>
+                        <span>{{ pc.name }}</span>
+                      </button>
+                    }
+                  </div>
+                  <label class="pd-custom__multi">
+                    <input type="checkbox" [checked]="multipleColors()" (change)="toggleMultipleColors()" />
+                    <span>Multiple colors</span>
+                  </label>
+                </div>
+              }
+
+              <!-- Design Upload -->
+              @if (enableDesignUpload) {
+                <div class="pd-custom__section">
+                  <div class="pd-custom__section-title">
+                    <span class="pd-custom__step-badge">U</span> Upload Designs
+                  </div>
+                  <div class="pd-custom__uploads">
+                    <label class="pd-custom__upload">
+                      <input type="file" accept="image/*,.pdf,.svg,.eps" (change)="onFrontDesignUpload($event)" />
+                      <i class="pi pi-cloud-upload"></i>
+                      <span>Front</span>
+                      @if (frontDesignFileName()) { <span class="pd-custom__upload-name">{{ frontDesignFileName() }}</span> }
+                    </label>
+                    <label class="pd-custom__upload">
+                      <input type="file" accept="image/*,.pdf,.svg,.eps" (change)="onBackDesignUpload($event)" />
+                      <i class="pi pi-cloud-upload"></i>
+                      <span>Back</span>
+                      @if (backDesignFileName()) { <span class="pd-custom__upload-name">{{ backDesignFileName() }}</span> }
+                    </label>
+                  </div>
+                  <button class="pd-custom__template-btn" (click)="downloadTemplate()">
+                    <i class="pi pi-download"></i> Download Template
+                  </button>
+                </div>
+              }
+
+              <!-- Quantity -->
+              <div class="pd-custom__section">
+                <div class="pd-custom__section-title">
+                  <span class="pd-custom__step-badge">Q</span> Quantity
+                </div>
+                <div class="pd-custom__qty-row">
+                  <div class="pd-custom__qty">
+                    <button (click)="adjustQty(-1)" [disabled]="customQty() <= minOrderQuantity">−</button>
+                    <input type="number" [ngModel]="customQty()" (ngModelChange)="setQty($event)" [min]="minOrderQuantity" />
+                    <button (click)="adjustQty(1)">+</button>
+                  </div>
+                  @if (enablePriceBreak && priceBreaks().length > 0) {
+                    <button class="pd-custom__breaks-btn" (click)="showPriceBreaks.set(!showPriceBreaks())">
+                      <i class="pi pi-chart-bar"></i> Breaks
+                      <i class="pi" [ngClass]="showPriceBreaks() ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+                    </button>
+                  }
+                </div>
+                @if (customQty() < minOrderQuantity) {
+                  <p class="pd-custom__warn">Minimum quantity is {{ minOrderQuantity }}.</p>
+                }
+                @if (showPriceBreaks() && priceBreaks().length > 0) {
+                  <div class="pd-custom__breaks">
+                    @for (pb of priceBreaks(); track pb.id) {
+                      <div>
+                        <span>{{ pb.minQuantity }}@if (pb.maxQuantity) { –{{ pb.maxQuantity }} } @else { + }</span>
+                        <span>{{ pb.discountPercentage > 0 ? pb.discountPercentage + '% off' : 'No discount' }}</span>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+
+              <!-- Production Time -->
+              @if (enableProductionTime && productionTime()) {
+                <div class="pd-custom__section">
+                  <div class="pd-custom__section-title">
+                    <span class="pd-custom__step-badge">T</span> Production Time
+                  </div>
+                  <div class="pd-custom__production">
+                    <span><i class="pi pi-clock"></i> {{ productionTime()!.minDays }}–{{ productionTime()!.maxDays }} business days</span>
+                    @if (productionTime()!.rushAvailable) {
+                      <span class="pd-custom__rush">Rush available (+${{ productionTime()!.rushFee.toFixed(2) }})</span>
+                    }
+                  </div>
+                </div>
+              }
+
+              <!-- Summary -->
+              <div class="pd-custom__summary">
+                @if (enableSizeSelection && selectedSizeId()) {
+                  <div class="pd-custom__summary-row"><span>Size</span><span>{{ availableSizes().find(s => s.id === selectedSizeId())?.name ?? '—' }}</span></div>
+                }
+                @if (enableColorSelection && selectedColorId()) {
+                  <div class="pd-custom__summary-row"><span>Color</span><span>{{ availableColors().find(c => c.id === selectedColorId())?.name ?? '—' }}</span></div>
+                }
+                @if (enableDecorationMethod && selectedDecorationMethodId()) {
+                  <div class="pd-custom__summary-row"><span>Decoration</span><span>{{ selectedDecorationMethod?.name ?? '—' }}</span></div>
+                }
+                @if (enablePrintPosition && selectedPrintPositionId()) {
+                  <div class="pd-custom__summary-row"><span>Position</span><span>{{ selectedPrintPosition?.name ?? '—' }}</span></div>
+                }
+                @if (frontDesignFileName()) {
+                  <div class="pd-custom__summary-row"><span>Front Design</span><span>{{ frontDesignFileName() }}</span></div>
+                }
+                @if (backDesignFileName()) {
+                  <div class="pd-custom__summary-row"><span>Back Design</span><span>{{ backDesignFileName() }}</span></div>
+                }
+                @if (enableProductionTime && productionDays > 0) {
+                  <div class="pd-custom__summary-row"><span>Lead Time</span><span>{{ productionDays }} business days</span></div>
+                }
+                <div class="pd-custom__summary-divider"></div>
+                <div class="pd-custom__summary-row"><span>Quantity</span><span>{{ customQty() }}</span></div>
+                <div class="pd-custom__summary-row"><span>Unit Price</span><span>${{ estimatedUnitPrice.toFixed(2) }}</span></div>
+                <div class="pd-custom__summary-row pd-custom__summary-row--total"><span>Estimated Total</span><span>${{ estimatedTotal.toFixed(2) }}</span></div>
+              </div>
+
+              <div class="pd-custom__actions">
+                <button class="pd-custom__btn pd-custom__btn--cart" [disabled]="!inStock || !p.allowCart" (click)="addToCart()">
+                  <i class="pi pi-shopping-cart"></i> Add to Cart
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Related Products -->
+      @if (relatedProducts().length) {
+        <section class="pd-related">
+          <h2 class="pd-related__title">You May Also Like</h2>
+          <div class="pd-related__grid">
+            @for (rp of relatedProducts(); track rp.id) {
+              <app-product-card [product]="rp" />
+            }
+          </div>
+        </section>
+      }
+    </div>
+  }
+</div>

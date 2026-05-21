@@ -1,0 +1,125 @@
+<app-page-header title="Dashboard" subtitle="Store overview" />
+
+<div class="dashboard-page">
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else if (error()) {
+    <app-empty-state title="Error" [message]="error()" />
+  } @else {
+    <div class="stats-grid">
+      @for (card of stats(); track card.label) {
+        <div class="stat-card {{ card.colorClass }}">
+          <div class="stat-card__border"></div>
+          <div class="stat-card__content">
+            <div class="stat-card__icon">
+              <i [class]="card.icon"></i>
+            </div>
+            <div class="stat-card__value">{{ card.value }}</div>
+            <div class="stat-card__label">{{ card.label }}</div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="recent-section">
+      <div class="section-header">
+        <h3>Recent Orders</h3>
+        <a routerLink="/admin/orders" class="view-all">View All</a>
+      </div>
+      @if (recentOrders().length) {
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Order #</th>
+              <th>Customer</th>
+              <th>Date</th>
+              <th>Total</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (order of recentOrders(); track order.id) {
+              <tr>
+                <td><strong>{{ order.orderNumber }}</strong></td>
+                <td>{{ order.customerName }}</td>
+                <td>{{ order.createdAt | date:'mediumDate' }}</td>
+                <td>${{ order.grandTotal.toFixed(2) }}</td>
+                <td><span class="status-badge status-{{ order.status.toLowerCase() }}">{{ order.status }}</span></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <app-empty-state title="No Orders" message="No orders have been placed yet." />
+      }
+    </div>
+
+    <div class="recent-section">
+      <div class="section-header">
+        <h3>Recent Products</h3>
+        <a routerLink="/admin/products" class="view-all">View All</a>
+      </div>
+      @if (recentProducts().length) {
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Name</th>
+              <th>Price</th>
+              <th>Stock</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (product of recentProducts(); track product.id) {
+              <tr>
+                <td>
+                  <img
+                    [src]="product.thumbnailUrl"
+                    [alt]="product.name"
+                    class="product-thumb"
+                  />
+                </td>
+                <td><strong>{{ product.name }}</strong></td>
+                <td>
+                  @if (product.salePrice) {
+                    <span class="sale-price">${{ product.salePrice.toFixed(2) }}</span>
+                    <span class="original-price">${{ product.price.toFixed(2) }}</span>
+                  } @else {
+                    ${{ product.price.toFixed(2) }}
+                  }
+                </td>
+                <td>{{ product.stockQuantity }}</td>
+                <td><span class="status-badge status-{{ product.status.toLowerCase() }}">{{ product.status }}</span></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <app-empty-state title="No Products" message="No products have been added yet." />
+      }
+    </div>
+
+    <div class="quick-actions">
+      <h3>Quick Actions</h3>
+      <div class="quick-actions__grid">
+        <a routerLink="/admin/products/create" class="action-card">
+          <i class="pi pi-plus-circle"></i>
+          <span>Add Product</span>
+        </a>
+        <a routerLink="/admin/orders" class="action-card">
+          <i class="pi pi-truck"></i>
+          <span>Manage Orders</span>
+        </a>
+        <a routerLink="/admin/banners" class="action-card">
+          <i class="pi pi-images"></i>
+          <span>Add Banner</span>
+        </a>
+        <a routerLink="/admin/coupons" class="action-card">
+          <i class="pi pi-tags"></i>
+          <span>Create Coupon</span>
+        </a>
+      </div>
+    </div>
+  }
+</div>

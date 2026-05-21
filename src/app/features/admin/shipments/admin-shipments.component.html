@@ -1,0 +1,97 @@
+<app-page-header [title]="pageTitle" />
+
+<div class="admin-content">
+  <div class="toolbar">
+    <div class="search-box">
+      <i class="pi pi-search"></i>
+      <input type="text" placeholder="Search shipments..." [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)" />
+    </div>
+    <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+      <option value="">All Statuses</option>
+      @for (s of shipmentStatuses; track s) { <option [value]="s">{{ s }}</option> }
+    </select>
+  </div>
+
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else if (error()) {
+    <div class="error-message">{{ error() }}</div>
+  } @else if (filteredShipments().length === 0) {
+    <app-empty-state title="No Shipments" message="No shipments found." icon="pi pi-truck" />
+  } @else {
+    <div class="table-responsive">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Shipment #</th>
+            <th>Order ID</th>
+            <th>Carrier</th>
+            <th>Tracking #</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (shipment of filteredShipments(); track shipment.id) {
+            <tr>
+              <td><strong>{{ shipment.shipmentNumber }}</strong></td>
+              <td>{{ shipment.orderId }}</td>
+              <td>{{ shipment.carrierName || '-' }}</td>
+              <td>{{ shipment.trackingNumber || '-' }}</td>
+              <td><span class="status-badge" [class]="getStatusClass(shipment.status)">{{ shipment.status }}</span></td>
+              <td>{{ shipment.createdAt | date:'mediumDate' }}</td>
+              <td class="actions">
+                <button class="btn btn-sm btn-outline" (click)="openDetail(shipment)"><i class="pi pi-eye"></i> View</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+
+@if (showDetailDialog() && selectedShipment(); as s) {
+  <div class="modal-overlay" (click)="closeDetail()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Shipment {{ s.shipmentNumber }}</h3>
+        <button class="modal-close" (click)="closeDetail()"><i class="pi pi-times"></i></button>
+      </div>
+      <div class="modal-body">
+        @if (dialogMessage()) { <div class="status-msg">{{ dialogMessage() }}</div> }
+        <div class="detail-grid">
+          <div class="detail-row"><span class="label">Order ID</span><span class="value">{{ s.orderId }}</span></div>
+          <div class="detail-row"><span class="label">Carrier</span><span class="value">{{ s.carrierName || '-' }}</span></div>
+          <div class="detail-row"><span class="label">Status</span><span class="status-badge" [class]="getStatusClass(s.status)">{{ s.status }}</span></div>
+          @if (s.trackingUrl) {
+            <div class="detail-row"><span class="label">Track</span><span class="value"><a [href]="s.trackingUrl" target="_blank" rel="noopener">Track Package <i class="pi pi-external-link"></i></a></span></div>
+          }
+          @if (s.shippedAt) { <div class="detail-row"><span class="label">Shipped</span><span class="value">{{ s.shippedAt | date:'mediumDate' }}</span></div> }
+          @if (s.deliveredAt) { <div class="detail-row"><span class="label">Delivered</span><span class="value">{{ s.deliveredAt | date:'mediumDate' }}</span></div> }
+        </div>
+
+        <div class="form-group">
+          <label>Tracking Number</label>
+          <input type="text" [ngModel]="editTracking()" (ngModelChange)="editTracking.set($event)" placeholder="Enter tracking number" />
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select [ngModel]="editStatus()" (ngModelChange)="editStatus.set($event)">
+            @for (st of shipmentStatuses; track st) { <option [value]="st">{{ st }}</option> }
+          </select>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-primary" (click)="updateTracking()">Update Tracking</button>
+          <button class="btn btn-info" (click)="updateStatus()">Update Status</button>
+          @if (s.status !== 'DELIVERED') {
+            <button class="btn btn-success" (click)="markDelivered()">Mark Delivered</button>
+          }
+          <button class="btn btn-outline" (click)="closeDetail()">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

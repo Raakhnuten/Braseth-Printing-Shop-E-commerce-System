@@ -1,0 +1,97 @@
+<app-page-header title="My Dashboard" />
+
+<div class="dashboard-page">
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else if (error()) {
+    <app-empty-state title="Error" [message]="error()" />
+  } @else {
+    <div class="dashboard-welcome">
+      <h2>Welcome back, {{ user?.firstName || 'User' }}!</h2>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon stat-icon--orders">
+          <i class="pi pi-box"></i>
+        </div>
+        <div class="stat-value">{{ totalOrders() }}</div>
+        <div class="stat-label">Total Orders</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon stat-icon--spent">
+          <i class="pi pi-dollar"></i>
+        </div>
+        <div class="stat-value">${{ totalSpent().toFixed(2) }}</div>
+        <div class="stat-label">Total Spent</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon stat-icon--wishlist">
+          <i class="pi pi-heart"></i>
+        </div>
+        <div class="stat-value">{{ wishlistItems() }}</div>
+        <div class="stat-label">Wishlist Items</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon stat-icon--pending">
+          <i class="pi pi-clock"></i>
+        </div>
+        <div class="stat-value">{{ pendingOrders() }}</div>
+        <div class="stat-label">Pending Orders</div>
+      </div>
+    </div>
+
+    <div class="recent-orders">
+      <div class="section-header">
+        <h3>Recent Orders</h3>
+        <a routerLink="/user/orders" class="view-all">View All</a>
+      </div>
+      @if (recentOrders().length) {
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th>Order #</th>
+              <th>Date</th>
+              <th>Items</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (order of recentOrders(); track order.id) {
+              <tr>
+                <td><strong>{{ order.orderNumber }}</strong></td>
+                <td>{{ order.createdAt | date:'mediumDate' }}</td>
+                <td>{{ order.items.length }}</td>
+                <td>${{ order.grandTotal.toFixed(2) }}</td>
+                <td><span class="status-badge status-{{ order.status.toLowerCase() }}">{{ order.status }}</span></td>
+                <td><a [routerLink]="['/user/orders', order.id]" class="btn-small">View</a></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <app-empty-state
+          title="No Orders Yet"
+          message="Start shopping to see your orders here!"
+        />
+      }
+    </div>
+
+    <div class="quick-actions">
+      <a routerLink="/products" class="action-card">
+        <i class="pi pi-shopping-bag"></i>
+        <span>Continue Shopping</span>
+      </a>
+      <a routerLink="/user/profile" class="action-card">
+        <i class="pi pi-user"></i>
+        <span>Edit Profile</span>
+      </a>
+      <a routerLink="/user/wishlist" class="action-card">
+        <i class="pi pi-heart"></i>
+        <span>View Wishlist</span>
+      </a>
+    </div>
+  }
+</div>

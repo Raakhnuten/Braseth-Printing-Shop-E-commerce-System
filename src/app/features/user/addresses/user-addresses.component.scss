@@ -1,0 +1,97 @@
+.addresses-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+
+  .add-action {
+    margin-bottom: 1.5rem;
+
+    .btn {
+      text-decoration: none;
+      display: inline-block;
+    }
+  }
+
+  .addresses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+
+    .address-card {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: box-shadow 0.2s;
+
+      &:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      }
+
+      &--default {
+        border-color: #1976d2;
+        border-width: 2px;
+      }
+
+      &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+
+        h4 {
+          margin: 0;
+          font-size: 1rem;
+          color: #333;
+        }
+
+        .default-badge {
+          background: #e3f2fd;
+          color: #1976d2;
+          padding: 4px 12px;
+          border-radius: 20px;
+          font-size: 0.75rem;
+          font-weight: 600;
+        }
+      }
+
+      &__line {
+        margin: 0.25rem 0;
+        font-size: 0.9rem;
+        color: #555;
+      }
+
+      &__actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 1rem;
+
+        .btn-small {
+          padding: 6px 14px;
+          border-radius: 6px;
+          border: 1px solid #ddd;
+          font-size: 0.8rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: background 0.2s;
+          background: #f5f5f5;
+          color: #333;
+
+          &:hover {
+            background: #eee;
+          }
+
+          &--danger {
+            background: #ffebee;
+            color: #d32f2f;
+            border-color: #ffcdd2;
+
+            &:hover {
+              background: #ffcdd2;
+            }
+          }
+        }
+      }
+    }
+  }
+}

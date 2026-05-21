@@ -1,0 +1,110 @@
+<app-page-header [title]="pageTitle" />
+
+<div class="admin-products-page">
+  <div class="toolbar">
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Search products..."
+      [ngModel]="searchKeyword()"
+      (ngModelChange)="searchKeyword.set($event)"
+    />
+
+    <select
+      class="filter-select"
+      [ngModel]="selectedCategoryId()"
+      (ngModelChange)="selectedCategoryId.set($event)"
+    >
+      <option value="">All Categories</option>
+      @for (cat of categories(); track cat.id) {
+        <option [value]="cat.id">{{ cat.name }}</option>
+      }
+    </select>
+
+    <select
+      class="filter-select"
+      [ngModel]="selectedStatus()"
+      (ngModelChange)="selectedStatus.set($event)"
+    >
+      <option value="">All Statuses</option>
+      <option value="DRAFT">Draft</option>
+      <option value="ACTIVE">Active</option>
+      <option value="INACTIVE">Inactive</option>
+      <option value="OUT_OF_STOCK">Out of Stock</option>
+    </select>
+
+    <a class="btn btn-primary" routerLink="/admin/products/create">
+      <i class="pi pi-plus"></i> Add Product
+    </a>
+  </div>
+
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else if (error()) {
+    <div class="error-banner">{{ error() }}</div>
+  } @else if (filteredProducts().length === 0) {
+    <app-empty-state title="No Products Found" message="Try adjusting your search or filters." icon="pi pi-box" />
+  } @else {
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Image</th>
+            <th>Name</th>
+            <th>SKU</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Status</th>
+            <th>Features</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (product of filteredProducts(); track product.id) {
+            <tr>
+              <td>
+                <img
+                  [src]="product.thumbnailUrl"
+                  [alt]="product.name"
+                  class="product-thumb"
+                />
+              </td>
+              <td class="product-name">{{ product.name }}</td>
+              <td><code>{{ product.sku }}</code></td>
+              <td>{{ product.categoryName }}</td>
+              <td class="price-cell">
+                @if (product.salePrice) {
+                  <span class="sale-price">${{ product.salePrice.toFixed(2) }}</span>
+                  <span class="original-price">${{ product.price.toFixed(2) }}</span>
+                } @else {
+                  ${{ product.price.toFixed(2) }}
+                }
+              </td>
+              <td>{{ product.stockQuantity }}</td>
+              <td>
+                <span class="status-badge" [class]="product.status.toLowerCase()">
+                  {{ statusLabel(product.status) }}
+                </span>
+              </td>
+              <td class="features-cell">
+                <span class="feature-dot" [class.active]="product.allowCart" title="Allow Cart">C</span>
+                <span class="feature-dot" [class.active]="product.allowCheckout" title="Allow Checkout">O</span>
+                <span class="feature-dot" [class.active]="product.allowCoupon" title="Allow Coupon">K</span>
+                <span class="feature-dot" [class.active]="product.allowReview" title="Allow Review">R</span>
+              </td>
+              <td class="actions-cell">
+                <a class="btn-small btn-edit" [routerLink]="['/admin/products/edit', product.id]">
+                  <i class="pi pi-pencil"></i>
+                </a>
+                <button class="btn-small btn-delete" (click)="deleteProduct(product.id)">
+                  <i class="pi pi-trash"></i>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

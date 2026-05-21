@@ -1,0 +1,82 @@
+<app-page-header title="My Orders" />
+
+<div class="orders-page">
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else {
+    @if (orders().length) {
+      <div class="orders-table-wrap">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th>Order #</th>
+              <th>Date</th>
+              <th>Items</th>
+              <th>Total</th>
+              <th>Order Status</th>
+              <th>Payment</th>
+              <th>Shipping</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (order of orders(); track order.id) {
+              <tr>
+                <td><strong>{{ order.orderNumber }}</strong></td>
+                <td>{{ order.createdAt | date:'mediumDate' }}</td>
+                <td>{{ order.totalItems }} item(s)</td>
+                <td>{{ order.grandTotal | currency }}</td>
+                <td>
+                  <span class="status-badge" [class]="getStatusClass(order.status)">
+                    {{ order.status }}
+                  </span>
+                </td>
+                <td>
+                  <span class="status-badge" [class]="getStatusClass(order.paymentStatus)">
+                    {{ order.paymentStatus }}
+                  </span>
+                </td>
+                <td>
+                  <span class="status-badge" [class]="getStatusClass(order.shippingStatus)">
+                    {{ order.shippingStatus }}
+                  </span>
+                </td>
+                <td>
+                  <a [routerLink]="['/user/orders', order.id]" class="btn-small">View</a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="orders-cards">
+        @for (order of orders(); track order.id) {
+          <div class="order-card">
+            <div class="order-card__header">
+              <div>
+                <span class="order-card__number">{{ order.orderNumber }}</span>
+                <span class="order-card__date">{{ order.createdAt | date:'mediumDate' }}</span>
+              </div>
+              <a [routerLink]="['/user/orders', order.id]" class="btn-small">View Details</a>
+            </div>
+            <div class="order-card__body">
+              <div class="order-card__items">{{ order.totalItems }} item(s)</div>
+              <div class="order-card__total">{{ order.grandTotal | currency }}</div>
+            </div>
+            <div class="order-card__statuses">
+              <span class="status-badge" [class]="getStatusClass(order.status)">{{ order.status }}</span>
+              <span class="status-badge" [class]="getStatusClass(order.paymentStatus)">{{ order.paymentStatus }}</span>
+              <span class="status-badge" [class]="getStatusClass(order.shippingStatus)">{{ order.shippingStatus }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <app-empty-state
+        title="No Orders"
+        message="You haven't placed any orders yet. Start shopping!"
+      />
+    }
+  }
+</div>

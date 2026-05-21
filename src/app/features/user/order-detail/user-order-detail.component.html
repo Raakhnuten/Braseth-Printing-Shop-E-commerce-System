@@ -1,0 +1,161 @@
+<app-page-header title="Order Details" />
+
+<div class="order-detail-page">
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else if (error()) {
+    <app-empty-state title="Error" [message]="error()" />
+  } @else if (orderDetail(); as order) {
+    <div class="order-header">
+      <div>
+        <h2>Order #{{ order.orderNumber }}</h2>
+        <p class="order-date">Placed on {{ order.createdAt | date:'mediumDate' }}</p>
+      </div>
+      <div class="order-header__badges">
+        <span class="status-badge" [class]="getStatusClass(order.status)">{{ order.status }}</span>
+      </div>
+    </div>
+
+    <div class="order-grid">
+      <div class="order-main">
+        <section class="detail-card">
+          <h3><i class="pi pi-user"></i> Customer Information</h3>
+          <div class="detail-grid">
+            <div class="detail-row"><span class="label">Name</span><span class="value">{{ order.customerName }}</span></div>
+            <div class="detail-row"><span class="label">Email</span><span class="value">{{ order.email }}</span></div>
+            <div class="detail-row"><span class="label">Phone</span><span class="value">{{ order.phone || '-' }}</span></div>
+            <div class="detail-row"><span class="label">Telegram</span><span class="value">{{ order.telegramUsername || '-' }}</span></div>
+          </div>
+        </section>
+
+        <section class="detail-card">
+          <h3><i class="pi pi-map-marker"></i> Shipping Address</h3>
+          <p class="address-text">{{ order.address }}</p>
+          @if (order.note) {
+            <p class="note-text"><strong>Note:</strong> {{ order.note }}</p>
+          }
+        </section>
+
+        <section class="detail-card">
+          <h3><i class="pi pi-shopping-bag"></i> Items ({{ order.items.length }})</h3>
+          @for (item of order.items; track item.id) {
+            <div class="order-item">
+              <img [src]="item.productImage" [alt]="item.productName" class="item-image" (error)="(item.productImage='assets/images/placeholder.png')" />
+              <div class="item-info">
+                <h4>{{ item.productName }}</h4>
+                <p class="item-price">{{ item.quantity }} &times; {{ item.unitPrice | currency }} = {{ item.subtotal | currency }}</p>
+                @if (item.selectedSize || item.selectedColor || item.selectedDecorationMethod || item.selectedPrintPosition) {
+                  <div class="item-customization">
+                    @if (item.selectedSize) { <span class="cust-tag">Size: {{ item.selectedSize }}</span> }
+                    @if (item.selectedColor) { <span class="cust-tag">Color: {{ item.selectedColor }}</span> }
+                    @if (item.selectedDecorationMethod) { <span class="cust-tag">Method: {{ item.selectedDecorationMethod }}</span> }
+                    @if (item.selectedPrintPosition) { <span class="cust-tag">Position: {{ item.selectedPrintPosition }}</span> }
+                    @for (pc of item.selectedPrintColors; track pc.colorId) {
+                      <span class="cust-tag" [style.border-left-color]="pc.colorHex">Print: {{ pc.colorName }}</span>
+                    }
+                    @if (item.uploadedDesignFiles.length > 0) {
+                      <span class="cust-tag cust-tag--files">
+                        <i class="pi pi-file"></i>
+                        @for (f of item.uploadedDesignFiles; track f.id; let last = $last) {
+                          {{ f.fileName }}{{ last ? '' : ', ' }}
+                        }
+                      </span>
+                    }
+                    @if (item.customizationFee > 0) { <span class="cust-tag cust-tag--fee">Customization: {{ item.customizationFee | currency }}</span> }
+                    @if (item.productionTime) { <span class="cust-tag cust-tag--time">Production: {{ item.productionTime }} days</span> }
+                  </div>
+                }
+              </div>
+              <div class="item-subtotal">{{ item.subtotal | currency }}</div>
+            </div>
+          }
+        </section>
+
+        @if (shipment()) {
+          <section class="detail-card">
+            <h3><i class="pi pi-truck"></i> Shipment Tracking</h3>
+            @if (shipment(); as s) {
+              <div class="detail-grid">
+                <div class="detail-row"><span class="label">Shipment #</span><span class="value">{{ s.shipmentNumber }}</span></div>
+                <div class="detail-row"><span class="label">Status</span><span class="status-badge" [class]="getStatusClass(s.status)">{{ s.status }}</span></div>
+                <div class="detail-row"><span class="label">Carrier</span><span class="value">{{ s.carrierName || '-' }}</span></div>
+                <div class="detail-row"><span class="label">Tracking #</span><span class="value">{{ s.trackingNumber || '-' }}</span></div>
+                @if (s.trackingUrl) {
+                  <div class="detail-row"><span class="label">Track</span><span class="value"><a [href]="s.trackingUrl" target="_blank" rel="noopener">Track Package <i class="pi pi-external-link"></i></a></span></div>
+                }
+                @if (s.shippedAt) { <div class="detail-row"><span class="label">Shipped</span><span class="value">{{ s.shippedAt | date:'mediumDate' }}</span></div> }
+                @if (s.deliveredAt) { <div class="detail-row"><span class="label">Delivered</span><span class="value">{{ s.deliveredAt | date:'mediumDate' }}</span></div> }
+              </div>
+            }
+          </section>
+        }
+      </div>
+
+      <aside class="order-sidebar">
+        <section class="summary-card">
+          <h3>Order Summary</h3>
+          <div class="summary-row"><span>Subtotal</span><span>{{ order.subtotal | currency }}</span></div>
+          @if (order.customizationFeeTotal > 0) {
+            <div class="summary-row"><span>Customization Fees</span><span>{{ order.customizationFeeTotal | currency }}</span></div>
+          }
+          @if (order.discount > 0) {
+            <div class="summary-row"><span>Discount</span><span class="discount">-{{ order.discount | currency }}</span></div>
+          }
+          <div class="summary-row"><span>Delivery Fee</span><span>{{ order.deliveryFee === 0 ? 'FREE' : (order.deliveryFee | currency) }}</span></div>
+          @if (order.tax > 0) {
+            <div class="summary-row"><span>Tax</span><span>{{ order.tax | currency }}</span></div>
+          }
+          <div class="summary-divider"></div>
+          <div class="summary-row summary-row--total"><span>Grand Total</span><span>{{ order.grandTotal | currency }}</span></div>
+        </section>
+
+        <section class="summary-card">
+          <h3>Payment</h3>
+          <div class="detail-grid">
+            <div class="detail-row"><span class="label">Method</span><span class="value">{{ order.paymentMethodName }}</span></div>
+            <div class="detail-row"><span class="label">Status</span><span class="status-badge" [class]="getStatusClass(order.paymentStatus)">{{ order.paymentStatus }}</span></div>
+            @if (order.paymentTransactionId) {
+              <div class="detail-row"><span class="label">Transaction ID</span><span class="value">{{ order.paymentTransactionId }}</span></div>
+            }
+            @if (order.paymentProofUrl) {
+              <div class="detail-row"><span class="label">Proof</span><span class="value"><a [href]="order.paymentProofUrl" target="_blank" rel="noopener">View Proof <i class="pi pi-external-link"></i></a></span></div>
+            }
+          </div>
+        </section>
+
+        <section class="summary-card">
+          <h3>Shipping</h3>
+          <div class="detail-grid">
+            <div class="detail-row"><span class="label">Method</span><span class="value">{{ order.shippingMethodName }}</span></div>
+            @if (order.shippingZoneName) {
+              <div class="detail-row"><span class="label">Zone</span><span class="value">{{ order.shippingZoneName }}</span></div>
+            }
+            <div class="detail-row"><span class="label">Fee</span><span class="value">{{ order.deliveryFee === 0 ? 'FREE' : (order.deliveryFee | currency) }}</span></div>
+            <div class="detail-row"><span class="label">Status</span><span class="status-badge" [class]="getStatusClass(order.shippingStatus)">{{ order.shippingStatus }}</span></div>
+          </div>
+        </section>
+
+        @if (invoice()) {
+          <section class="summary-card">
+            <h3><i class="pi pi-receipt"></i> Invoice</h3>
+            @if (invoice(); as inv) {
+              <div class="detail-grid">
+                <div class="detail-row"><span class="label">Invoice #</span><span class="value">{{ inv.invoiceNumber }}</span></div>
+                <div class="detail-row"><span class="label">Status</span><span class="status-badge" [class]="getStatusClass(inv.status)">{{ inv.status }}</span></div>
+                @if (inv.issuedAt) { <div class="detail-row"><span class="label">Issued</span><span class="value">{{ inv.issuedAt | date:'mediumDate' }}</span></div> }
+                <div class="detail-row"><span class="label">Total</span><span class="value value--bold">{{ inv.grandTotal | currency }}</span></div>
+              </div>
+              <button class="btn-invoice" (click)="openUrl(inv.downloadUrl)" [disabled]="!inv.downloadUrl">
+                <i class="pi pi-download"></i> Download Invoice
+              </button>
+            }
+          </section>
+        }
+
+        <a routerLink="/user/orders" class="btn-back">
+          <i class="pi pi-arrow-left"></i> Back to Orders
+        </a>
+      </aside>
+    </div>
+  }
+</div>

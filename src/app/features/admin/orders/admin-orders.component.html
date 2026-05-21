@@ -1,0 +1,126 @@
+<app-page-header [title]="pageTitle" />
+
+<div class="admin-content">
+  <div class="toolbar">
+    <div class="search-box">
+      <i class="pi pi-search"></i>
+      <input type="text" placeholder="Search orders..." [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)" />
+    </div>
+    <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+      <option value="">All Order Statuses</option>
+      @for (s of orderStatuses; track s) { <option [value]="s">{{ s }}</option> }
+    </select>
+    <select [ngModel]="paymentFilter()" (ngModelChange)="paymentFilter.set($event)">
+      <option value="">All Payments</option>
+      @for (s of paymentStatuses; track s) { <option [value]="s">{{ s }}</option> }
+    </select>
+    <select [ngModel]="shippingFilter()" (ngModelChange)="shippingFilter.set($event)">
+      <option value="">All Shipping</option>
+      @for (s of shippingStatuses; track s) { <option [value]="s">{{ s }}</option> }
+    </select>
+  </div>
+
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else if (error()) {
+    <div class="error-message">{{ error() }}</div>
+  } @else if (filteredOrders().length === 0) {
+    <app-empty-state title="No Orders" message="No orders match your criteria." icon="pi pi-shopping-cart" />
+  } @else {
+    <div class="table-responsive">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Order #</th>
+            <th>Customer</th>
+            <th>Date</th>
+            <th>Items</th>
+            <th>Total</th>
+            <th>Order</th>
+            <th>Payment</th>
+            <th>Shipping</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (order of filteredOrders(); track order.id) {
+            <tr>
+              <td><strong>{{ order.orderNumber }}</strong></td>
+              <td>{{ order.customerName }}</td>
+              <td>{{ order.createdAt | date:'mediumDate' }}</td>
+              <td>{{ order.totalItems }}</td>
+              <td><strong>{{ order.grandTotal | currency }}</strong></td>
+              <td><span class="status-badge" [class]="getStatusClass(order.status)">{{ order.status }}</span></td>
+              <td><span class="status-badge" [class]="getStatusClass(order.paymentStatus)">{{ order.paymentStatus }}</span></td>
+              <td><span class="status-badge" [class]="getStatusClass(order.shippingStatus)">{{ order.shippingStatus }}</span></td>
+              <td class="actions">
+                <button class="btn btn-sm btn-outline" (click)="openOrderDetail(order)"><i class="pi pi-eye"></i> View</button>
+                <button class="btn btn-sm btn-success" (click)="openShipmentDialog(order.id)" [disabled]="order.shippingStatus !== 'NOT_SHIPPED'"><i class="pi pi-truck"></i> Ship</button>
+                <button class="btn btn-sm btn-info" (click)="generateInvoice(order.id)"><i class="pi pi-receipt"></i> Invoice</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+
+@if (showOrderDialog() && selectedOrder(); as order) {
+  <div class="modal-overlay" (click)="closeOrderDialog()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Order {{ order.orderNumber }}</h3>
+        <button class="modal-close" (click)="closeOrderDialog()"><i class="pi pi-times"></i></button>
+      </div>
+      <div class="modal-body">
+        @if (statusMessage()) { <div class="status-msg">{{ statusMessage() }}</div> }
+        <div class="detail-grid">
+          <div class="detail-row"><span class="label">Customer</span><span class="value">{{ order.customerName }}</span></div>
+          <div class="detail-row"><span class="label">Email</span><span class="value">{{ order.email }}</span></div>
+          <div class="detail-row"><span class="label">Total</span><span class="value value--bold">{{ order.grandTotal | currency }}</span></div>
+          <div class="detail-row"><span class="label">Items</span><span class="value">{{ order.totalItems }}</span></div>
+          <div class="detail-row"><span class="label">Payment</span><span class="value">{{ order.paymentMethodName }}</span></div>
+          <div class="detail-row"><span class="label">Shipping</span><span class="value">{{ order.shippingMethodName }}</span></div>
+        </div>
+        <h4>Update Order Status</h4>
+        <div class="status-actions">
+          <select [ngModel]="newStatus()" (ngModelChange)="newStatus.set($event)">
+            @for (s of orderStatuses; track s) { <option [value]="s">{{ s }}</option> }
+          </select>
+          <button class="btn btn-primary" (click)="updateOrderStatus()">Update</button>
+        </div>
+        <div class="modal-footer">
+          <a [routerLink]="['/admin/orders', order.id]" class="btn btn-outline">Full Details</a>
+          <button class="btn btn-outline" (click)="closeOrderDialog()">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+@if (showShipmentDialog()) {
+  <div class="modal-overlay" (click)="closeShipmentDialog()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Create Shipment</h3>
+        <button class="modal-close" (click)="closeShipmentDialog()"><i class="pi pi-times"></i></button>
+      </div>
+      <div class="modal-body">
+        @if (shipmentMessage()) { <div class="status-msg">{{ shipmentMessage() }}</div> }
+        <div class="form-group">
+          <label>Tracking Number</label>
+          <input type="text" [ngModel]="shipmentTracking()" (ngModelChange)="shipmentTracking.set($event)" placeholder="Enter tracking number" />
+        </div>
+        <div class="form-group">
+          <label>Carrier Name</label>
+          <input type="text" [ngModel]="shipmentCarrier()" (ngModelChange)="shipmentCarrier.set($event)" placeholder="e.g. J&T Express" />
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" (click)="createShipment()">Create Shipment</button>
+          <button class="btn btn-outline" (click)="closeShipmentDialog()">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

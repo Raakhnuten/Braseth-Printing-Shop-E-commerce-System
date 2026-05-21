@@ -1,0 +1,141 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-card__header">
+      <a routerLink="/" class="auth-card__logo">
+        <span class="auth-card__logo-icon">S</span>
+        <span class="auth-card__logo-text">Seth Store</span>
+      </a>
+      <h1 class="auth-card__title">Create Account</h1>
+      <p class="auth-card__subtitle">Join Seth Store today</p>
+    </div>
+
+    @if (success) {
+      <div class="auth-form__success">
+        Account created successfully! Redirecting...
+      </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="auth-form">
+      @if (error) {
+        <div class="auth-form__error">{{ error }}</div>
+      }
+
+      <div class="auth-form__row">
+        <div class="form-group">
+          <label class="form-label" for="firstName">First Name</label>
+          <input
+            id="firstName"
+            type="text"
+            class="form-control"
+            [class.is-invalid]="form.controls.firstName.touched && form.controls.firstName.invalid"
+            formControlName="firstName"
+            placeholder="John"
+          />
+          @if (form.controls.firstName.touched && form.controls.firstName.hasError('required')) {
+            <span class="form-error">Required</span>
+          }
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="lastName">Last Name</label>
+          <input
+            id="lastName"
+            type="text"
+            class="form-control"
+            [class.is-invalid]="form.controls.lastName.touched && form.controls.lastName.invalid"
+            formControlName="lastName"
+            placeholder="Doe"
+          />
+          @if (form.controls.lastName.touched && form.controls.lastName.hasError('required')) {
+            <span class="form-error">Required</span>
+          }
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          class="form-control"
+          [class.is-invalid]="form.controls.email.touched && form.controls.email.invalid"
+          formControlName="email"
+          placeholder="your@email.com"
+        />
+        @if (form.controls.email.touched && form.controls.email.hasError('required')) {
+          <span class="form-error">Email is required</span>
+        }
+        @if (form.controls.email.touched && form.controls.email.hasError('email')) {
+          <span class="form-error">Enter a valid email</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="phone">Phone (optional)</label>
+        <input
+          id="phone"
+          type="tel"
+          class="form-control"
+          formControlName="phone"
+          placeholder="+1 (555) 000-0000"
+        />
+      </div>
+
+      <div class="auth-form__row">
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            class="form-control"
+            [class.is-invalid]="form.controls.password.touched && form.controls.password.invalid"
+            formControlName="password"
+            placeholder="Min. 6 characters"
+            autocomplete="new-password"
+          />
+          @if (form.controls.password.touched && form.controls.password.hasError('required')) {
+            <span class="form-error">Password is required</span>
+          }
+          @if (form.controls.password.touched && form.controls.password.hasError('minlength')) {
+            <span class="form-error">At least 6 characters</span>
+          }
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="confirmPassword">Confirm Password</label>
+          <input
+            id="confirmPassword"
+            type="password"
+            class="form-control"
+            [class.is-invalid]="(form.controls.confirmPassword.touched && form.controls.confirmPassword.invalid) || (form.touched && form.hasError('passwordMismatch'))"
+            formControlName="confirmPassword"
+            placeholder="Repeat password"
+            autocomplete="new-password"
+          />
+          @if (form.controls.confirmPassword.touched && form.controls.confirmPassword.hasError('required')) {
+            <span class="form-error">Confirm your password</span>
+          }
+          @if (form.touched && form.hasError('passwordMismatch')) {
+            <span class="form-error">Passwords do not match</span>
+          }
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn-primary btn-lg btn-block auth-form__submit"
+        [disabled]="loading"
+      >
+        @if (loading) {
+          <span class="auth-form__spinner"></span>
+          Creating account...
+        } @else {
+          Create Account
+        }
+      </button>
+    </form>
+
+    <div class="auth-card__footer">
+      Already have an account?
+      <a routerLink="/auth/login">Sign in</a>
+    </div>
+  </div>
+</div>

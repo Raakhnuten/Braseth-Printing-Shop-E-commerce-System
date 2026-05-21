@@ -1,0 +1,191 @@
+<app-page-header [title]="pageTitle" />
+
+<div class="admin-page">
+  <div class="toolbar">
+    <button class="btn-primary" (click)="openCreateForm()">
+      <i class="pi pi-plus"></i> Add Banner
+    </button>
+  </div>
+
+  @if (successMessage()) {
+    <div class="alert alert-success">{{ successMessage() }}</div>
+  }
+
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else if (error()) {
+    <app-empty-state [title]="'Error'" [message]="error()" />
+  } @else if (banners().length === 0) {
+    <app-empty-state title="No Banners" message="No banners have been created yet." />
+  } @else {
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Image</th>
+          <th>Title</th>
+          <th>Subtitle</th>
+          <th>Link URL</th>
+          <th>Position</th>
+          <th>Sort Order</th>
+          <th>Enabled</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (banner of banners(); track banner.id) {
+          <tr>
+            <td>
+              <img
+                class="banner-thumb"
+                [src]="banner.imageUrl"
+                [alt]="banner.title"
+                width="80"
+                height="40"
+              />
+            </td>
+            <td class="cell-max-width">{{ banner.title }}</td>
+            <td class="cell-max-width">{{ banner.subtitle }}</td>
+            <td class="link-cell">{{ banner.linkUrl }}</td>
+            <td>
+              <span class="badge badge-blue">{{ banner.position }}</span>
+            </td>
+            <td>{{ banner.sortOrder }}</td>
+            <td>
+              <span class="badge" [class.badge-green]="banner.enabled" [class.badge-red]="!banner.enabled">
+                {{ banner.enabled ? 'Active' : 'Disabled' }}
+              </span>
+            </td>
+            <td class="actions-cell">
+              <button class="btn-small btn-edit" (click)="openEditForm(banner)">
+                <i class="pi pi-pencil"></i> Edit
+              </button>
+              <button class="btn-small btn-delete" (click)="deleteBanner(banner.id)">
+                <i class="pi pi-trash"></i> Delete
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>
+
+@if (showForm()) {
+  <div class="modal-overlay" (click)="closeForm()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ formMode() === 'create' ? 'Add Banner' : 'Edit Banner' }}</h3>
+        <button class="modal-close" (click)="closeForm()">&times;</button>
+      </div>
+      <div class="modal-body">
+        @if (formError()) {
+          <div class="alert alert-error">{{ formError() }}</div>
+        }
+        <div class="form-group">
+          <label for="banner-title">Title</label>
+          <input
+            id="banner-title"
+            type="text"
+            [formControl]="$any(form.controls['title'])"
+            [class.input-error]="submitted() && form.controls['title'].invalid"
+          />
+          @if (submitted() && form.controls['title'].invalid) {
+            <span class="field-error">Title is required</span>
+          }
+        </div>
+        <div class="form-group">
+          <label for="banner-subtitle">Subtitle</label>
+          <input
+            id="banner-subtitle"
+            type="text"
+            [formControl]="$any(form.controls['subtitle'])"
+          />
+        </div>
+        <div class="form-group">
+          <label for="banner-image">Image URL</label>
+          <input
+            id="banner-image"
+            type="text"
+            [formControl]="$any(form.controls['imageUrl'])"
+            [class.input-error]="submitted() && form.controls['imageUrl'].invalid"
+          />
+          @if (submitted() && form.controls['imageUrl'].invalid) {
+            <span class="field-error">Image URL is required</span>
+          }
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="banner-link-url">Link URL</label>
+            <input
+              id="banner-link-url"
+              type="text"
+              [formControl]="$any(form.controls['linkUrl'])"
+            />
+          </div>
+          <div class="form-group">
+            <label for="banner-link-text">Link Text</label>
+            <input
+              id="banner-link-text"
+              type="text"
+              [formControl]="$any(form.controls['linkText'])"
+            />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="banner-position">Position</label>
+            <select
+              id="banner-position"
+              [formControl]="$any(form.controls['position'])"
+            >
+              @for (pos of bannerPositions; track pos) {
+                <option [ngValue]="pos">{{ pos }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="banner-sort">Sort Order</label>
+            <input
+              id="banner-sort"
+              type="number"
+              [formControl]="$any(form.controls['sortOrder'])"
+            />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="banner-starts">Starts At</label>
+            <input
+              id="banner-starts"
+              type="date"
+              [formControl]="$any(form.controls['startsAt'])"
+            />
+          </div>
+          <div class="form-group">
+            <label for="banner-ends">Ends At</label>
+            <input
+              id="banner-ends"
+              type="date"
+              [formControl]="$any(form.controls['endsAt'])"
+            />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [formControl]="$any(form.controls['enabled'])"
+            />
+            Enabled
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeForm()">Cancel</button>
+        <button class="btn btn-primary" (click)="onSubmit()" [disabled]="saving()">
+          {{ saving() ? 'Saving...' : 'Save' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

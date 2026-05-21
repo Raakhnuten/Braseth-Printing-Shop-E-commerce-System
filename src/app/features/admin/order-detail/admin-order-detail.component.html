@@ -1,0 +1,147 @@
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (error()) {
+  <div class="admin-content">
+    <app-page-header title="Order Detail" [breadcrumbs]="[{ label: 'Orders', url: '/admin/orders' }]" />
+    <div class="error-message">{{ error() }}</div>
+  </div>
+} @else {
+  <div class="admin-content">
+    <app-page-header
+      [title]="pageTitle"
+      [breadcrumbs]="[
+        { label: 'Orders', url: '/admin/orders' },
+        { label: order()?.orderNumber || 'Order Detail', url: '' }
+      ]"
+    />
+
+    <div class="order-detail">
+      @if (statusUpdateMessage()) {
+        <div class="status-message" [class.success]="statusUpdateMessage().includes('successfully')">
+          {{ statusUpdateMessage() }}
+        </div>
+      }
+
+      <div class="detail-grid">
+        <div class="detail-card">
+          <h3>Customer Information</h3>
+          <div class="detail-row">
+            <span class="label">Name</span>
+            <span class="value">{{ order()?.customerName }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Email</span>
+            <span class="value">customer@example.com</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Phone</span>
+            <span class="value">{{ order()?.phone || '-' }}</span>
+          </div>
+        </div>
+
+        <div class="detail-card">
+          <h3>Shipping Address</h3>
+            <div class="address-display">
+              {{ order()?.address }}
+            </div>
+        </div>
+
+        <div class="detail-card">
+          <h3>Order Status</h3>
+          <div class="detail-row">
+            <span class="label">Status</span>
+            <span class="status-badge status-{{ order()?.status?.toLowerCase() }}">{{ order()?.status }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Payment</span>
+            <span class="status-badge status-{{ order()?.paymentStatus?.toLowerCase() }}">{{ order()?.paymentStatus }}</span>
+          </div>
+        </div>
+
+        <div class="detail-card">
+          <h3>Payment Information</h3>
+          <div class="detail-row">
+            <span class="label">Method</span>
+            <span class="value">{{ order()?.paymentMethodName || '-' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Status</span>
+            <span class="status-badge status-{{ order()?.paymentStatus?.toLowerCase() }}">{{ order()?.paymentStatus }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-card items-card">
+        <h3>Order Items</h3>
+        <div class="table-responsive">
+          <table class="items-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Qty</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of order()?.items; track item.productId) {
+                <tr>
+                  <td>
+                    @if (item.productImage) {
+                      <img [src]="item.productImage" [alt]="item.productName" class="item-thumbnail" />
+                    } @else {
+                      <div class="thumbnail-placeholder"><i class="pi pi-image"></i></div>
+                    }
+                  </td>
+                  <td>{{ item.productName }}</td>
+                  <td>{{ item.unitPrice | currency: 'USD' : 'symbol' : '1.2-2' }}</td>
+                  <td>{{ item.quantity }}</td>
+                  <td class="item-total">{{ item.subtotal | currency: 'USD' : 'symbol' : '1.2-2' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="order-summary">
+          <div class="summary-row">
+            <span>Subtotal</span>
+            <span>{{ order()?.subtotal | currency: 'USD' : 'symbol' : '1.2-2' }}</span>
+          </div>
+          <div class="summary-row">
+            <span>Discount</span>
+            <span class="discount">-{{ order()?.discount | currency: 'USD' : 'symbol' : '1.2-2' }}</span>
+          </div>
+          <div class="summary-row">
+            <span>Shipping</span>
+            <span>{{ order()?.deliveryFee && order()?.deliveryFee! > 0 ? (order()?.deliveryFee | currency: 'USD' : 'symbol' : '1.2-2') : 'FREE' }}</span>
+          </div>
+          <div class="summary-row total">
+            <span>Total</span>
+            <span>{{ order()?.grandTotal | currency: 'USD' : 'symbol' : '1.2-2' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-card">
+        <h3>Update Status</h3>
+        <div class="status-update-row">
+          <select #statusSelect>
+            @for (status of orderStatuses; track status) {
+              <option [value]="status" [selected]="status === order()?.status">{{ status }}</option>
+            }
+          </select>
+          <button class="btn btn-primary" (click)="updateStatus(statusSelect.value)">Update Status</button>
+          <button class="btn btn-outline-danger" (click)="cancelOrder()">Cancel Order</button>
+        </div>
+      </div>
+
+      <div class="back-link">
+        <a routerLink="/admin/orders" class="btn btn-outline">
+          <i class="pi pi-arrow-left"></i> Back to Orders
+        </a>
+      </div>
+    </div>
+  </div>
+}

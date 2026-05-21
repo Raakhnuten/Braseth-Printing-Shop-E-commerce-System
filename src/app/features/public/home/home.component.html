@@ -1,0 +1,190 @@
+@if (loading()) {
+  <app-loading-spinner />
+} @else {
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero__bg"></div>
+    <div class="container hero__content">
+      <div class="hero__text">
+        <h1 class="hero__title">Shop the Latest Trends in Cambodia</h1>
+        <p class="hero__subtitle">Discover fashion, shoes, electronics, beauty, and lifestyle products with fast delivery and secure checkout.</p>
+        <div class="hero__actions">
+          <a routerLink="/products" class="btn btn-primary btn-lg">Shop Now</a>
+          <a routerLink="/products" [queryParams]="{sale: true}" class="btn btn-secondary btn-lg">View Deals</a>
+        </div>
+        <div class="hero__badges">
+          <div class="hero__badge">
+            <i class="pi pi-bolt"></i>
+            <span>Fast Delivery</span>
+          </div>
+          <div class="hero__badge">
+            <i class="pi pi-shield"></i>
+            <span>Secure Payment</span>
+          </div>
+          <div class="hero__badge">
+            <i class="pi pi-refresh"></i>
+            <span>Easy Returns</span>
+          </div>
+        </div>
+      </div>
+      <div class="hero__image">
+        <div class="hero__image-card">
+          <i class="pi pi-shopping-bag"></i>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Category Section -->
+  <section class="section container">
+    <h2 class="section-title">Shop by Category</h2>
+    <p class="section-subtitle">Browse our most popular categories</p>
+    <div class="categories-grid">
+      @for (cat of displayCategories; track cat.id) {
+        <a [routerLink]="cat.route" [queryParams]="cat.queryParams" class="category-card">
+          <div class="category-card__icon">
+            <i [class]="'pi ' + cat.icon"></i>
+          </div>
+          <h3 class="category-card__name">{{ cat.name }}</h3>
+          <p class="category-card__desc">{{ cat.description }}</p>
+          <span class="category-card__link">Explore <i class="pi pi-arrow-right"></i></span>
+        </a>
+      }
+    </div>
+  </section>
+
+  <!-- Featured Products Section -->
+  @if (featuredProducts().length) {
+    <section class="section container">
+      <h2 class="section-title">Featured Products</h2>
+      <p class="section-subtitle">Handpicked favorites just for you</p>
+      <div class="products-grid">
+        @for (product of featuredProducts(); track product.id) {
+          <app-product-card [product]="product" />
+        }
+      </div>
+    </section>
+  }
+
+  <!-- Deals / Promotion Section -->
+  <section class="promo-section">
+    <div class="container promo-section__content">
+      <div class="promo-section__badge">🔥 Limited Time Offer</div>
+      <h2 class="promo-section__title">Big Deals This Week</h2>
+      <p class="promo-section__text">Save up to 50% on selected products</p>
+      <div class="promo-section__countdown">
+        <div class="countdown-item">
+          <span class="countdown-value">02</span>
+          <span class="countdown-label">Days</span>
+        </div>
+        <div class="countdown-item">
+          <span class="countdown-value">14</span>
+          <span class="countdown-label">Hours</span>
+        </div>
+        <div class="countdown-item">
+          <span class="countdown-value">35</span>
+          <span class="countdown-label">Minutes</span>
+        </div>
+        <div class="countdown-item">
+          <span class="countdown-value">22</span>
+          <span class="countdown-label">Seconds</span>
+        </div>
+      </div>
+      <a routerLink="/products" [queryParams]="{sale: true}" class="btn btn-primary btn-lg">Explore Deals</a>
+    </div>
+  </section>
+
+  <!-- Why Shop With Us Section -->
+  <section class="section container">
+    <h2 class="section-title">Why Shop With Us</h2>
+    <p class="section-subtitle">Your trusted shopping partner in Cambodia</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-card__icon">
+          <i class="pi pi-truck"></i>
+        </div>
+        <h3 class="feature-card__title">Fast Delivery in Cambodia</h3>
+        <p class="feature-card__desc">Get your orders delivered quickly across Cambodia with our reliable shipping partners.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__icon">
+          <i class="pi pi-shield"></i>
+        </div>
+        <h3 class="feature-card__title">Secure Payment</h3>
+        <p class="feature-card__desc">Shop with confidence using our secure payment methods including ABA, Wing, and cards.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__icon">
+          <i class="pi pi-verified"></i>
+        </div>
+        <h3 class="feature-card__title">Quality Products</h3>
+        <p class="feature-card__desc">We carefully select every product to ensure you receive only the best quality items.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__icon">
+          <i class="pi pi-comments"></i>
+        </div>
+        <h3 class="feature-card__title">Friendly Support</h3>
+        <p class="feature-card__desc">Our customer support team is always ready to help you with any questions or concerns.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__icon">
+          <i class="pi pi-refresh"></i>
+        </div>
+        <h3 class="feature-card__title">Easy Return Policy</h3>
+        <p class="feature-card__desc">Not satisfied? Return your items within 30 days for a full refund, no questions asked.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trending Products / Best Sellers Section -->
+  @if (bestSellers().length) {
+    <section class="section section--alt">
+      <div class="container">
+        <h2 class="section-title">Trending Now</h2>
+        <p class="section-subtitle">Best sellers and trending products</p>
+        <div class="products-grid">
+          @for (product of bestSellers(); track product.id) {
+            <app-product-card [product]="product" />
+          }
+        </div>
+        <div class="section-cta">
+          <a routerLink="/products" class="btn btn-secondary btn-lg">View All Products</a>
+        </div>
+      </div>
+    </section>
+  }
+
+  <!-- Newsletter Section -->
+  <section class="newsletter-section">
+    <div class="container newsletter-section__content">
+      <div class="newsletter-section__icon">
+        <i class="pi pi-envelope"></i>
+      </div>
+      <h2 class="newsletter-section__title">Get Exclusive Deals</h2>
+      <p class="newsletter-section__text">Subscribe to receive new arrivals, discounts, and special offers.</p>
+      <form class="newsletter-form" (ngSubmit)="onNewsletterSubmit()">
+        <input 
+          type="email" 
+          class="newsletter-form__input" 
+          placeholder="Enter your email address"
+          [(ngModel)]="newsletterEmail"
+          name="email"
+          required
+        />
+        <button type="submit" class="btn btn-primary">Subscribe</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- SEO Text Section -->
+  <section class="section container seo-section">
+    <h2 class="seo-section__title">Online Shopping Made Easy with Seth Store</h2>
+    <p class="seo-section__text">
+      Seth Store makes online shopping in Cambodia simple, stylish, and reliable. Browse fashion, shoes, electronics, beauty products, and lifestyle essentials from one modern shopping experience. Our store is designed for fast browsing, easy checkout, and a smooth shopping journey on every device.
+    </p>
+    <p class="seo-section__text">
+      Whether you're looking for the latest fashion trends, quality footwear, cutting-edge electronics, or beauty products, Seth Store has everything you need. We offer competitive prices, secure payment options, and fast delivery across Cambodia. Shop with confidence knowing that every purchase is backed by our customer satisfaction guarantee and easy return policy.
+    </p>
+  </section>
+}

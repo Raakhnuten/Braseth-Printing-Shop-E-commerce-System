@@ -1,0 +1,162 @@
+<app-page-header [title]="pageTitle" />
+
+<div class="admin-content">
+  <div class="toolbar">
+    <button class="btn btn-primary" (click)="openCreateForm()">
+      <i class="pi pi-plus"></i> Add Category
+    </button>
+  </div>
+
+  @if (successMessage()) {
+    <div class="alert alert-success">{{ successMessage() }}</div>
+  }
+
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else if (error()) {
+    <div class="error-message">{{ error() }}</div>
+  } @else if (categories().length === 0) {
+    <app-empty-state title="No Categories" message="No categories found. Click Add Category to create one." icon="pi pi-tags" />
+  } @else {
+    <div class="table-responsive">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Image</th>
+            <th>Name</th>
+            <th>Slug</th>
+            <th>Parent Category</th>
+            <th>Sort Order</th>
+            <th>Enabled</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (category of categories(); track category.id) {
+            <tr>
+              <td>
+                @if (category.imageUrl) {
+                  <img [src]="category.imageUrl" [alt]="category.name" class="thumbnail" />
+                } @else {
+                  <div class="thumbnail-placeholder"><i class="pi pi-image"></i></div>
+                }
+              </td>
+              <td>{{ category.name }}</td>
+              <td><code>{{ category.slug }}</code></td>
+              <td>{{ category.parentName || '-' }}</td>
+              <td>{{ category.sortOrder }}</td>
+              <td>
+                @if (category.enabled) {
+                  <span class="badge badge-success">Yes</span>
+                } @else {
+                  <span class="badge badge-secondary">No</span>
+                }
+              </td>
+              <td class="actions">
+                <button class="btn btn-sm btn-outline" (click)="openEditForm(category)" title="Edit">
+                  <i class="pi pi-pencil"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" (click)="deleteCategory(category.id)" title="Delete">
+                  <i class="pi pi-trash"></i>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+
+@if (showForm()) {
+  <div class="modal-overlay" (click)="closeForm()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ formMode() === 'create' ? 'Add Category' : 'Edit Category' }}</h3>
+        <button class="modal-close" (click)="closeForm()">&times;</button>
+      </div>
+      <div class="modal-body">
+        @if (formError()) {
+          <div class="alert alert-error">{{ formError() }}</div>
+        }
+        <div class="form-group">
+          <label for="cat-name">Name</label>
+          <input
+            id="cat-name"
+            type="text"
+            [formControl]="$any(form.controls['name'])"
+            [class.input-error]="submitted() && form.controls['name'].invalid"
+          />
+          @if (submitted() && form.controls['name'].invalid) {
+            <span class="field-error">Name is required</span>
+          }
+        </div>
+        <div class="form-group">
+          <label for="cat-slug">Slug</label>
+          <input
+            id="cat-slug"
+            type="text"
+            [formControl]="$any(form.controls['slug'])"
+            [class.input-error]="submitted() && form.controls['slug'].invalid"
+          />
+          @if (submitted() && form.controls['slug'].invalid) {
+            <span class="field-error">Slug is required</span>
+          }
+        </div>
+        <div class="form-group">
+          <label for="cat-description">Description</label>
+          <textarea
+            id="cat-description"
+            rows="3"
+            [formControl]="$any(form.controls['description'])"
+          ></textarea>
+        </div>
+        <div class="form-group">
+          <label for="cat-image">Image URL</label>
+          <input
+            id="cat-image"
+            type="text"
+            [formControl]="$any(form.controls['imageUrl'])"
+          />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="cat-parent">Parent Category</label>
+            <select
+              id="cat-parent"
+              [formControl]="$any(form.controls['parentId'])"
+            >
+              <option [ngValue]="null">None</option>
+              @for (cat of categories(); track cat.id) {
+                <option [ngValue]="cat.id" [disabled]="cat.id === editingId()">{{ cat.name }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="cat-sort">Sort Order</label>
+            <input
+              id="cat-sort"
+              type="number"
+              [formControl]="$any(form.controls['sortOrder'])"
+            />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [formControl]="$any(form.controls['enabled'])"
+            />
+            Enabled
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeForm()">Cancel</button>
+        <button class="btn btn-primary" (click)="onSubmit()" [disabled]="saving()">
+          {{ saving() ? 'Saving...' : 'Save' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

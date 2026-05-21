@@ -1,0 +1,61 @@
+<app-page-header title="My Profile" />
+
+<div class="profile-page">
+  @if (success) {
+    <div class="alert alert-success">Profile updated successfully!</div>
+  }
+  @if (error) {
+    <div class="alert alert-error">{{ error }}</div>
+  }
+
+  <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile-card">
+    <h3>Personal Information</h3>
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="firstName">First Name</label>
+        <input
+          id="firstName"
+          type="text"
+          formControlName="firstName"
+          placeholder="First name"
+          [class.input-error]="submitted && profileForm.get('firstName')?.errors"
+        />
+        @if (submitted && profileForm.get('firstName')?.errors) {
+          <span class="field-error">First name is required.</span>
+        }
+      </div>
+      <div class="form-group">
+        <label for="lastName">Last Name</label>
+        <input
+          id="lastName"
+          type="text"
+          formControlName="lastName"
+          placeholder="Last name"
+          [class.input-error]="submitted && profileForm.get('lastName')?.errors"
+        />
+        @if (submitted && profileForm.get('lastName')?.errors) {
+          <span class="field-error">Last name is required.</span>
+        }
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          placeholder="Email address"
+        />
+      </div>
+      <div class="form-group">
+        <label for="phone">Phone</label>
+        <input
+          id="phone"
+          type="tel"
+          formControlName="phone"
+          placeholder="Phone number"
+        />
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+  </form>
+</div>

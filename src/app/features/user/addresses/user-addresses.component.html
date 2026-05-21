@@ -1,0 +1,41 @@
+<app-page-header title="My Addresses" />
+
+<div class="addresses-page">
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else {
+    <div class="add-action">
+      <a routerLink="/checkout" class="btn btn-primary">+ Add New Address</a>
+    </div>
+
+    @if (addresses().length) {
+      <div class="addresses-grid">
+        @for (addr of addresses(); track addr.id) {
+          <div class="address-card" [class.address-card--default]="addr.isDefault">
+            <div class="address-card__header">
+              <h4>{{ addr.firstName }} {{ addr.lastName }}</h4>
+              @if (addr.isDefault) {
+                <span class="default-badge">Default</span>
+              }
+            </div>
+            <p class="address-card__line">{{ addr.streetAddress }}</p>
+            @if (addr.apartment) {
+              <p class="address-card__line">{{ addr.apartment }}</p>
+            }
+            <p class="address-card__line">{{ addr.city }}, {{ addr.state }} {{ addr.zipCode }}</p>
+            <p class="address-card__line">{{ addr.country }}</p>
+            <div class="address-card__actions">
+              <button class="btn-small">Edit</button>
+              <button class="btn-small btn-small--danger" (click)="onDelete(addr.id)">Delete</button>
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <app-empty-state
+        title="No Addresses"
+        message="Add your first address to start checkout faster."
+      />
+    }
+  }
+</div>

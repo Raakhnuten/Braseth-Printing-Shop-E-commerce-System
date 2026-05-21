@@ -1,0 +1,173 @@
+<app-page-header [title]="pageTitle" />
+
+<div class="admin-content">
+  <div class="toolbar">
+    <button class="btn btn-primary" (click)="openCreateForm()">
+      <i class="pi pi-plus"></i> Add Shipping Method
+    </button>
+  </div>
+
+  @if (successMessage()) {
+    <div class="alert-success">{{ successMessage() }}</div>
+  }
+
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else if (error()) {
+    <div class="error-message">{{ error() }}</div>
+  } @else if (shippingMethods().length === 0) {
+    <app-empty-state title="No Shipping Methods" message="No shipping methods found. Click Add Shipping Method to create one." icon="pi pi-truck" />
+  } @else {
+    <div class="cards-grid">
+      @for (method of shippingMethods(); track method.id) {
+        <div class="method-card">
+          <div class="card-header">
+            <h3 class="card-name">{{ method.name }}</h3>
+            <span class="code-badge">{{ method.code }}</span>
+          </div>
+          <p class="card-description">{{ method.description }}</p>
+          <div class="card-meta">
+            <div class="meta-item">
+              <span class="meta-label">Base Fee</span>
+              <span class="meta-value">${{ method.baseFee.toFixed(2) }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Delivery Time</span>
+              <span class="meta-value">{{ method.estimatedDeliveryTime }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Active</span>
+              @if (method.isActive) {
+                <span class="badge badge-success">Yes</span>
+              } @else {
+                <span class="badge badge-secondary">No</span>
+              }
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Sort Order</span>
+              <span class="meta-value">{{ method.sortOrder }}</span>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-sm btn-outline" (click)="toggleActive(method)" [title]="method.isActive ? 'Deactivate' : 'Activate'">
+              <i class="pi {{ method.isActive ? 'pi-eye-slash' : 'pi-eye' }}"></i>
+              {{ method.isActive ? 'Deactivate' : 'Activate' }}
+            </button>
+            <button class="btn btn-sm btn-outline" (click)="openEditForm(method)" title="Edit">
+              <i class="pi pi-pencil"></i> Edit
+            </button>
+            <button class="btn btn-sm btn-outline-danger" (click)="deleteShippingMethod(method.id)" title="Delete">
+              <i class="pi pi-trash"></i> Delete
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+@if (showForm()) {
+  <div class="modal-overlay" (click)="closeForm()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ formMode() === 'create' ? 'Add Shipping Method' : 'Edit Shipping Method' }}</h3>
+        <button class="modal-close" (click)="closeForm()">&times;</button>
+      </div>
+      <div class="modal-body">
+        @if (formError()) {
+          <div class="alert alert-error" style="padding:12px 16px;background:#ffebee;color:#c62828;border-radius:8px;margin-bottom:1rem;font-size:0.9rem;">{{ formError() }}</div>
+        }
+        <div class="form-row">
+          <div class="form-group">
+            <label for="sm-name">Name *</label>
+            <input
+              id="sm-name"
+              type="text"
+              [formControl]="$any(form.controls['name'])"
+              [class.input-error]="submitted() && form.controls['name'].invalid"
+            />
+            @if (submitted() && form.controls['name'].invalid) {
+              <span class="field-error">Name is required</span>
+            }
+          </div>
+          <div class="form-group">
+            <label for="sm-code">Code *</label>
+            <input
+              id="sm-code"
+              type="text"
+              [formControl]="$any(form.controls['code'])"
+              [class.input-error]="submitted() && form.controls['code'].invalid"
+              placeholder="e.g. PHNOM_PENH"
+            />
+            @if (submitted() && form.controls['code'].invalid) {
+              <span class="field-error">Code is required</span>
+            }
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="sm-description">Description</label>
+          <textarea
+            id="sm-description"
+            rows="2"
+            [formControl]="$any(form.controls['description'])"
+          ></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="sm-fee">Base Fee ($) *</label>
+            <input
+              id="sm-fee"
+              type="number"
+              min="0"
+              step="0.01"
+              [formControl]="$any(form.controls['baseFee'])"
+              [class.input-error]="submitted() && form.controls['baseFee'].invalid"
+            />
+            @if (submitted() && form.controls['baseFee'].invalid) {
+              <span class="field-error">Base fee is required</span>
+            }
+          </div>
+          <div class="form-group">
+            <label for="sm-time">Estimated Delivery Time *</label>
+            <input
+              id="sm-time"
+              type="text"
+              [formControl]="$any(form.controls['estimatedDeliveryTime'])"
+              [class.input-error]="submitted() && form.controls['estimatedDeliveryTime'].invalid"
+              placeholder="e.g. 1-2 days"
+            />
+            @if (submitted() && form.controls['estimatedDeliveryTime'].invalid) {
+              <span class="field-error">Delivery time is required</span>
+            }
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="sm-sort">Sort Order</label>
+            <input
+              id="sm-sort"
+              type="number"
+              min="0"
+              [formControl]="$any(form.controls['sortOrder'])"
+            />
+          </div>
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [formControl]="$any(form.controls['isActive'])"
+              />
+              Active
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeForm()">Cancel</button>
+        <button class="btn btn-primary" (click)="onSubmit()" [disabled]="saving()">
+          {{ saving() ? 'Saving...' : 'Save' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
