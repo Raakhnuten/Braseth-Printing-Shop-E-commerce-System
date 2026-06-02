@@ -13,7 +13,6 @@ export class FooterComponent {
 
   onSubscribe() {
     if (this.newsletterEmail) {
-      console.log('Newsletter subscription:', this.newsletterEmail);
       // TODO: Implement newsletter subscription logic
       alert('Thank you for subscribing to Seth Store newsletter!');
       this.newsletterEmail = '';

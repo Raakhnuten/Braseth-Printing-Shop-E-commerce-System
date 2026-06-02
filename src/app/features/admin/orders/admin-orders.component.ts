@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal, computed } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { DatePipe, CurrencyPipe } from '@angular/common';
@@ -22,6 +23,7 @@ export class AdminOrdersComponent implements OnInit {
   private orderService = inject(OrderService);
   private shipmentService = inject(ShipmentService);
   private invoiceService = inject(InvoiceService);
+  private destroyRef = inject(DestroyRef);
 
   pageTitle = 'Manage Orders';
   loading = signal(false);
@@ -76,7 +78,7 @@ export class AdminOrdersComponent implements OnInit {
   loadOrders(): void {
     this.loading.set(true);
     this.error.set('');
-    this.orderService.getOrders().subscribe({
+    this.orderService.getOrders().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => { this.orders.set(res.data); this.loading.set(false); },
       error: () => { this.error.set('Failed to load orders'); this.loading.set(false); },
     });
@@ -94,7 +96,7 @@ export class AdminOrdersComponent implements OnInit {
   updateOrderStatus(): void {
     const order = this.selectedOrder();
     if (!order) return;
-    this.orderService.updateOrderStatus(order.id, this.newStatus() as OrderStatus).subscribe({
+    this.orderService.updateOrderStatus(order.id, this.newStatus() as OrderStatus).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.statusMessage.set(`Status updated to ${this.newStatus()}`);
         this.loadOrders();
@@ -125,7 +127,7 @@ export class AdminOrdersComponent implements OnInit {
       trackingNumber: this.shipmentTracking() || undefined,
       carrierName: this.shipmentCarrier() || undefined,
     };
-    this.shipmentService.createShipment(payload).subscribe({
+    this.shipmentService.createShipment(payload).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.shipmentMessage.set('Shipment created successfully');
         this.closeShipmentDialog();
@@ -136,7 +138,7 @@ export class AdminOrdersComponent implements OnInit {
   }
 
   generateInvoice(orderId: string): void {
-    this.invoiceService.generateInvoice(orderId).subscribe({
+    this.invoiceService.generateInvoice(orderId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => { this.loadOrders(); },
     });
   }

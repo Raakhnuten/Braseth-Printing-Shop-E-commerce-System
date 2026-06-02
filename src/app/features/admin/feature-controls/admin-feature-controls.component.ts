@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
@@ -15,6 +16,7 @@ import { ProductFeatureControl } from '../../../core/models/customization.model'
 export class AdminFeatureControlsComponent implements OnInit {
   private customizationService = inject(ProductCustomizationService);
   private fb = inject(FormBuilder);
+  private destroyRef = inject(DestroyRef);
 
   pageTitle = 'Product Feature Controls';
   loading = signal(false);
@@ -58,7 +60,7 @@ export class AdminFeatureControlsComponent implements OnInit {
     let loaded = 0;
 
     productIds.forEach((id) => {
-      this.customizationService.getFeatureControl(id).subscribe({
+      this.customizationService.getFeatureControl(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: (res) => {
           if (res.data) {
             this.featureControls.update((controls) => [...controls, res.data!]);
@@ -146,14 +148,23 @@ export class AdminFeatureControlsComponent implements OnInit {
       maxFileSizeMb: value.maxFileSizeMb,
     };
 
-    // TODO: Replace with real API call
-    setTimeout(() => {
-      this.saving.set(false);
-      this.closeForm();
-      this.successMessage.set('Feature control saved successfully');
-      this.loadFeatureControls();
-      setTimeout(() => this.successMessage.set(''), 3000);
-    }, 500);
+    const request$ = this.formMode() === 'create'
+      ? this.customizationService.createFeatureControl(payload as ProductFeatureControl)
+      : this.customizationService.updateFeatureControl(this.editingId()!, payload);
+
+    request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        this.saving.set(false);
+        this.closeForm();
+        this.successMessage.set('Feature control saved successfully');
+        this.loadFeatureControls();
+        setTimeout(() => this.successMessage.set(''), 3000);
+      },
+      error: () => {
+        this.saving.set(false);
+        this.formError.set('Failed to save feature control.');
+      },
+    });
   }
 
   getFeatureLabel(fc: ProductFeatureControl): string {

@@ -1,0 +1,91 @@
+<!-- Shipping Method -->
+<section class="checkout-card">
+  <div class="checkout-card__head">
+    <i class="pi pi-truck"></i>
+    <span>Shipping Method</span>
+  </div>
+  <div class="checkout-card__body">
+    @if (loading) {
+      <div class="co-loading">
+        <i class="pi pi-spin pi-spinner"></i>
+        <span>Loading shipping options...</span>
+      </div>
+    } @else {
+      <div class="co-options">
+        @for (sm of shippingMethods; track sm.id) {
+          <button
+            class="co-option"
+            [class.co-option--sel]="selectedMethod?.id === sm.id"
+            (click)="selectMethod.emit(sm)"
+            type="button"
+          >
+            <div class="co-option__left">
+              <span class="co-option__radio">
+                @if (selectedMethod?.id === sm.id) {
+                  <span class="co-option__dot"></span>
+                }
+              </span>
+              <div>
+                <div class="co-option__name">{{ sm.name }}</div>
+                <div class="co-option__desc">{{ sm.estimatedDeliveryTime }}</div>
+              </div>
+            </div>
+            <span class="co-option__price" [class.co-option__price--free]="sm.baseFee === 0">
+              @if (sm.baseFee === 0) {
+                FREE
+              } @else {
+                From ${{ sm.baseFee.toFixed(2) }}
+              }
+            </span>
+          </button>
+        }
+      </div>
+    }
+  </div>
+</section>
+
+<!-- Shipping Zone -->
+<section class="checkout-card">
+  <div class="checkout-card__head">
+    <i class="pi pi-map-marker"></i>
+    <span>Delivery Zone</span>
+  </div>
+  <div class="checkout-card__body">
+    @if (loading) {
+      <div class="co-loading">
+        <i class="pi pi-spin pi-spinner"></i>
+        <span>Loading zones...</span>
+      </div>
+    } @else {
+      <div class="co-options">
+        @for (zone of shippingZones; track zone.id) {
+          <button
+            class="co-option"
+            [class.co-option--sel]="selectedZone?.id === zone.id"
+            (click)="selectZone.emit(zone)"
+            type="button"
+          >
+            <div class="co-option__left">
+              <span class="co-option__radio">
+                @if (selectedZone?.id === zone.id) {
+                  <span class="co-option__dot"></span>
+                }
+              </span>
+              <div>
+                <div class="co-option__name">{{ zone.name }}</div>
+                <div class="co-option__desc">{{ zone.description }}</div>
+              </div>
+            </div>
+            <span class="co-option__price" [class.co-option__price--free]="zone.fee === 0">
+              @if (zone.fee === 0) {
+                No extra fee
+              } @else {
+                +${{ zone.fee.toFixed(2) }}
+              }
+            </span>
+          </button>
+        }
+      </div>
+    }
+  </div>
+</section>

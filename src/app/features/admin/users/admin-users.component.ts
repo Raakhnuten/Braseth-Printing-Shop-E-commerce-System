@@ -1,8 +1,9 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal, computed, inject, DestroyRef, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
-import { MOCK_USERS } from '../../../mock-data/mock-users';
+import { UserService } from '../../../core/services/user.service';
 import { User } from '../../../core/models/user.model';
 
 @Component({
@@ -11,18 +12,28 @@ import { User } from '../../../core/models/user.model';
   styleUrl: './admin-users.component.scss',
   imports: [PageHeaderComponent, EmptyStateComponent, FormsModule],
 })
-export class AdminUsersComponent {
+export class AdminUsersComponent implements OnInit {
+  private userService = inject(UserService);
+  private destroyRef = inject(DestroyRef);
+
   pageTitle = 'Manage Users';
 
-  loading = signal(false);
+  loading = signal(true);
   searchQuery = signal('');
   roleFilter = signal<'ALL' | 'CUSTOMER' | 'ADMIN'>('ALL');
   statusFilter = signal<'ALL' | 'enabled' | 'disabled'>('ALL');
 
-  users: User[] = MOCK_USERS;
+  users = signal<User[]>([]);
+
+  ngOnInit(): void {
+    this.userService.getUsers().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res) => {
+      this.users.set(res.data || []);
+      this.loading.set(false);
+    });
+  }
 
   filteredUsers = computed(() => {
-    let result = this.users;
+    let result = this.users();
 
     const search = this.searchQuery().toLowerCase().trim();
     if (search) {

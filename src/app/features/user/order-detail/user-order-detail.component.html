@@ -44,7 +44,7 @@
               <div class="item-info">
                 <h4>{{ item.productName }}</h4>
                 <p class="item-price">{{ item.quantity }} &times; {{ item.unitPrice | currency }} = {{ item.subtotal | currency }}</p>
-                @if (item.selectedSize || item.selectedColor || item.selectedDecorationMethod || item.selectedPrintPosition) {
+                @if (item.selectedSize || item.selectedColor || item.selectedDecorationMethod || item.selectedPrintPosition || item.selectedPrintColors.length > 0 || item.uploadedDesignFiles.length > 0 || item.customizationFee > 0 || item.productionTime) {
                   <div class="item-customization">
                     @if (item.selectedSize) { <span class="cust-tag">Size: {{ item.selectedSize }}</span> }
                     @if (item.selectedColor) { <span class="cust-tag">Color: {{ item.selectedColor }}</span> }
@@ -61,8 +61,8 @@
                         }
                       </span>
                     }
-                    @if (item.customizationFee > 0) { <span class="cust-tag cust-tag--fee">Customization: {{ item.customizationFee | currency }}</span> }
-                    @if (item.productionTime) { <span class="cust-tag cust-tag--time">Production: {{ item.productionTime }} days</span> }
+                    @if (item.customizationFee > 0) { <span class="cust-tag cust-tag--fee">Customization Fee: {{ item.customizationFee | currency }}</span> }
+                    @if (item.productionTime) { <span class="cust-tag cust-tag--time">Production Time: {{ item.productionTime }} days</span> }
                   </div>
                 }
               </div>
@@ -81,7 +81,7 @@
                 <div class="detail-row"><span class="label">Carrier</span><span class="value">{{ s.carrierName || '-' }}</span></div>
                 <div class="detail-row"><span class="label">Tracking #</span><span class="value">{{ s.trackingNumber || '-' }}</span></div>
                 @if (s.trackingUrl) {
-                  <div class="detail-row"><span class="label">Track</span><span class="value"><a [href]="s.trackingUrl" target="_blank" rel="noopener">Track Package <i class="pi pi-external-link"></i></a></span></div>
+                  <div class="detail-row"><span class="label">Track</span><span class="value"><a [href]="s.trackingUrl | safeUrl" target="_blank" rel="noopener">Track Package <i class="pi pi-external-link"></i></a></span></div>
                 }
                 @if (s.shippedAt) { <div class="detail-row"><span class="label">Shipped</span><span class="value">{{ s.shippedAt | date:'mediumDate' }}</span></div> }
                 @if (s.deliveredAt) { <div class="detail-row"><span class="label">Delivered</span><span class="value">{{ s.deliveredAt | date:'mediumDate' }}</span></div> }
@@ -94,7 +94,7 @@
       <aside class="order-sidebar">
         <section class="summary-card">
           <h3>Order Summary</h3>
-          <div class="summary-row"><span>Subtotal</span><span>{{ order.subtotal | currency }}</span></div>
+          <div class="summary-row"><span>Subtotal ({{ order.totalItems }} item(s))</span><span>{{ order.subtotal | currency }}</span></div>
           @if (order.customizationFeeTotal > 0) {
             <div class="summary-row"><span>Customization Fees</span><span>{{ order.customizationFeeTotal | currency }}</span></div>
           }
@@ -118,7 +118,7 @@
               <div class="detail-row"><span class="label">Transaction ID</span><span class="value">{{ order.paymentTransactionId }}</span></div>
             }
             @if (order.paymentProofUrl) {
-              <div class="detail-row"><span class="label">Proof</span><span class="value"><a [href]="order.paymentProofUrl" target="_blank" rel="noopener">View Proof <i class="pi pi-external-link"></i></a></span></div>
+              <div class="detail-row"><span class="label">Proof</span><span class="value"><a [href]="order.paymentProofUrl | safeUrl" target="_blank" rel="noopener">View Proof <i class="pi pi-external-link"></i></a></span></div>
             }
           </div>
         </section>
@@ -145,11 +145,30 @@
                 @if (inv.issuedAt) { <div class="detail-row"><span class="label">Issued</span><span class="value">{{ inv.issuedAt | date:'mediumDate' }}</span></div> }
                 <div class="detail-row"><span class="label">Total</span><span class="value value--bold">{{ inv.grandTotal | currency }}</span></div>
               </div>
-              <button class="btn-invoice" (click)="openUrl(inv.downloadUrl)" [disabled]="!inv.downloadUrl">
+              <button class="btn-action" (click)="openUrl(inv.downloadUrl)" [disabled]="!inv.downloadUrl">
                 <i class="pi pi-download"></i> Download Invoice
               </button>
             }
           </section>
+        }
+
+        @if (canCancel()) {
+          <div class="sidebar-actions">
+            @if (cancelError()) {
+              <div class="co-err-msg">{{ cancelError() }}</div>
+            }
+            <button
+              class="btn-cancel"
+              (click)="confirmCancel()"
+              [disabled]="cancelling()"
+            >
+              @if (cancelling()) {
+                <i class="pi pi-spin pi-spinner"></i> Cancelling...
+              } @else {
+                <i class="pi pi-times"></i> Cancel Order
+              }
+            </button>
+          </div>
         }
 
         <a routerLink="/user/orders" class="btn-back">

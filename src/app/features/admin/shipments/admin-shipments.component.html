@@ -66,7 +66,7 @@
           <div class="detail-row"><span class="label">Carrier</span><span class="value">{{ s.carrierName || '-' }}</span></div>
           <div class="detail-row"><span class="label">Status</span><span class="status-badge" [class]="getStatusClass(s.status)">{{ s.status }}</span></div>
           @if (s.trackingUrl) {
-            <div class="detail-row"><span class="label">Track</span><span class="value"><a [href]="s.trackingUrl" target="_blank" rel="noopener">Track Package <i class="pi pi-external-link"></i></a></span></div>
+            <div class="detail-row"><span class="label">Track</span><span class="value"><a [href]="s.trackingUrl | safeUrl" target="_blank" rel="noopener">Track Package <i class="pi pi-external-link"></i></a></span></div>
           }
           @if (s.shippedAt) { <div class="detail-row"><span class="label">Shipped</span><span class="value">{{ s.shippedAt | date:'mediumDate' }}</span></div> }
           @if (s.deliveredAt) { <div class="detail-row"><span class="label">Delivered</span><span class="value">{{ s.deliveredAt | date:'mediumDate' }}</span></div> }

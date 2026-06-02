@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe, LowerCasePipe } from '@angular/common';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
@@ -14,6 +15,7 @@ import { Review, ReviewStatus } from '../../../core/models/review.model';
 })
 export class AdminReviewsComponent implements OnInit {
   private reviewService = inject(ReviewService);
+  private destroyRef = inject(DestroyRef);
 
   pageTitle = 'Manage Reviews';
   loading = signal(false);
@@ -34,7 +36,7 @@ export class AdminReviewsComponent implements OnInit {
   loadReviews(): void {
     this.loading.set(true);
     this.error.set('');
-    this.reviewService.getReviews().subscribe({
+    this.reviewService.getReviews().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         this.reviews.set(res.data);
         this.loading.set(false);
@@ -51,7 +53,7 @@ export class AdminReviewsComponent implements OnInit {
     this.confirmMessage.set('Are you sure you want to approve this review?');
     this.confirmButtonText.set('Approve');
     this.pendingAction = () => {
-      this.reviewService.updateReview(id, { status: ReviewStatus.APPROVED }).subscribe({
+      this.reviewService.updateReview(id, { status: ReviewStatus.APPROVED }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
           this.closeConfirm();
           this.successMessage.set('Review approved successfully');
@@ -72,7 +74,7 @@ export class AdminReviewsComponent implements OnInit {
     this.confirmMessage.set('Are you sure you want to reject this review?');
     this.confirmButtonText.set('Reject');
     this.pendingAction = () => {
-      this.reviewService.updateReview(id, { status: ReviewStatus.REJECTED }).subscribe({
+      this.reviewService.updateReview(id, { status: ReviewStatus.REJECTED }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
           this.closeConfirm();
           this.successMessage.set('Review rejected successfully');
@@ -93,7 +95,7 @@ export class AdminReviewsComponent implements OnInit {
     this.confirmMessage.set('Are you sure you want to delete this review?');
     this.confirmButtonText.set('Delete');
     this.pendingAction = () => {
-      this.reviewService.deleteReview(id).subscribe({
+      this.reviewService.deleteReview(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
           this.closeConfirm();
           this.successMessage.set('Review deleted successfully');

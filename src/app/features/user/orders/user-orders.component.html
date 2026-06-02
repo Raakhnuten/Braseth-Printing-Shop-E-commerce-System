@@ -3,8 +3,47 @@
 <div class="orders-page">
   @if (loading()) {
     <app-loading-spinner />
+  } @else if (error()) {
+    <app-empty-state title="Error" [message]="error()" />
   } @else {
-    @if (orders().length) {
+    <div class="orders-toolbar">
+      <div class="orders-toolbar__filters">
+        <select
+          class="co-select"
+          [ngModel]="statusFilter()"
+          (ngModelChange)="statusFilter.set($event)"
+        >
+          <option value="">All Statuses</option>
+          <option value="PENDING">Pending</option>
+          <option value="CONFIRMED">Confirmed</option>
+          <option value="PROCESSING">Processing</option>
+          <option value="READY">Ready</option>
+          <option value="SHIPPED">Shipped</option>
+          <option value="DELIVERED">Delivered</option>
+          <option value="CANCELLED">Cancelled</option>
+          <option value="REFUNDED">Refunded</option>
+        </select>
+        <select
+          class="co-select"
+          [ngModel]="sortOrder()"
+          (ngModelChange)="sortOrder.set($event)"
+        >
+          <option value="newest">Newest First</option>
+          <option value="oldest">Oldest First</option>
+        </select>
+      </div>
+      <div class="orders-toolbar__search">
+        <input
+          class="co-input"
+          type="text"
+          placeholder="Search by order number..."
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)"
+        />
+      </div>
+    </div>
+
+    @if (filteredOrders().length) {
       <div class="orders-table-wrap">
         <table class="orders-table">
           <thead>
@@ -20,25 +59,25 @@
             </tr>
           </thead>
           <tbody>
-            @for (order of orders(); track order.id) {
+            @for (order of filteredOrders(); track order.id) {
               <tr>
                 <td><strong>{{ order.orderNumber }}</strong></td>
                 <td>{{ order.createdAt | date:'mediumDate' }}</td>
                 <td>{{ order.totalItems }} item(s)</td>
                 <td>{{ order.grandTotal | currency }}</td>
                 <td>
-                  <span class="status-badge" [class]="getStatusClass(order.status)">
-                    {{ order.status }}
+                  <span class="status-badge" [class]="getStatusSeverity(order.status)">
+                    {{ getStatusLabel(order.status) }}
                   </span>
                 </td>
                 <td>
-                  <span class="status-badge" [class]="getStatusClass(order.paymentStatus)">
-                    {{ order.paymentStatus }}
+                  <span class="status-badge" [class]="getPayStatusSeverity(order.paymentStatus)">
+                    {{ getPayStatusLabel(order.paymentStatus) }}
                   </span>
                 </td>
                 <td>
-                  <span class="status-badge" [class]="getStatusClass(order.shippingStatus)">
-                    {{ order.shippingStatus }}
+                  <span class="status-badge" [class]="getShipStatusSeverity(order.shippingStatus)">
+                    {{ getShipStatusLabel(order.shippingStatus) }}
                   </span>
                 </td>
                 <td>
@@ -51,7 +90,7 @@
       </div>
 
       <div class="orders-cards">
-        @for (order of orders(); track order.id) {
+        @for (order of filteredOrders(); track order.id) {
           <div class="order-card">
             <div class="order-card__header">
               <div>
@@ -65,17 +104,17 @@
               <div class="order-card__total">{{ order.grandTotal | currency }}</div>
             </div>
             <div class="order-card__statuses">
-              <span class="status-badge" [class]="getStatusClass(order.status)">{{ order.status }}</span>
-              <span class="status-badge" [class]="getStatusClass(order.paymentStatus)">{{ order.paymentStatus }}</span>
-              <span class="status-badge" [class]="getStatusClass(order.shippingStatus)">{{ order.shippingStatus }}</span>
+              <span class="status-badge" [class]="getStatusSeverity(order.status)">{{ getStatusLabel(order.status) }}</span>
+              <span class="status-badge" [class]="getPayStatusSeverity(order.paymentStatus)">{{ getPayStatusLabel(order.paymentStatus) }}</span>
+              <span class="status-badge" [class]="getShipStatusSeverity(order.shippingStatus)">{{ getShipStatusLabel(order.shippingStatus) }}</span>
             </div>
           </div>
         }
       </div>
     } @else {
       <app-empty-state
-        title="No Orders"
-        message="You haven't placed any orders yet. Start shopping!"
+        title="No Orders Found"
+        message="No orders match your current filters. Try adjusting your search or filter criteria."
       />
     }
   }

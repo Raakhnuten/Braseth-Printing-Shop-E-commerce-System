@@ -1,0 +1,78 @@
+<section class="checkout-card">
+  <div class="checkout-card__head">
+    <i class="{{ icon }}"></i>
+    <span>{{ title }}</span>
+  </div>
+  <div class="checkout-card__body" [formGroup]="form">
+    <div class="co-field">
+      <label class="co-label" for="name">Name <span class="co-req">*</span></label>
+      <input
+        id="name"
+        type="text"
+        class="co-input"
+        [class.co-input--err]="form.get('name')?.invalid && (form.get('name')?.touched || submitted)"
+        placeholder="Your full name"
+        formControlName="name"
+      />
+      @if (form.get('name')?.invalid && (form.get('name')?.touched || submitted)) {
+        <span class="co-err">Name is required.</span>
+      }
+    </div>
+    <div class="co-field">
+      <label class="co-label" for="email">Email <span class="co-req">*</span></label>
+      <input
+        id="email"
+        type="email"
+        class="co-input"
+        [class.co-input--err]="form.get('email')?.invalid && (form.get('email')?.touched || submitted)"
+        placeholder="your@email.com"
+        formControlName="email"
+      />
+      @if (form.get('email')?.invalid && (form.get('email')?.touched || submitted)) {
+        @if (form.get('email')?.errors?.['required']) {
+          <span class="co-err">Email is required.</span>
+        } @else {
+          <span class="co-err">Enter a valid email address.</span>
+        }
+      }
+    </div>
+    <div class="co-field">
+      <label class="co-label" for="telegram">Telegram Username <span class="co-req">*</span></label>
+      <input
+        id="telegram"
+        type="text"
+        class="co-input"
+        [class.co-input--err]="form.get('telegram')?.invalid && (form.get('telegram')?.touched || submitted)"
+        placeholder="@username"
+        formControlName="telegram"
+      />
+      @if (form.get('telegram')?.invalid && (form.get('telegram')?.touched || submitted)) {
+        <span class="co-err">Telegram username is required.</span>
+      }
+    </div>
+    <div class="co-field">
+      <label class="co-label" for="address">Address <span class="co-req">*</span></label>
+      <textarea
+        id="address"
+        class="co-input co-textarea"
+        [class.co-input--err]="form.get('address')?.invalid && (form.get('address')?.touched || submitted)"
+        placeholder="Street, city, province, etc."
+        rows="3"
+        formControlName="address"
+      ></textarea>
+      @if (form.get('address')?.invalid && (form.get('address')?.touched || submitted)) {
+        <span class="co-err">Address is required.</span>
+      }
+    </div>
+    <div class="co-field">
+      <label class="co-label" for="note">Note / Remark</label>
+      <textarea
+        id="note"
+        class="co-input co-textarea"
+        placeholder="Optional notes for your order"
+        rows="2"
+        formControlName="note"
+      ></textarea>
+    </div>
+  </div>
+</section>

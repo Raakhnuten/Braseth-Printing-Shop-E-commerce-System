@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, signal, computed, ViewChild, ElementRef } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal, computed, ViewChild, ElementRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Product } from '../../../core/models/product.model';
@@ -18,6 +19,7 @@ export class ProductsComponent implements OnInit {
   private productService = inject(ProductService);
   private categoryService = inject(CategoryService);
   private route = inject(ActivatedRoute);
+  private destroyRef = inject(DestroyRef);
 
   products = signal<Product[]>([]);
   categories = signal<Category[]>([]);
@@ -41,7 +43,7 @@ export class ProductsComponent implements OnInit {
   });
 
   constructor() {
-    this.route.queryParams.subscribe((params) => {
+    this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       if (params['category']) {
         this.selectedCategory.set(params['category']);
       }
@@ -56,13 +58,13 @@ export class ProductsComponent implements OnInit {
   private loadData(): void {
     this.loading.set(true);
 
-    this.productService.getProducts().subscribe((res) => {
+    this.productService.getProducts().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res) => {
       this.products.set(res.data || []);
       this.applyFilters();
       this.loading.set(false);
     });
 
-    this.categoryService.getCategories().subscribe((res) => {
+    this.categoryService.getCategories().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res) => {
       this.categories.set(res.data || []);
     });
   }

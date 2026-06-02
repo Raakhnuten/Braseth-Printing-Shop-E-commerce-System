@@ -1,22 +1,7 @@
-<header class="user-topbar">
-  <div class="user-topbar__inner">
-    <button class="user-topbar__menu-btn" (click)="toggleSidebar()" aria-label="Menu">
-      <i class="pi pi-bars"></i>
-    </button>
-    <a routerLink="/" class="user-topbar__logo">
-      <span class="user-topbar__logo-icon">S</span>
-      <span class="user-topbar__logo-text">Seth Store</span>
-    </a>
-    <div class="user-topbar__spacer"></div>
-    <span class="user-topbar__user">{{ displayName }}</span>
-    <button class="user-topbar__logout" (click)="onLogout()" aria-label="Logout">
-      <i class="pi pi-sign-out"></i>
-    </button>
-  </div>
-</header>
+<app-header />
 
 <div class="user-layout">
-  <aside class="user-sidebar" [class.user-sidebar--open]="sidebarOpen">
+  <aside class="user-sidebar">
     <div class="user-sidebar__user">
       <div class="user-sidebar__avatar">{{ displayName.charAt(0) }}</div>
       <div class="user-sidebar__greeting">
@@ -30,7 +15,6 @@
         routerLink="/user/dashboard"
         routerLinkActive="active"
         class="user-sidebar__link"
-        (click)="closeSidebar()"
       >
         <i class="pi pi-th-large"></i> Dashboard
       </a>
@@ -38,7 +22,6 @@
         routerLink="/user/profile"
         routerLinkActive="active"
         class="user-sidebar__link"
-        (click)="closeSidebar()"
       >
         <i class="pi pi-user"></i> Profile
       </a>
@@ -46,7 +29,6 @@
         routerLink="/user/addresses"
         routerLinkActive="active"
         class="user-sidebar__link"
-        (click)="closeSidebar()"
       >
         <i class="pi pi-map-marker"></i> Addresses
       </a>
@@ -54,7 +36,6 @@
         routerLink="/user/orders"
         routerLinkActive="active"
         class="user-sidebar__link"
-        (click)="closeSidebar()"
       >
         <i class="pi pi-box"></i> Orders
       </a>
@@ -62,14 +43,13 @@
         routerLink="/user/wishlist"
         routerLinkActive="active"
         class="user-sidebar__link"
-        (click)="closeSidebar()"
       >
         <i class="pi pi-heart"></i> Wishlist
       </a>
     </nav>
 
     <div class="user-sidebar__footer">
-      <a routerLink="/" class="user-sidebar__link user-sidebar__link--back" (click)="closeSidebar()">
+      <a routerLink="/" class="user-sidebar__link user-sidebar__link--back">
         <i class="pi pi-arrow-left"></i> Back to Store
       </a>
       <button class="user-sidebar__link user-sidebar__link--logout" (click)="onLogout()">
@@ -77,10 +57,6 @@
       </button>
     </div>
   </aside>
-
-  @if (sidebarOpen) {
-    <div class="user-sidebar-overlay" (click)="closeSidebar()"></div>
-  }
 
   <main class="user-content">
     <router-outlet />

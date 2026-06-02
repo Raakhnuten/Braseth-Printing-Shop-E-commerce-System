@@ -1,4 +1,5 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
@@ -19,6 +20,7 @@ export class AdminProductFormComponent implements OnInit {
   private categoryService = inject(CategoryService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
 
   protected readonly ProductStatus = ProductStatus;
 
@@ -61,14 +63,14 @@ export class AdminProductFormComponent implements OnInit {
   }
 
   private loadCategories(): void {
-    this.categoryService.getCategories().subscribe({
+    this.categoryService.getCategories().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => this.categories.set(res.data),
     });
   }
 
   private loadProduct(id: string): void {
     this.loading.set(true);
-    this.productService.getProductById(id).subscribe({
+    this.productService.getProductById(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         const product = res.data;
         if (product) {
@@ -110,7 +112,7 @@ export class AdminProductFormComponent implements OnInit {
     const formValue = this.form.value as any;
 
     if (this.isEditMode()) {
-      this.productService.updateProduct(this.productId()!, formValue).subscribe({
+      this.productService.updateProduct(this.productId()!, formValue).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
           this.successMessage.set('Product updated successfully.');
           setTimeout(() => this.router.navigate(['/admin/products']), 1500);
@@ -118,7 +120,7 @@ export class AdminProductFormComponent implements OnInit {
         error: () => this.errorMessage.set('Failed to update product.'),
       });
     } else {
-      this.productService.createProduct(formValue).subscribe({
+      this.productService.createProduct(formValue).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
           this.successMessage.set('Product created successfully.');
           setTimeout(() => this.router.navigate(['/admin/products']), 1500);

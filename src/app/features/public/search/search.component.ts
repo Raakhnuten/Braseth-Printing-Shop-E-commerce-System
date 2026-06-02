@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { Product } from '../../../core/models/product.model';
 import { ProductService } from '../../../core/services/product.service';
@@ -15,13 +16,14 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
 export class SearchComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private productService = inject(ProductService);
+  private destroyRef = inject(DestroyRef);
 
   keyword = signal('');
   results = signal<Product[]>([]);
   loading = signal(true);
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe((params) => {
+    this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       const q = params['q'] || '';
       this.keyword.set(q);
       if (q) {
@@ -35,7 +37,7 @@ export class SearchComponent implements OnInit {
 
   private search(q: string): void {
     this.loading.set(true);
-    this.productService.searchProducts(q).subscribe((res) => {
+    this.productService.searchProducts(q).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res) => {
       this.results.set(res.data || []);
       this.loading.set(false);
     });

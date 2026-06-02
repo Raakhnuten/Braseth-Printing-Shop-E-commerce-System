@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
@@ -15,6 +16,7 @@ import { ShippingMethod } from '../../../core/models/shipping.model';
 export class AdminShippingMethodsComponent implements OnInit {
   private shippingService = inject(ShippingService);
   private fb = inject(FormBuilder);
+  private destroyRef = inject(DestroyRef);
 
   pageTitle = 'Manage Shipping Methods';
   loading = signal(false);
@@ -45,7 +47,7 @@ export class AdminShippingMethodsComponent implements OnInit {
   loadShippingMethods(): void {
     this.loading.set(true);
     this.error.set('');
-    this.shippingService.getShippingMethods().subscribe({
+    this.shippingService.getShippingMethods().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         this.shippingMethods.set(res.data);
         this.loading.set(false);
@@ -108,7 +110,7 @@ export class AdminShippingMethodsComponent implements OnInit {
     };
 
     if (this.formMode() === 'create') {
-      this.shippingService.createShippingMethod(payload).subscribe({
+      this.shippingService.createShippingMethod(payload).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
           this.saving.set(false);
           this.closeForm();
@@ -122,7 +124,7 @@ export class AdminShippingMethodsComponent implements OnInit {
         },
       });
     } else {
-      this.shippingService.updateShippingMethod(this.editingId()!, payload).subscribe({
+      this.shippingService.updateShippingMethod(this.editingId()!, payload).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
           this.saving.set(false);
           this.closeForm();
@@ -139,7 +141,7 @@ export class AdminShippingMethodsComponent implements OnInit {
   }
 
   toggleActive(method: ShippingMethod): void {
-    this.shippingService.updateShippingMethod(method.id, { isActive: !method.isActive }).subscribe({
+    this.shippingService.updateShippingMethod(method.id, { isActive: !method.isActive }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.successMessage.set(`Shipping method ${method.isActive ? 'deactivated' : 'activated'}`);
         this.loadShippingMethods();
@@ -153,7 +155,7 @@ export class AdminShippingMethodsComponent implements OnInit {
 
   deleteShippingMethod(id: string): void {
     if (!confirm('Are you sure you want to delete this shipping method?')) return;
-    this.shippingService.deleteShippingMethod(id).subscribe({
+    this.shippingService.deleteShippingMethod(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.successMessage.set('Shipping method deleted successfully');
         this.loadShippingMethods();

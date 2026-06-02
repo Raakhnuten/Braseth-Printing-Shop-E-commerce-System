@@ -1,11 +1,10 @@
 .footer {
-  background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%);
-  color: #ffffff;
+  background: var(--color-bg-alt);
+  color: var(--color-text-primary);
   margin-top: auto;
   position: relative;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+  border-top: 1px solid var(--color-border);
 
-  // Decorative wave top section
   &__wave-top {
     position: relative;
     height: 80px;
@@ -18,16 +17,27 @@
     left: 0;
     width: 100%;
     height: 100%;
+
+    path {
+      fill: var(--color-bg);
+    }
   }
 
-  // Shoe silhouettes
+  &__newsletter-input {
+    background: var(--color-surface);
+
+    &:focus {
+      background: var(--color-surface);
+    }
+  }
+
   &__shoe {
     position: absolute;
     width: 80px;
     height: 50px;
-    background: #ffffff;
+    background: var(--color-bg);
     z-index: 2;
-    
+
     &--left {
       left: 10%;
       top: 20px;
@@ -56,27 +66,20 @@
     margin-bottom: 3rem;
   }
 
-  &__section {
-    &--newsletter {
-      max-width: 100%;
-    }
-  }
-
   &__heading {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #ffffff;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
     margin-bottom: 1.25rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
 
-  // Newsletter styles
   &__newsletter-desc {
-    font-size: 0.875rem;
-    color: rgba(255, 255, 255, 0.8);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
     margin-bottom: 1rem;
-    line-height: 1.5;
+    line-height: var(--leading-relaxed);
   }
 
   &__newsletter-form {
@@ -88,73 +91,68 @@
   &__newsletter-input {
     flex: 1;
     padding: 0.75rem 1rem;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    border-radius: 25px;
-    background: rgba(255, 255, 255, 0.1);
-    color: #ffffff;
-    font-size: 0.9rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    background: var(--color-bg-alt);
+    color: var(--color-text-primary);
+    font-size: var(--font-size-sm);
     outline: none;
-    transition: all 0.3s ease;
+    transition: all var(--transition-fast);
+    font-family: inherit;
 
-    &::placeholder {
-      color: rgba(255, 255, 255, 0.6);
-    }
+    &::placeholder { color: var(--color-text-muted); }
 
     &:focus {
-      border-color: rgba(255, 255, 255, 0.5);
-      background: rgba(255, 255, 255, 0.15);
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-subtle);
     }
   }
 
   &__newsletter-btn {
     padding: 0.75rem 2rem;
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-    color: #ffffff;
+    background: var(--color-primary);
+    color: #fff;
     border: none;
-    border-radius: 25px;
-    font-weight: 600;
-    font-size: 0.9rem;
+    border-radius: var(--radius-full);
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-sm);
     cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+    transition: all var(--transition-fast);
+    font-family: inherit;
+    box-shadow: var(--shadow-glow-primary);
 
     &:hover {
-      background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+      background: var(--color-primary-hover);
+      transform: translateY(-1px);
     }
 
-    &:active {
-      transform: translateY(0);
-    }
+    &:active { transform: translateY(0); }
   }
 
-  // Links styles
   &__links {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
 
     li {
-      font-size: 0.875rem;
-      color: rgba(255, 255, 255, 0.9);
-      line-height: 1.6;
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      line-height: var(--leading-relaxed);
     }
 
     a {
-      color: rgba(255, 255, 255, 0.85);
-      transition: color 0.2s ease;
+      color: var(--color-text-secondary);
+      transition: color var(--transition-fast);
       text-decoration: none;
 
       &:hover {
-        color: #ffffff;
-        text-decoration: underline;
+        color: var(--color-primary);
       }
     }
 
     strong {
-      color: #ffffff;
-      font-weight: 600;
+      color: var(--color-text-primary);
+      font-weight: var(--font-weight-semibold);
     }
   }
 
@@ -162,11 +160,11 @@
     display: flex;
     align-items: flex-start;
     gap: 0.5rem;
-    font-size: 0.875rem;
+    font-size: var(--font-size-sm);
 
     i {
       font-size: 0.85rem;
-      color: rgba(255, 255, 255, 0.7);
+      color: var(--color-text-muted);
       width: 18px;
       text-align: center;
       margin-top: 2px;
@@ -174,9 +172,8 @@
     }
   }
 
-  // Bottom section
   &__bottom {
-    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    border-top: 1px solid var(--color-border);
     padding: 2rem 0;
   }
 
@@ -188,7 +185,6 @@
     text-align: center;
   }
 
-  // Trust badges
   &__trust-badges {
     display: flex;
     gap: 1rem;
@@ -197,15 +193,20 @@
   }
 
   &__badge {
-    font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.9);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
     padding: 0.4rem 0.8rem;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 15px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: var(--color-glass);
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-border);
+    transition: all var(--transition-fast);
+
+    &:hover {
+      border-color: var(--color-border-hover);
+      background: var(--color-surface);
+    }
   }
 
-  // Company info
   &__company-info {
     display: flex;
     flex-direction: column;
@@ -213,9 +214,9 @@
   }
 
   &__company-text {
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.8);
-    font-weight: 500;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    font-weight: var(--font-weight-medium);
   }
 
   &__copyright {
@@ -223,20 +224,14 @@
     flex-direction: column;
     gap: 0.5rem;
     align-items: center;
-    font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.7);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
   }
 
-  &__flags {
-    display: flex;
-    gap: 0.5rem;
-  }
+  &__flags { display: flex; gap: 0.5rem; }
 
-  &__flag {
-    font-size: 1.2rem;
-  }
+  &__flag { font-size: 1.2rem; }
 
-  // Payment methods
   &__payment-methods {
     display: flex;
     flex-direction: column;
@@ -245,9 +240,9 @@
   }
 
   &__payment-label {
-    font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.8);
-    font-weight: 500;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    font-weight: var(--font-weight-medium);
   }
 
   &__payment-logos {
@@ -259,18 +254,17 @@
 
   &__payment-logo {
     padding: 0.4rem 0.8rem;
-    background: rgba(255, 255, 255, 0.95);
-    color: #4a148c;
-    font-size: 0.75rem;
-    font-weight: 700;
-    border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    background: var(--color-surface-elevated);
+    color: var(--color-text-primary);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border);
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
 }
 
-// Tablet breakpoint
 @media (min-width: 576px) {
   .footer {
     &__newsletter-form {
@@ -283,7 +277,6 @@
   }
 }
 
-// Tablet landscape breakpoint
 @media (min-width: 768px) {
   .footer {
     &__grid {
@@ -312,21 +305,14 @@
       gap: 1rem;
     }
 
-    &__trust-badges {
-      justify-content: flex-start;
-    }
+    &__trust-badges { justify-content: flex-start; }
 
-    &__payment-methods {
-      align-items: flex-end;
-    }
+    &__payment-methods { align-items: flex-end; }
 
-    &__payment-logos {
-      justify-content: flex-end;
-    }
+    &__payment-logos { justify-content: flex-end; }
   }
 }
 
-// Desktop breakpoint
 @media (min-width: 992px) {
   .footer {
     &__grid {
@@ -342,100 +328,41 @@
       width: 100px;
       height: 60px;
 
-      &--left {
-        left: 8%;
-      }
-
-      &--right {
-        right: 8%;
-      }
+      &--left { left: 8%; }
+      &--right { right: 8%; }
     }
   }
 }
 
-// Mobile specific improvements
 @media (max-width: 575px) {
   .footer {
-    &__container {
-      padding: 2rem 1rem 0;
-    }
+    &__container { padding: 1.5rem 1rem 0; }
+    &__grid { gap: 1.5rem; margin-bottom: 1.5rem; }
+    &__section { min-width: 0; }
+    &__heading { font-size: var(--font-size-sm); margin-bottom: 0.75rem; }
+    &__newsletter-desc { font-size: var(--font-size-xs); }
+    &__newsletter-form { flex-direction: column; }
+    &__newsletter-input { padding: 0.625rem 0.875rem; }
+    &__newsletter-btn { padding: 0.625rem 1.5rem; }
+    &__links { gap: 0.5rem; li { font-size: var(--font-size-xs); } }
+    &__bottom { padding: 1rem 0; }
+    &__bottom-content { gap: 1rem; }
+    &__trust-badges { gap: 0.5rem; }
+    &__badge { font-size: var(--font-size-xs); padding: 0.3rem 0.6rem; }
+    &__company-text { font-size: var(--font-size-xs); }
+    &__copyright { font-size: 0.7rem; }
+    &__payment-label { font-size: var(--font-size-xs); }
+    &__payment-logo { padding: 0.3rem 0.6rem; font-size: 0.6rem; }
+    &__wave-top { height: 40px; }
+    &__shoe { display: none; }
+  }
+}
 
-    &__grid {
-      gap: 2rem;
-      margin-bottom: 2rem;
-    }
-
-    &__heading {
-      font-size: 0.9rem;
-      margin-bottom: 1rem;
-    }
-
-    &__newsletter-desc {
-      font-size: 0.8125rem;
-    }
-
-    &__newsletter-input {
-      padding: 0.625rem 0.875rem;
-      font-size: 0.85rem;
-    }
-
-    &__newsletter-btn {
-      padding: 0.625rem 1.5rem;
-      font-size: 0.85rem;
-    }
-
-    &__links {
-      gap: 0.625rem;
-
-      li {
-        font-size: 0.8125rem;
-      }
-    }
-
-    &__links--contact li {
-      font-size: 0.8125rem;
-    }
-
-    &__bottom {
-      padding: 1.5rem 0;
-    }
-
-    &__bottom-content {
-      gap: 1.25rem;
-    }
-
-    &__trust-badges {
-      gap: 0.75rem;
-    }
-
-    &__badge {
-      font-size: 0.75rem;
-      padding: 0.35rem 0.7rem;
-    }
-
-    &__company-text {
-      font-size: 0.8rem;
-    }
-
-    &__copyright {
-      font-size: 0.75rem;
-    }
-
-    &__payment-label {
-      font-size: 0.75rem;
-    }
-
-    &__payment-logo {
-      padding: 0.35rem 0.7rem;
-      font-size: 0.7rem;
-    }
-
-    &__wave-top {
-      height: 60px;
-    }
-
-    &__shoe {
-      display: none;
-    }
+@media (max-width: 360px) {
+  .footer {
+    &__container { padding: 1.25rem 0.75rem 0; }
+    &__grid { gap: 1.25rem; }
+    &__payment-logos { gap: 0.4rem; }
+    &__payment-logo { padding: 0.25rem 0.5rem; font-size: 0.55rem; }
   }
 }

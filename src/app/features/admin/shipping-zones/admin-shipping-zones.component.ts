@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
@@ -15,6 +16,7 @@ import { ShippingZone } from '../../../core/models/shipping.model';
 export class AdminShippingZonesComponent implements OnInit {
   private shippingService = inject(ShippingService);
   private fb = inject(FormBuilder);
+  private destroyRef = inject(DestroyRef);
 
   pageTitle = 'Manage Shipping Zones';
   loading = signal(false);
@@ -44,7 +46,7 @@ export class AdminShippingZonesComponent implements OnInit {
   loadShippingZones(): void {
     this.loading.set(true);
     this.error.set('');
-    this.shippingService.getShippingZones().subscribe({
+    this.shippingService.getShippingZones().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         this.shippingZones.set(res.data);
         this.loading.set(false);
@@ -105,7 +107,7 @@ export class AdminShippingZonesComponent implements OnInit {
     };
 
     if (this.formMode() === 'create') {
-      this.shippingService.createShippingZone(payload).subscribe({
+      this.shippingService.createShippingZone(payload).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
           this.saving.set(false);
           this.closeForm();
@@ -119,7 +121,7 @@ export class AdminShippingZonesComponent implements OnInit {
         },
       });
     } else {
-      this.shippingService.updateShippingZone(this.editingId()!, payload).subscribe({
+      this.shippingService.updateShippingZone(this.editingId()!, payload).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
           this.saving.set(false);
           this.closeForm();
@@ -136,7 +138,7 @@ export class AdminShippingZonesComponent implements OnInit {
   }
 
   toggleActive(zone: ShippingZone): void {
-    this.shippingService.updateShippingZone(zone.id, { isActive: !zone.isActive }).subscribe({
+    this.shippingService.updateShippingZone(zone.id, { isActive: !zone.isActive }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.successMessage.set(`Shipping zone ${zone.isActive ? 'deactivated' : 'activated'}`);
         this.loadShippingZones();
@@ -150,7 +152,7 @@ export class AdminShippingZonesComponent implements OnInit {
 
   deleteShippingZone(id: string): void {
     if (!confirm('Are you sure you want to delete this shipping zone?')) return;
-    this.shippingService.deleteShippingZone(id).subscribe({
+    this.shippingService.deleteShippingZone(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.successMessage.set('Shipping zone deleted successfully');
         this.loadShippingZones();

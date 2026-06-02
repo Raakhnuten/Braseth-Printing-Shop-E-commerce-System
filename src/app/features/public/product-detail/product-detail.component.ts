@@ -1,4 +1,5 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NgClass } from '@angular/common';
@@ -23,9 +24,6 @@ import { DecorationMethodService } from '../../../core/services/decoration-metho
 import { ProductCardComponent } from '../../../shared/components/product-card/product-card.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { normalizeImages, getSafeImageUrl, onImageError } from '../../../core/helpers/image.helper';
-import { MOCK_PRODUCT_COLORS } from '../../../mock-data/mock-product-colors';
-import { MOCK_PRODUCT_SIZES } from '../../../mock-data/mock-product-sizes';
-import { MOCK_PRINT_COLORS } from '../../../mock-data/mock-print-colors';
 
 @Component({
   selector: 'app-product-detail',
@@ -41,6 +39,7 @@ export class ProductDetailComponent implements OnInit {
   private variantService = inject(ProductVariantService);
   private customizationService = inject(ProductCustomizationService);
   private decorationService = inject(DecorationMethodService);
+  private destroyRef = inject(DestroyRef);
 
   product = signal<Product | null>(null);
   relatedProducts = signal<Product[]>([]);
@@ -83,7 +82,7 @@ export class ProductDetailComponent implements OnInit {
 
   private loadProduct(id: string): void {
     this.loading.set(true);
-    this.productService.getProductById(id).subscribe((res) => {
+    this.productService.getProductById(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res) => {
       const p = res.data;
       this.product.set(p);
       this.loading.set(false);
@@ -95,41 +94,41 @@ export class ProductDetailComponent implements OnInit {
   }
 
   private loadCustomizationData(productId: string): void {
-    this.customizationService.getFeatureControl(productId).subscribe((res) => {
+    this.customizationService.getFeatureControl(productId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res) => {
       this.featureControl.set(res.data);
     });
 
-    this.customizationService.getPriceBreaks(productId).subscribe((res) => {
+    this.customizationService.getPriceBreaks(productId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res) => {
       this.priceBreaks.set(res.data.filter((b) => b.isActive).sort((a, b) => a.minQuantity - b.minQuantity));
     });
 
-    this.customizationService.getProductionTime(productId).subscribe((res) => {
+    this.customizationService.getProductionTime(productId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res) => {
       this.productionTime.set(res.data);
     });
 
-    this.customizationService.getPrintPositions(productId).subscribe((res) => {
+    this.customizationService.getPrintPositions(productId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res) => {
       this.availablePrintPositions.set(res.data.filter((p) => p.isActive).sort((a, b) => a.sortOrder - b.sortOrder));
     });
 
-    this.decorationService.getDecorationMethodsByProductId(productId).subscribe((res) => {
+    this.decorationService.getDecorationMethodsByProductId(productId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res) => {
       this.availableDecorationMethods.set(res.data.sort((a, b) => a.sortOrder - b.sortOrder));
     });
 
-    this.variantService.getAvailableColors(productId).subscribe((res) => {
-      const colorIds = res.data;
-      this.availableColors.set(MOCK_PRODUCT_COLORS.filter((c) => colorIds.includes(c.id) && c.isActive).sort((a, b) => a.sortOrder - b.sortOrder));
+    this.variantService.getAvailableColorsWithDetails(productId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res) => {
+      this.availableColors.set(res.data);
     });
 
-    this.variantService.getAvailableSizes(productId).subscribe((res) => {
-      const sizeIds = res.data;
-      this.availableSizes.set(MOCK_PRODUCT_SIZES.filter((s) => sizeIds.includes(s.id) && s.isActive).sort((a, b) => a.sortOrder - b.sortOrder));
+    this.variantService.getAvailableSizesWithDetails(productId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res) => {
+      this.availableSizes.set(res.data);
     });
 
-    this.availablePrintColors.set(MOCK_PRINT_COLORS);
+    this.customizationService.getPrintColors(productId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res) => {
+      this.availablePrintColors.set(res.data);
+    });
   }
 
   private loadRelatedProducts(categoryId: string, excludeId: string): void {
-    this.productService.getProductsByCategory(categoryId).subscribe((res) => {
+    this.productService.getProductsByCategory(categoryId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res) => {
       this.relatedProducts.set((res.data || []).filter((p) => p.id !== excludeId).slice(0, 4));
     });
   }

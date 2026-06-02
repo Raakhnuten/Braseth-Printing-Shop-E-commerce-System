@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
@@ -15,6 +16,7 @@ import { Category } from '../../../core/models/category.model';
 export class AdminCategoriesComponent implements OnInit {
   private categoryService = inject(CategoryService);
   private fb = inject(FormBuilder);
+  private destroyRef = inject(DestroyRef);
 
   pageTitle = 'Manage Categories';
   loading = signal(false);
@@ -45,7 +47,7 @@ export class AdminCategoriesComponent implements OnInit {
   loadCategories(): void {
     this.loading.set(true);
     this.error.set('');
-    this.categoryService.getCategories().subscribe({
+    this.categoryService.getCategories().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         this.categories.set(res.data);
         this.loading.set(false);
@@ -99,7 +101,7 @@ export class AdminCategoriesComponent implements OnInit {
     const value = this.form.value;
 
     if (this.formMode() === 'create') {
-      this.categoryService.createCategory(value).subscribe({
+      this.categoryService.createCategory(value).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
           this.saving.set(false);
           this.closeForm();
@@ -113,7 +115,7 @@ export class AdminCategoriesComponent implements OnInit {
         },
       });
     } else {
-      this.categoryService.updateCategory(this.editingId()!, value).subscribe({
+      this.categoryService.updateCategory(this.editingId()!, value).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
           this.saving.set(false);
           this.closeForm();
@@ -131,7 +133,7 @@ export class AdminCategoriesComponent implements OnInit {
 
   deleteCategory(id: string): void {
     if (!confirm('Are you sure you want to delete this category?')) return;
-    this.categoryService.deleteCategory(id).subscribe({
+    this.categoryService.deleteCategory(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.successMessage.set('Category deleted successfully');
         this.loadCategories();

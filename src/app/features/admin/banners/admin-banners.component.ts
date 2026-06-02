@@ -1,4 +1,5 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, signal, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
@@ -15,6 +16,7 @@ import { Banner, BannerPosition } from '../../../core/models/banner.model';
 export class AdminBannersComponent implements OnInit {
   private bannerService = inject(BannerService);
   private fb = inject(FormBuilder);
+  private destroyRef = inject(DestroyRef);
 
   pageTitle = 'Manage Banners';
 
@@ -51,7 +53,7 @@ export class AdminBannersComponent implements OnInit {
   loadBanners(): void {
     this.loading.set(true);
     this.error.set('');
-    this.bannerService.getBanners().subscribe({
+    this.bannerService.getBanners().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         this.banners.set(res.data);
         this.loading.set(false);
@@ -108,7 +110,7 @@ export class AdminBannersComponent implements OnInit {
     const value = this.form.value;
 
     if (this.formMode() === 'create') {
-      this.bannerService.createBanner(value).subscribe({
+      this.bannerService.createBanner(value).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
           this.saving.set(false);
           this.closeForm();
@@ -122,7 +124,7 @@ export class AdminBannersComponent implements OnInit {
         },
       });
     } else {
-      this.bannerService.updateBanner(this.editingId()!, value).subscribe({
+      this.bannerService.updateBanner(this.editingId()!, value).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
           this.saving.set(false);
           this.closeForm();
@@ -140,7 +142,7 @@ export class AdminBannersComponent implements OnInit {
 
   deleteBanner(id: string): void {
     if (!confirm('Are you sure you want to delete this banner?')) return;
-    this.bannerService.deleteBanner(id).subscribe({
+    this.bannerService.deleteBanner(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.successMessage.set('Banner deleted successfully');
         this.loadBanners();

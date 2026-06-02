@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
@@ -17,6 +18,7 @@ import { AuthService } from '../../../core/services/auth.service';
 export class UserDashboardComponent implements OnInit {
   private orderService = inject(OrderService);
   private authService = inject(AuthService);
+  private destroyRef = inject(DestroyRef);
 
   loading = signal(true);
   error = signal('');
@@ -39,7 +41,7 @@ export class UserDashboardComponent implements OnInit {
     this.loading.set(true);
     this.error.set('');
 
-    this.orderService.getOrders().subscribe({
+    this.orderService.getMyOrders().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         const orders = res.data || [];
         this.totalOrders.set(orders.length);

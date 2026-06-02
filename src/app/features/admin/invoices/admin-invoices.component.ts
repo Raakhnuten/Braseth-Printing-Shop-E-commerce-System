@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal, computed } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { DatePipe, CurrencyPipe } from '@angular/common';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
@@ -15,6 +16,7 @@ import { Invoice, InvoiceStatus } from '../../../core/models/invoice.model';
 })
 export class AdminInvoicesComponent implements OnInit {
   private invoiceService = inject(InvoiceService);
+  private destroyRef = inject(DestroyRef);
 
   pageTitle = 'Manage Invoices';
   loading = signal(false);
@@ -30,14 +32,14 @@ export class AdminInvoicesComponent implements OnInit {
   loadInvoices(): void {
     this.loading.set(true);
     this.error.set('');
-    this.invoiceService.getInvoices().subscribe({
+    this.invoiceService.getInvoices().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => { this.invoices.set(res.data); this.loading.set(false); },
       error: () => { this.error.set('Failed to load invoices'); this.loading.set(false); },
     });
   }
 
   markPaid(invoiceId: string): void {
-    this.invoiceService.markInvoicePaid(invoiceId).subscribe({
+    this.invoiceService.markInvoicePaid(invoiceId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => this.loadInvoices(),
       error: () => this.error.set('Failed to mark as paid'),
     });

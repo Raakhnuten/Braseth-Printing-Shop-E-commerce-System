@@ -1,5 +1,5 @@
 .categories-page {
-  padding: 2rem 1rem;
+  padding: 2rem 0;
 
   &__header {
     margin-bottom: 2rem;
@@ -8,36 +8,41 @@
   &__title {
     font-size: 1.75rem;
     font-weight: 700;
-    color: #111;
+    color: var(--color-text-primary);
     margin-bottom: 0.25rem;
   }
 
   &__count {
     font-size: 0.875rem;
-    color: #6b7280;
+    color: var(--color-text-muted);
   }
 }
 
 .categories-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1.25rem;
+  gap: 1rem;
+}
+
+.categories-grid > * {
+  min-width: 0;
 }
 
 .category-card {
   display: flex;
   flex-direction: column;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
-  background: #fff;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-  transition: transform 0.2s, box-shadow 0.2s;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  transition: all var(--transition-base);
   text-decoration: none;
   color: inherit;
 
   &:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--color-border-hover);
 
     .category-card__link i {
       transform: translateX(4px);
@@ -48,7 +53,7 @@
     width: 100%;
     padding-top: 40%;
     overflow: hidden;
-    background: #f3f4f6;
+    background: var(--color-bg-alt);
     position: relative;
 
     img {
@@ -68,27 +73,27 @@
   }
 
   &__name {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #111;
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
   }
 
   &__desc {
-    font-size: 0.875rem;
-    color: #6b7280;
-    line-height: 1.5;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    line-height: var(--leading-relaxed);
   }
 
   &__link {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #2563eb;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-primary);
     display: flex;
     align-items: center;
     gap: 0.25rem;
 
     i {
-      transition: transform 0.2s;
+      transition: transform var(--transition-fast);
       font-size: 0.8rem;
     }
   }
@@ -97,6 +102,7 @@
 @media (min-width: 640px) {
   .categories-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
   }
 }
 

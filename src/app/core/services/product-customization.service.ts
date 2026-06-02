@@ -7,15 +7,18 @@ import {
   ProductPriceBreak,
   ProductProductionTime,
   ProductCustomizationFee,
+  PrintColor,
 } from '../models/customization.model';
 import { ApiResponse } from '../models/api-response.model';
 import { APP_CONFIG } from '../constants/app-config';
+import { API_ENDPOINTS } from '../constants/api-endpoints';
 import { ApiService } from './api.service';
 import { MOCK_PRODUCT_FEATURE_CONTROLS } from '../../mock-data/mock-product-feature-controls';
 import { MOCK_PRODUCT_PRINT_POSITIONS } from '../../mock-data/mock-product-print-positions';
 import { MOCK_PRODUCT_PRICE_BREAKS } from '../../mock-data/mock-product-price-breaks';
 import { MOCK_PRODUCT_PRODUCTION_TIMES } from '../../mock-data/mock-product-production-times';
 import { MOCK_PRODUCT_CUSTOMIZATION_FEES } from '../../mock-data/mock-product-customization-fees';
+import { MOCK_PRINT_COLORS } from '../../mock-data/mock-print-colors';
 
 export interface CustomizationPayload {
   productId: string;
@@ -87,6 +90,38 @@ export class ProductCustomizationService {
       return of({ success: true, message: 'OK', data: fees });
     }
     return this.apiService.get<ApiResponse<ProductCustomizationFee[]>>(`/product-customization-fees/product/${productId}`);
+  }
+
+  // TODO: GET /api/product-print-colors/product/:productId
+  // TODO: POST /api/product-feature-controls
+  createFeatureControl(control: ProductFeatureControl): Observable<ApiResponse<ProductFeatureControl | null>> {
+    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+      console.warn('[ProductCustomizationService] createFeatureControl not supported in mock/fake data mode');
+      return of({ success: true, message: 'OK', data: null });
+    }
+    return this.apiService.post<ApiResponse<ProductFeatureControl>>(
+      API_ENDPOINTS.FEATURE_CONTROLS.CREATE,
+      control,
+    );
+  }
+
+  // TODO: PUT /api/product-feature-controls/:id
+  updateFeatureControl(id: string, control: Partial<ProductFeatureControl>): Observable<ApiResponse<ProductFeatureControl | null>> {
+    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+      console.warn('[ProductCustomizationService] updateFeatureControl not supported in mock/fake data mode');
+      return of({ success: true, message: 'OK', data: null });
+    }
+    return this.apiService.put<ApiResponse<ProductFeatureControl>>(
+      API_ENDPOINTS.FEATURE_CONTROLS.UPDATE(id),
+      control,
+    );
+  }
+
+  getPrintColors(productId: string): Observable<ApiResponse<PrintColor[]>> {
+    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+      return of({ success: true, message: 'OK', data: MOCK_PRINT_COLORS });
+    }
+    return this.apiService.get<ApiResponse<PrintColor[]>>(`/product-print-colors/product/${productId}`);
   }
 
   calculateCustomizationTotal(payload: CustomizationPayload, basePrice: number, decorationBaseFee: number, positionExtraFee: number): CustomizationTotal {

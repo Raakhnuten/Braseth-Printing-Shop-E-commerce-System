@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
@@ -14,6 +15,7 @@ import { AddressService } from '../../../core/services/address.service';
 })
 export class UserAddressesComponent implements OnInit {
   private addressService = inject(AddressService);
+  private destroyRef = inject(DestroyRef);
 
   loading = signal(true);
   error = signal('');
@@ -25,7 +27,7 @@ export class UserAddressesComponent implements OnInit {
 
   private loadAddresses(): void {
     this.loading.set(true);
-    this.addressService.getAddresses().subscribe({
+    this.addressService.getAddresses().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         this.addresses.set(res.data || []);
         this.loading.set(false);
@@ -39,7 +41,7 @@ export class UserAddressesComponent implements OnInit {
 
   onDelete(id: string): void {
     if (!confirm('Delete this address?')) return;
-    this.addressService.deleteAddress(id).subscribe({
+    this.addressService.deleteAddress(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => this.loadAddresses(),
     });
   }

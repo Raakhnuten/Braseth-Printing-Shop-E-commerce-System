@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, HostListener } from '@angular/core';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NgClass } from '@angular/common';
@@ -153,6 +153,28 @@ export class HeaderComponent {
 
   get cartCount(): number {
     return this.cartService.getCartItemCount();
+  }
+
+  get userInitials(): string {
+    const user = this.authService.getCurrentUser();
+    if (!user) return '';
+    return `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase();
+  }
+
+  get userEmail(): string {
+    return this.authService.getCurrentUser()?.email ?? '';
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscapePress(): void {
+    this.closeMobileMenu();
+  }
+
+  @HostListener('document:click')
+  onOutsideClick(): void {
+    if (this.mobileMenuOpen) {
+      this.closeMobileMenu();
+    }
   }
 
   onSearch(): void {

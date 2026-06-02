@@ -1,12 +1,18 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { switchMap, EMPTY } from 'rxjs';
 import { CartService } from '../../../core/services/cart.service';
 import { CheckoutService } from '../../../core/services/checkout.service';
 import { ShippingService } from '../../../core/services/shipping.service';
 import { CartItem } from '../../../core/models/cart.model';
 import { CheckoutRequest, OrderCreateRequest } from '../../../core/models/checkout.model';
 import { ShippingMethod, ShippingZone } from '../../../core/models/shipping.model';
+import { CartSummaryComponent } from './components/cart-summary/cart-summary.component';
+import { AddressFormComponent } from './components/address-form/address-form.component';
+import { CheckoutCouponComponent, CouponMessage } from './components/checkout-coupon/checkout-coupon.component';
+import { CheckoutDeliveryComponent } from './components/checkout-delivery/checkout-delivery.component';
 
 interface PaymentMethod {
   id: string;
@@ -20,13 +26,14 @@ interface PaymentMethod {
   selector: 'app-checkout',
   templateUrl: './checkout.component.html',
   styleUrl: './checkout.component.scss',
-  imports: [RouterLink, ReactiveFormsModule],
+  imports: [RouterLink, ReactiveFormsModule, CartSummaryComponent, AddressFormComponent, CheckoutCouponComponent, CheckoutDeliveryComponent],
 })
 export class CheckoutComponent implements OnInit {
   private fb = inject(FormBuilder);
   protected cartService = inject(CartService);
   protected checkoutService = inject(CheckoutService);
   private shippingService = inject(ShippingService);
+  private destroyRef = inject(DestroyRef);
 
   form = this.fb.group({
     name: ['', Validators.required],
@@ -40,6 +47,12 @@ export class CheckoutComponent implements OnInit {
   orderSuccess = signal(false);
   orderNumber = signal('');
   processing = signal(false);
+
+  couponCode = signal<string | null>(null);
+  couponMessage = signal<CouponMessage | null>(null);
+
+  orderValidationErrors = signal<string[]>([]);
+  submitError = signal<string | null>(null);
 
   shippingMethods = signal<ShippingMethod[]>([]);
   shippingZones = signal<ShippingZone[]>([]);
@@ -74,10 +87,12 @@ export class CheckoutComponent implements OnInit {
     return this.checkoutService.calculateCheckoutSummary(
       items,
       this.deliveryFee(),
+      this.couponCode(),
     );
   });
 
   subtotal = computed(() => this.checkoutSummary().subtotal);
+  discount = computed(() => this.checkoutSummary().discount);
   total = computed(() => this.checkoutSummary().grandTotal);
 
   ngOnInit(): void {
@@ -86,7 +101,7 @@ export class CheckoutComponent implements OnInit {
 
   private loadShippingOptions(): void {
     this.shippingLoading.set(true);
-    this.shippingService.getActiveShippingMethods().subscribe({
+    this.shippingService.getActiveShippingMethods().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         this.shippingMethods.set(res.data);
         if (res.data.length > 0) {
@@ -99,7 +114,7 @@ export class CheckoutComponent implements OnInit {
       },
     });
 
-    this.shippingService.getActiveShippingZones().subscribe({
+    this.shippingService.getActiveShippingZones().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         this.shippingZones.set(res.data);
         if (res.data.length > 0) {
@@ -119,16 +134,33 @@ export class CheckoutComponent implements OnInit {
 
   selectPayment(method: PaymentMethod): void { this.selectedPayment.set(method); }
 
+  applyCoupon(code: string): void {
+    if (!code || !code.trim()) return;
+    this.checkoutService.validateCoupon(code.trim()).pipe(
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe({
+      next: (res) => {
+        if (res.data?.valid) {
+          this.couponCode.set(res.data.code);
+          this.couponMessage.set({ text: res.data.message, type: 'success' });
+        } else {
+          this.couponCode.set(null);
+          this.couponMessage.set({ text: res.data?.message ?? 'Invalid coupon', type: 'error' });
+        }
+      },
+      error: () => {
+        this.couponMessage.set({ text: 'Failed to validate coupon', type: 'error' });
+      },
+    });
+  }
+
+  removeCoupon(): void {
+    this.couponCode.set(null);
+    this.couponMessage.set(null);
+  }
+
   updateQty(productId: string, qty: number): void { this.cartService.updateQuantity(productId, qty); }
   removeItem(productId: string): void { this.cartService.removeItem(productId); }
-
-  getLineTotal(item: CartItem): number { return item.unitPrice * item.quantity; }
-
-  getPaymentIcon(pm: PaymentMethod): string { return pm.icon; }
-
-  onCartImgError(event: Event): void {
-    (event.target as HTMLImageElement).src = 'assets/images/placeholder.png';
-  }
 
   onPaymentImgError(event: Event): void {
     const el = event.target as HTMLImageElement;
@@ -142,6 +174,8 @@ export class CheckoutComponent implements OnInit {
     if (!this.selectedShippingMethod()) return;
 
     this.processing.set(true);
+    this.orderValidationErrors.set([]);
+    this.submitError.set(null);
 
     const method = this.selectedShippingMethod()!;
     const zone = this.selectedShippingZone();
@@ -166,13 +200,29 @@ export class CheckoutComponent implements OnInit {
         paymentMethodId: this.selectedPayment().id,
         paymentMethodName: this.selectedPayment().name,
       },
-      couponCode: null,
+      couponCode: this.couponCode(),
       items: this.cartItems(),
     };
 
     const orderPayload: OrderCreateRequest = this.checkoutService.buildOrderPayload(checkoutRequest);
 
-    this.checkoutService.createOrder(orderPayload).subscribe({
+    // Validate order before submission — the backend (or mock fallback) checks
+    // all prices, discounts, fees, and tax. If validation fails, the order is
+    // not submitted and validation errors are shown in the UI.
+    // The validation result contains a `serverPrices` block with the backend's
+    // authoritative totals.
+    this.checkoutService.validateOrderBeforeCreate(orderPayload).pipe(
+      takeUntilDestroyed(this.destroyRef),
+      switchMap((validation) => {
+        if (!validation.data?.valid) {
+          const errors = validation.data?.errors ?? ['Please review your order details and try again.'];
+          this.processing.set(false);
+          this.orderValidationErrors.set(errors);
+          return EMPTY;
+        }
+        return this.checkoutService.createOrder(orderPayload);
+      }),
+    ).subscribe({
       next: (response) => {
         this.orderNumber.set(response.data?.orderNumber ?? '');
         this.cartService.clearCart();
@@ -183,7 +233,7 @@ export class CheckoutComponent implements OnInit {
       },
       error: () => {
         this.processing.set(false);
-        console.error('Failed to create order');
+        this.submitError.set('An unexpected error occurred. Please try again.');
       },
     });
   }

@@ -1,4 +1,4 @@
-<div class="checkout-page">
+<div class="container checkout-page">
   <div class="checkout-header">
     <h1 class="checkout-header__title">Checkout</h1>
     <p class="checkout-header__subtitle">Complete your order details below.</p>
@@ -25,177 +25,24 @@
     <div class="checkout-grid">
       <!-- LEFT COLUMN -->
       <div class="checkout-main">
-        <!-- Customer Details -->
-        <section class="checkout-card">
-          <div class="checkout-card__head">
-            <i class="pi pi-user"></i>
-            <span>Customer Details</span>
-          </div>
-          <div class="checkout-card__body">
-            <div class="co-field">
-              <label class="co-label" for="name">Name <span class="co-req">*</span></label>
-              <input
-                id="name"
-                type="text"
-                class="co-input"
-                [class.co-input--err]="form.get('name')?.invalid && (form.get('name')?.touched || submitted())"
-                placeholder="Your full name"
-                formControlName="name"
-              />
-              @if (form.get('name')?.invalid && (form.get('name')?.touched || submitted())) {
-                <span class="co-err">Name is required.</span>
-              }
-            </div>
-            <div class="co-field">
-              <label class="co-label" for="email">Email <span class="co-req">*</span></label>
-              <input
-                id="email"
-                type="email"
-                class="co-input"
-                [class.co-input--err]="form.get('email')?.invalid && (form.get('email')?.touched || submitted())"
-                placeholder="your@email.com"
-                formControlName="email"
-              />
-              @if (form.get('email')?.invalid && (form.get('email')?.touched || submitted())) {
-                @if (form.get('email')?.errors?.['required']) {
-                  <span class="co-err">Email is required.</span>
-                } @else {
-                  <span class="co-err">Enter a valid email address.</span>
-                }
-              }
-            </div>
-            <div class="co-field">
-              <label class="co-label" for="telegram">Telegram Username <span class="co-req">*</span></label>
-              <input
-                id="telegram"
-                type="text"
-                class="co-input"
-                [class.co-input--err]="form.get('telegram')?.invalid && (form.get('telegram')?.touched || submitted())"
-                placeholder="@username"
-                formControlName="telegram"
-              />
-              @if (form.get('telegram')?.invalid && (form.get('telegram')?.touched || submitted())) {
-                <span class="co-err">Telegram username is required.</span>
-              }
-            </div>
-            <div class="co-field">
-              <label class="co-label" for="address">Address <span class="co-req">*</span></label>
-              <textarea
-                id="address"
-                class="co-input co-textarea"
-                [class.co-input--err]="form.get('address')?.invalid && (form.get('address')?.touched || submitted())"
-                placeholder="Street, city, province, etc."
-                rows="3"
-                formControlName="address"
-              ></textarea>
-              @if (form.get('address')?.invalid && (form.get('address')?.touched || submitted())) {
-                <span class="co-err">Address is required.</span>
-              }
-            </div>
-            <div class="co-field">
-              <label class="co-label" for="note">Note / Remark</label>
-              <textarea
-                id="note"
-                class="co-input co-textarea"
-                placeholder="Optional notes for your order"
-                rows="2"
-                formControlName="note"
-              ></textarea>
-            </div>
-          </div>
-        </section>
+        <app-address-form [form]="form" [submitted]="submitted()" />
 
-        <!-- Shipping Method -->
-        <section class="checkout-card">
-          <div class="checkout-card__head">
-            <i class="pi pi-truck"></i>
-            <span>Shipping Method</span>
-          </div>
-          <div class="checkout-card__body">
-            @if (shippingLoading()) {
-              <div class="co-loading">
-                <i class="pi pi-spin pi-spinner"></i>
-                <span>Loading shipping options...</span>
-              </div>
-            } @else {
-              <div class="co-options">
-                @for (sm of shippingMethods(); track sm.id) {
-                  <button
-                    class="co-option"
-                    [class.co-option--sel]="selectedShippingMethod()?.id === sm.id"
-                    (click)="selectShippingMethod(sm)"
-                    type="button"
-                  >
-                    <div class="co-option__left">
-                      <span class="co-option__radio">
-                        @if (selectedShippingMethod()?.id === sm.id) {
-                          <span class="co-option__dot"></span>
-                        }
-                      </span>
-                      <div>
-                        <div class="co-option__name">{{ sm.name }}</div>
-                        <div class="co-option__desc">{{ sm.estimatedDeliveryTime }}</div>
-                      </div>
-                    </div>
-                    <span class="co-option__price" [class.co-option__price--free]="sm.baseFee === 0">
-                      @if (sm.baseFee === 0) {
-                        FREE
-                      } @else {
-                        From ${{ sm.baseFee.toFixed(2) }}
-                      }
-                    </span>
-                  </button>
-                }
-              </div>
-            }
-          </div>
-        </section>
+        <app-checkout-coupon
+          [couponCode]="couponCode()"
+          [message]="couponMessage()"
+          (applyCoupon)="applyCoupon($event)"
+          (removeCoupon)="removeCoupon()"
+        />
 
-        <!-- Shipping Zone -->
-        <section class="checkout-card">
-          <div class="checkout-card__head">
-            <i class="pi pi-map-marker"></i>
-            <span>Delivery Zone</span>
-          </div>
-          <div class="checkout-card__body">
-            @if (shippingLoading()) {
-              <div class="co-loading">
-                <i class="pi pi-spin pi-spinner"></i>
-                <span>Loading zones...</span>
-              </div>
-            } @else {
-              <div class="co-options">
-                @for (zone of shippingZones(); track zone.id) {
-                  <button
-                    class="co-option"
-                    [class.co-option--sel]="selectedShippingZone()?.id === zone.id"
-                    (click)="selectShippingZone(zone)"
-                    type="button"
-                  >
-                    <div class="co-option__left">
-                      <span class="co-option__radio">
-                        @if (selectedShippingZone()?.id === zone.id) {
-                          <span class="co-option__dot"></span>
-                        }
-                      </span>
-                      <div>
-                        <div class="co-option__name">{{ zone.name }}</div>
-                        <div class="co-option__desc">{{ zone.description }}</div>
-                      </div>
-                    </div>
-                    <span class="co-option__price" [class.co-option__price--free]="zone.fee === 0">
-                      @if (zone.fee === 0) {
-                        No extra fee
-                      } @else {
-                        +${{ zone.fee.toFixed(2) }}
-                      }
-                    </span>
-                  </button>
-                }
-              </div>
-            }
-          </div>
-        </section>
+        <app-checkout-delivery
+          [shippingMethods]="shippingMethods()"
+          [shippingZones]="shippingZones()"
+          [selectedMethod]="selectedShippingMethod()"
+          [selectedZone]="selectedShippingZone()"
+          [loading]="shippingLoading()"
+          (selectMethod)="selectShippingMethod($event)"
+          (selectZone)="selectShippingZone($event)"
+        />
 
         <!-- Payment Method -->
         <section class="checkout-card">
@@ -234,94 +81,29 @@
       </div>
 
       <!-- RIGHT COLUMN - ORDER SUMMARY -->
-      <aside class="checkout-summary">
-        <div class="checkout-summary__inner">
-          <div class="checkout-summary__head">
-            <i class="pi pi-receipt"></i>
-            <span>Payment Summary</span>
-          </div>
-
-          <div class="checkout-summary__items">
-            <div class="checkout-summary__items-header">
-              <span>Total Items ({{ itemCount() }})</span>
-            </div>
-            @for (item of cartItems(); track item.id) {
-              <div class="co-cart-item">
-                <div class="co-cart-item__img-wrap">
-                  <img
-                    [src]="item.productImage"
-                    [alt]="item.productName"
-                    class="co-cart-item__img"
-                    (error)="onCartImgError($event)"
-                  />
-                </div>
-                <div class="co-cart-item__info">
-                  <div class="co-cart-item__name">{{ item.productName }}</div>
-                  <div class="co-cart-item__price">${{ item.unitPrice.toFixed(2) }} x {{ item.quantity }}</div>
-                  <div class="co-cart-item__qty">
-                    <button class="co-qty-btn" (click)="updateQty(item.productId, item.quantity - 1)" [disabled]="item.quantity <= 1">−</button>
-                    <span class="co-qty-val">{{ item.quantity }}</span>
-                    <button class="co-qty-btn" (click)="updateQty(item.productId, item.quantity + 1)">+</button>
-                  </div>
-                </div>
-                <div class="co-cart-item__right">
-                  <div class="co-cart-item__line-total">${{ getLineTotal(item).toFixed(2) }}</div>
-                  <button class="co-cart-item__remove" (click)="removeItem(item.id)" aria-label="Remove item">
-                    <i class="pi pi-trash"></i>
-                  </button>
-                </div>
-              </div>
-            }
-          </div>
-
-          <div class="checkout-summary__divider"></div>
-
-          <div class="checkout-summary__totals">
-            <div class="checkout-summary__row">
-              <span>Subtotal ({{ itemCount() }})</span>
-              <span>${{ subtotal().toFixed(2) }}</span>
-            </div>
-            @if (checkoutSummary().customizationFeeTotal > 0) {
-              <div class="checkout-summary__row">
-                <span>Customization Fees</span>
-                <span>${{ checkoutSummary().customizationFeeTotal.toFixed(2) }}</span>
-              </div>
-            }
-            <div class="checkout-summary__row">
-              <span>Delivery Fee</span>
-              <span>
-                @if (deliveryFee() === 0) {
-                  <span class="co-free">FREE</span>
-                } @else {
-                  ${{ deliveryFee().toFixed(2) }}
-                }
-              </span>
-            </div>
-            <div class="checkout-summary__divider"></div>
-            <div class="checkout-summary__row checkout-summary__row--total">
-              <span>Total</span>
-              <span>${{ total().toFixed(2) }}</span>
-            </div>
-          </div>
-
-          <div class="checkout-summary__actions">
-            <a routerLink="/products" class="co-btn co-btn--secondary">
-              <i class="pi pi-plus"></i> Add More Items
-            </a>
-            <button
-              class="co-btn co-btn--primary"
-              (click)="placeOrder()"
-              [disabled]="cartItems().length === 0 || processing() || !selectedShippingMethod()"
-            >
-              @if (processing()) {
-                <i class="pi pi-spin pi-spinner"></i> Processing...
-              } @else {
-                <i class="pi pi-check"></i> Place Order
-              }
-            </button>
-          </div>
+      @if (orderValidationErrors().length > 0 || submitError()) {
+        <div class="co-validation-error" role="alert" aria-live="polite">
+          @for (err of orderValidationErrors(); track $index) {
+            <div class="co-validation-error__item">{{ err }}</div>
+          }
+          @if (submitError(); as msg) {
+            <div class="co-validation-error__item">{{ msg }}</div>
+          }
         </div>
-      </aside>
+      }
+      <app-cart-summary
+        [cartItems]="cartItems()"
+        [itemCount]="itemCount()"
+        [subtotal]="subtotal()"
+        [deliveryFee]="deliveryFee()"
+        [customizationFeeTotal]="checkoutSummary().customizationFeeTotal"
+        [discount]="discount()"
+        [total]="total()"
+        [processing]="processing()"
+        (updateQty)="updateQty($event.productId, $event.quantity)"
+        (removeItem)="removeItem($event)"
+        (placeOrder)="placeOrder()"
+      />
     </div>
   }
 </div>

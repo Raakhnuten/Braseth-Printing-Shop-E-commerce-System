@@ -45,9 +45,10 @@
           <div class="category-card__icon">
             <i [class]="'pi ' + cat.icon"></i>
           </div>
-          <h3 class="category-card__name">{{ cat.name }}</h3>
-          <p class="category-card__desc">{{ cat.description }}</p>
-          <span class="category-card__link">Explore <i class="pi pi-arrow-right"></i></span>
+          <div class="category-card__body">
+            <h3 class="category-card__name">{{ cat.name }}</h3>
+            <span class="category-card__link">Explore <i class="pi pi-arrow-right"></i></span>
+          </div>
         </a>
       }
     </div>

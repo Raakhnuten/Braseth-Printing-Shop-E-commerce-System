@@ -71,6 +71,23 @@ export interface OrderCreateRequest {
   totalItems: number;
 }
 
+// Server-side order validation result
+// TODO: Backend must recalculate all prices, discounts, fees, and tax from its
+// own product catalog, coupon database, and shipping config. The client-submitted
+// grandTotal should be treated as a display-only estimate.
+export interface OrderValidationResult {
+  valid: boolean;
+  errors: string[];
+  serverPrices: {
+    subtotal: number;
+    discount: number;
+    deliveryFee: number;
+    customizationFeeTotal: number;
+    tax: number;
+    grandTotal: number;
+  };
+}
+
 export interface CheckoutSummary {
   subtotal: number;
   discount: number;
@@ -87,4 +104,15 @@ export interface CouponValidationResult {
   discountType: 'PERCENTAGE' | 'FIXED' | 'FREE_SHIPPING' | null;
   discountValue: number;
   message: string;
+  // Detailed failure reasons — the backend must validate these:
+  // Coupon is enabled and has not passed its endDate
+  isExpired?: boolean;
+  // Cart subtotal is below coupon's minOrderAmount (requires subtotal context)
+  minOrderNotMet?: boolean;
+  // Coupon's usedCount has reached its maxUses limit
+  usageLimitReached?: boolean;
+  // Coupon is not applicable to the products in the cart
+  productRestriction?: boolean;
+  // Coupon is not applicable to the cart's product categories
+  categoryRestriction?: boolean;
 }

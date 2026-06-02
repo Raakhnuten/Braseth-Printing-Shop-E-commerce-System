@@ -1,0 +1,34 @@
+<section class="checkout-card">
+  <div class="checkout-card__head">
+    <i class="pi pi-tag"></i>
+    <span>Coupon Code</span>
+  </div>
+  <div class="checkout-card__body">
+    @if (couponCode) {
+      <div class="co-coupon-applied">
+        <span class="co-coupon-applied__code">{{ couponCode }}</span>
+        <button class="co-coupon-applied__remove" (click)="removeCoupon.emit()" type="button">
+          <i class="pi pi-times"></i> Remove
+        </button>
+      </div>
+    } @else {
+      <div class="co-coupon-input-row">
+        <input
+          class="co-input co-coupon-input"
+          type="text"
+          placeholder="Enter coupon code"
+          [(ngModel)]="inputCode"
+          (keyup.enter)="applyCoupon.emit(inputCode)"
+        />
+        <button class="co-btn co-btn--apply" (click)="applyCoupon.emit(inputCode)" type="button">
+          Apply
+        </button>
+      </div>
+    }
+    @if (message) {
+      <span class="co-coupon-msg" [class.co-coupon-msg--ok]="message.type === 'success'" [class.co-coupon-msg--err]="message.type === 'error'">
+        {{ message.text }}
+      </span>
+    }
+  </div>
+</section>

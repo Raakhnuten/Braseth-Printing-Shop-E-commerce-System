@@ -286,6 +286,10 @@ export class CartService {
     return this.cartItems().some((item) => item.productId === productId);
   }
 
+  // TODO: All cart totals are display-only estimates. The backend MUST recalculate
+  // all prices, discounts, fees, shipping costs, and tax from its own records when
+  // processing the order. Do NOT trust client-submitted grandTotal as the final
+  // payment amount.
   calculateCartTotals(): Cart {
     const items = this.cartItems();
     const subtotal = items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);

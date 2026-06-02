@@ -1,11 +1,14 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { ProductVariant } from '../models/customization.model';
+import { ProductVariant, ProductColor, ProductSize } from '../models/customization.model';
 import { ApiResponse } from '../models/api-response.model';
 import { APP_CONFIG } from '../constants/app-config';
+import { API_ENDPOINTS } from '../constants/api-endpoints';
 import { ApiService } from './api.service';
 import { MOCK_PRODUCT_VARIANTS } from '../../mock-data/mock-product-variants';
+import { MOCK_PRODUCT_COLORS } from '../../mock-data/mock-product-colors';
+import { MOCK_PRODUCT_SIZES } from '../../mock-data/mock-product-sizes';
 
 @Injectable({ providedIn: 'root' })
 export class ProductVariantService {
@@ -45,6 +48,38 @@ export class ProductVariantService {
         return { success: true, message: 'OK', data: sizes };
       }),
     );
+  }
+
+  // TODO: GET /api/product-variants/colors/:productId — Backend returns ProductColor[]
+  // Currently resolves string color IDs from getAvailableColors() against MOCK_PRODUCT_COLORS.
+  // In production mode, replace with a dedicated endpoint returning full ProductColor[] objects.
+  getAvailableColorsWithDetails(productId: string): Observable<ApiResponse<ProductColor[]>> {
+    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+      return this.getAvailableColors(productId).pipe(
+        map((res) => {
+          const colors = (MOCK_PRODUCT_COLORS)
+            .filter((c) => res.data.includes(c.id) && c.isActive)
+            .sort((a, b) => a.sortOrder - b.sortOrder);
+          return { success: true, message: 'OK', data: colors };
+        }),
+      );
+    }
+    return this.apiService.get<ApiResponse<ProductColor[]>>(API_ENDPOINTS.PRODUCT_VARIANTS.COLORS_BY_PRODUCT(productId));
+  }
+
+  // TODO: GET /api/product-variants/sizes/:productId — Backend returns ProductSize[]
+  getAvailableSizesWithDetails(productId: string): Observable<ApiResponse<ProductSize[]>> {
+    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+      return this.getAvailableSizes(productId).pipe(
+        map((res) => {
+          const sizes = (MOCK_PRODUCT_SIZES)
+            .filter((s) => res.data.includes(s.id) && s.isActive)
+            .sort((a, b) => a.sortOrder - b.sortOrder);
+          return { success: true, message: 'OK', data: sizes };
+        }),
+      );
+    }
+    return this.apiService.get<ApiResponse<ProductSize[]>>(API_ENDPOINTS.PRODUCT_VARIANTS.SIZES_BY_PRODUCT(productId));
   }
 
   checkVariantStock(productId: string, sizeId: string | null, colorId: string | null): Observable<ApiResponse<number>> {

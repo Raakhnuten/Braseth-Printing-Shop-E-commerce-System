@@ -13,6 +13,7 @@ export * from './platzi-product.service';
 export * from './platzi-category.service';
 export * from './platzi-auth.service';
 export * from './platzi-user.service';
+export * from './user.service';
 export * from './wishlist.service';
 export * from './checkout.service';
 export * from './shipping.service';

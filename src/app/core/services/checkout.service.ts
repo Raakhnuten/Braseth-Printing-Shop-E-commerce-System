@@ -7,6 +7,7 @@ import {
   OrderCreateRequest,
   OrderCreateItemRequest,
   CouponValidationResult,
+  OrderValidationResult,
 } from '../models/checkout.model';
 import { ApiResponse } from '../models/api-response.model';
 import { APP_CONFIG } from '../constants/app-config';
@@ -66,9 +67,43 @@ export class CheckoutService {
     };
   }
 
-  // ─── Coupon Validation ─────────────────────────────────
+  // ─── Order Validation ─────────────────────────────────
 
-  // TODO: GET /api/coupons/validate/:code
+  // TODO: POST /api/orders/validate — Backend must recalculate all prices from
+  // its own records (product catalog, coupon database, shipping config). The
+  // client-submitted totals should be treated as display-only estimates.
+  validateOrderBeforeCreate(request: OrderCreateRequest): Observable<ApiResponse<OrderValidationResult>> {
+    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+      return of({
+        success: true,
+        message: 'Mock order validation: client prices accepted as estimates.',
+        data: {
+          valid: true,
+          errors: [],
+          serverPrices: {
+            subtotal: request.subtotal,
+            discount: request.discount,
+            deliveryFee: request.deliveryFee,
+            customizationFeeTotal: request.customizationFeeTotal,
+            tax: request.tax,
+            grandTotal: request.grandTotal,
+          },
+        },
+      });
+    }
+    return this.apiService.post<ApiResponse<OrderValidationResult>>(
+      API_ENDPOINTS.ORDERS.VALIDATE_BEFORE_CREATE,
+      request,
+    );
+  }
+
+  // ─── Coupon Validation (delegates to CouponService) ────
+
+  // TODO: GET /api/coupons/validate/:code — Backend must validate:
+  //   - coupon exists, is enabled, not expired
+  //   - minimum order amount met
+  //   - usage limit not reached
+  //   - product/category restrictions satisfied (if applicable)
   validateCoupon(code: string): Observable<ApiResponse<CouponValidationResult>> {
     if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
       const result = this.validateCouponSync(code);
@@ -80,30 +115,57 @@ export class CheckoutService {
   }
 
   private validateCouponSync(code: string): CouponValidationResult {
-    const upperCode = code.toUpperCase();
-    const mockCoupons: Record<string, { type: string; value: number }> = {
-      SAVE10: { type: 'PERCENTAGE', value: 10 },
-      FREESHIP: { type: 'FREE_SHIPPING', value: 0 },
-      WELCOME25: { type: 'FIXED', value: 25 },
-    };
-
-    const match = mockCoupons[upperCode];
-    if (match) {
+    const coupon = this.couponService.getCouponSync(code);
+    if (!coupon) {
       return {
-        valid: true,
-        code: upperCode,
-        discountType: match.type as 'PERCENTAGE' | 'FIXED' | 'FREE_SHIPPING',
-        discountValue: match.value,
-        message: 'Coupon applied successfully.',
+        valid: false,
+        code: code.toUpperCase(),
+        discountType: null,
+        discountValue: 0,
+        message: 'Invalid coupon code.',
+      };
+    }
+
+    if (!coupon.enabled) {
+      return {
+        valid: false,
+        code: coupon.code,
+        discountType: coupon.discountType as 'PERCENTAGE' | 'FIXED' | 'FREE_SHIPPING',
+        discountValue: coupon.discountValue,
+        message: 'This coupon is currently disabled.',
+      };
+    }
+
+    const now = new Date();
+    const endDate = new Date(coupon.endDate);
+    if (endDate < now) {
+      return {
+        valid: false,
+        code: coupon.code,
+        discountType: coupon.discountType as 'PERCENTAGE' | 'FIXED' | 'FREE_SHIPPING',
+        discountValue: coupon.discountValue,
+        message: 'This coupon has expired.',
+        isExpired: true,
+      };
+    }
+
+    if (coupon.maxUses !== null && coupon.usedCount >= coupon.maxUses) {
+      return {
+        valid: false,
+        code: coupon.code,
+        discountType: coupon.discountType as 'PERCENTAGE' | 'FIXED' | 'FREE_SHIPPING',
+        discountValue: coupon.discountValue,
+        message: 'This coupon has reached its usage limit.',
+        usageLimitReached: true,
       };
     }
 
     return {
-      valid: false,
-      code: upperCode,
-      discountType: null,
-      discountValue: 0,
-      message: 'Invalid coupon code.',
+      valid: true,
+      code: coupon.code,
+      discountType: coupon.discountType as 'PERCENTAGE' | 'FIXED' | 'FREE_SHIPPING',
+      discountValue: coupon.discountValue,
+      message: 'Coupon applied successfully.',
     };
   }
 

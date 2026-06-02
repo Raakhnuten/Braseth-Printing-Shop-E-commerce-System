@@ -3,7 +3,7 @@
 } @else if (error()) {
   <div class="admin-content">
     <app-page-header title="Order Detail" [breadcrumbs]="[{ label: 'Orders', url: '/admin/orders' }]" />
-    <div class="error-message">{{ error() }}</div>
+    <div class="error-message" role="alert">{{ error() }}</div>
   </div>
 } @else {
   <div class="admin-content">
@@ -17,75 +17,79 @@
 
     <div class="order-detail">
       @if (statusUpdateMessage()) {
-        <div class="status-message" [class.success]="statusUpdateMessage().includes('successfully')">
+        <div class="status-message" [class.success]="statusUpdateMessage().includes('successfully')" role="status">
           {{ statusUpdateMessage() }}
+        </div>
+      }
+      @if (paymentUpdateMessage()) {
+        <div class="status-message" [class.success]="paymentUpdateMessage().includes('successfully')" role="status">
+          {{ paymentUpdateMessage() }}
         </div>
       }
 
       <div class="detail-grid">
         <div class="detail-card">
-          <h3>Customer Information</h3>
-          <div class="detail-row">
-            <span class="label">Name</span>
-            <span class="value">{{ order()?.customerName }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="label">Email</span>
-            <span class="value">customer@example.com</span>
-          </div>
-          <div class="detail-row">
-            <span class="label">Phone</span>
-            <span class="value">{{ order()?.phone || '-' }}</span>
-          </div>
+          <h3><i class="pi pi-user"></i> Customer Information</h3>
+          <div class="detail-row"><span class="label">Name</span><span class="value">{{ order()?.customerName }}</span></div>
+          <div class="detail-row"><span class="label">Email</span><span class="value">{{ order()?.email }}</span></div>
+          <div class="detail-row"><span class="label">Phone</span><span class="value">{{ order()?.phone || '-' }}</span></div>
+          <div class="detail-row"><span class="label">Telegram</span><span class="value">{{ order()?.telegramUsername || '-' }}</span></div>
         </div>
 
         <div class="detail-card">
-          <h3>Shipping Address</h3>
-            <div class="address-display">
-              {{ order()?.address }}
-            </div>
+          <h3><i class="pi pi-map-marker"></i> Shipping Address</h3>
+          <div class="address-display">{{ order()?.address }}</div>
+          @if (order()?.note) {
+            <p class="note-text"><strong>Note:</strong> {{ order()?.note }}</p>
+          }
         </div>
 
         <div class="detail-card">
-          <h3>Order Status</h3>
+          <h3><i class="pi pi-info-circle"></i> Order Status</h3>
           <div class="detail-row">
             <span class="label">Status</span>
-            <span class="status-badge status-{{ order()?.status?.toLowerCase() }}">{{ order()?.status }}</span>
+            <span class="status-badge" [class]="getStatusSeverity(order()?.status ?? '')">{{ getStatusLabel(order()?.status ?? '') }}</span>
           </div>
           <div class="detail-row">
-            <span class="label">Payment</span>
-            <span class="status-badge status-{{ order()?.paymentStatus?.toLowerCase() }}">{{ order()?.paymentStatus }}</span>
+            <span class="label">Date Placed</span>
+            <span class="value">{{ order()?.createdAt | date:'medium' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Last Updated</span>
+            <span class="value">{{ order()?.updatedAt | date:'medium' }}</span>
           </div>
         </div>
 
         <div class="detail-card">
-          <h3>Payment Information</h3>
-          <div class="detail-row">
-            <span class="label">Method</span>
-            <span class="value">{{ order()?.paymentMethodName || '-' }}</span>
-          </div>
+          <h3><i class="pi pi-credit-card"></i> Payment Information</h3>
+          <div class="detail-row"><span class="label">Method</span><span class="value">{{ order()?.paymentMethodName || '-' }}</span></div>
           <div class="detail-row">
             <span class="label">Status</span>
-            <span class="status-badge status-{{ order()?.paymentStatus?.toLowerCase() }}">{{ order()?.paymentStatus }}</span>
+            <span class="status-badge" [class]="getPaySeverity(order()?.paymentStatus ?? '')">{{ getPayLabel(order()?.paymentStatus ?? '') }}</span>
           </div>
+          @if (order()?.paymentTransactionId) {
+            <div class="detail-row"><span class="label">Transaction ID</span><span class="value">{{ order()?.paymentTransactionId }}</span></div>
+          }
         </div>
       </div>
 
+      <!-- Order Items -->
       <div class="detail-card items-card">
-        <h3>Order Items</h3>
+        <h3><i class="pi pi-shopping-bag"></i> Order Items ({{ order()?.items?.length ?? 0 }})</h3>
         <div class="table-responsive">
           <table class="items-table">
             <thead>
               <tr>
                 <th>Product</th>
                 <th>Name</th>
+                <th>Customization</th>
                 <th>Price</th>
                 <th>Qty</th>
                 <th>Total</th>
               </tr>
             </thead>
             <tbody>
-              @for (item of order()?.items; track item.productId) {
+              @for (item of order()?.items; track item.id) {
                 <tr>
                   <td>
                     @if (item.productImage) {
@@ -95,9 +99,28 @@
                     }
                   </td>
                   <td>{{ item.productName }}</td>
-                  <td>{{ item.unitPrice | currency: 'USD' : 'symbol' : '1.2-2' }}</td>
+                  <td class="customization-cell">
+                    @if (item.selectedSize) { <span class="cust-tag">Size: {{ item.selectedSize }}</span> }
+                    @if (item.selectedColor) { <span class="cust-tag">Color: {{ item.selectedColor }}</span> }
+                    @if (item.selectedDecorationMethod) { <span class="cust-tag">Method: {{ item.selectedDecorationMethod }}</span> }
+                    @if (item.selectedPrintPosition) { <span class="cust-tag">Position: {{ item.selectedPrintPosition }}</span> }
+                    @for (pc of item.selectedPrintColors; track pc.colorId) {
+                      <span class="cust-tag" [style.border-left-color]="pc.colorHex">Print: {{ pc.colorName }}</span>
+                    }
+                    @if (item.uploadedDesignFiles.length > 0) {
+                      <span class="cust-tag cust-tag--files">
+                        <i class="pi pi-file"></i>
+                        @for (f of item.uploadedDesignFiles; track f.id; let last = $last) {
+                          {{ f.fileName }}{{ last ? '' : ', ' }}
+                        }
+                      </span>
+                    }
+                    @if (item.customizationFee > 0) { <span class="cust-tag cust-fee">Fee: {{ item.customizationFee | currency }}</span> }
+                    @if (item.productionTime) { <span class="cust-tag cust-tag--time">Time: {{ item.productionTime }} days</span> }
+                  </td>
+                  <td>{{ item.unitPrice | currency:'USD':'symbol':'1.2-2' }}</td>
                   <td>{{ item.quantity }}</td>
-                  <td class="item-total">{{ item.subtotal | currency: 'USD' : 'symbol' : '1.2-2' }}</td>
+                  <td class="item-total">{{ item.subtotal | currency:'USD':'symbol':'1.2-2' }}</td>
                 </tr>
               }
             </tbody>
@@ -105,36 +128,129 @@
         </div>
 
         <div class="order-summary">
-          <div class="summary-row">
-            <span>Subtotal</span>
-            <span>{{ order()?.subtotal | currency: 'USD' : 'symbol' : '1.2-2' }}</span>
-          </div>
-          <div class="summary-row">
-            <span>Discount</span>
-            <span class="discount">-{{ order()?.discount | currency: 'USD' : 'symbol' : '1.2-2' }}</span>
-          </div>
-          <div class="summary-row">
-            <span>Shipping</span>
-            <span>{{ order()?.deliveryFee && order()?.deliveryFee! > 0 ? (order()?.deliveryFee | currency: 'USD' : 'symbol' : '1.2-2') : 'FREE' }}</span>
-          </div>
-          <div class="summary-row total">
-            <span>Total</span>
-            <span>{{ order()?.grandTotal | currency: 'USD' : 'symbol' : '1.2-2' }}</span>
-          </div>
+          <div class="summary-row"><span>Subtotal ({{ order()?.totalItems }} item(s))</span><span>{{ order()?.subtotal | currency:'USD':'symbol':'1.2-2' }}</span></div>
+          @if (order()?.customizationFeeTotal && order()!.customizationFeeTotal > 0) {
+            <div class="summary-row"><span>Customization Fees</span><span>{{ order()?.customizationFeeTotal | currency:'USD':'symbol':'1.2-2' }}</span></div>
+          }
+          @if (order()?.discount && order()!.discount > 0) {
+            <div class="summary-row"><span>Discount</span><span class="discount">-{{ order()?.discount | currency:'USD':'symbol':'1.2-2' }}</span></div>
+          }
+          <div class="summary-row"><span>Shipping</span><span>{{ order()?.deliveryFee && order()!.deliveryFee > 0 ? (order()?.deliveryFee | currency:'USD':'symbol':'1.2-2') : 'FREE' }}</span></div>
+          @if (order()?.tax && order()!.tax > 0) {
+            <div class="summary-row"><span>Tax</span><span>{{ order()?.tax | currency:'USD':'symbol':'1.2-2' }}</span></div>
+          }
+          <div class="summary-row total"><span>Grand Total</span><span>{{ order()?.grandTotal | currency:'USD':'symbol':'1.2-2' }}</span></div>
         </div>
       </div>
 
+      <!-- Update Status -->
       <div class="detail-card">
-        <h3>Update Status</h3>
+        <h3><i class="pi pi-refresh"></i> Update Order Status</h3>
         <div class="status-update-row">
-          <select #statusSelect>
-            @for (status of orderStatuses; track status) {
-              <option [value]="status" [selected]="status === order()?.status">{{ status }}</option>
+          <select [(ngModel)]="selectedNewStatus">
+            @for (st of orderStatuses; track st) {
+              <option [value]="st">{{ getStatusLabel(st) }}</option>
             }
           </select>
-          <button class="btn btn-primary" (click)="updateStatus(statusSelect.value)">Update Status</button>
-          <button class="btn btn-outline-danger" (click)="cancelOrder()">Cancel Order</button>
+          <button class="btn btn-primary" (click)="updateStatus()" [disabled]="selectedNewStatus() === order()?.status">Update Status</button>
+          @if (canCancel()) {
+            <button class="btn btn-outline-danger" (click)="cancelOrder()">Cancel Order</button>
+          }
         </div>
+      </div>
+
+      <!-- Update Payment Status -->
+      <div class="detail-card">
+        <h3><i class="pi pi-credit-card"></i> Update Payment Status</h3>
+        <div class="status-update-row">
+          <select [(ngModel)]="selectedPaymentStatus">
+            @for (ps of paymentStatuses; track ps) {
+              <option [value]="ps">{{ getPayLabel(ps) }}</option>
+            }
+          </select>
+          <button class="btn btn-primary" (click)="updatePaymentStatusAction()" [disabled]="selectedPaymentStatus() === order()?.paymentStatus">Update Payment</button>
+        </div>
+      </div>
+
+      <!-- Shipment / Tracking -->
+      <div class="detail-card">
+        <h3><i class="pi pi-truck"></i> Shipment &amp; Tracking</h3>
+        @if (shipment(); as s) {
+          <div class="shipment-detail">
+            <div class="detail-row"><span class="label">Shipment #</span><span class="value">{{ s.shipmentNumber }}</span></div>
+            <div class="detail-row"><span class="label">Status</span><span class="status-badge" [class]="getShipSeverity(s.status)">{{ getShipLabel(s.status) }}</span></div>
+            <div class="detail-row"><span class="label">Method</span><span class="value">{{ s.shippingMethodName }}</span></div>
+            <div class="detail-row"><span class="label">Carrier</span><span class="value">{{ s.carrierName || '-' }}</span></div>
+            <div class="detail-row"><span class="label">Tracking #</span><span class="value">{{ s.trackingNumber || '-' }}</span></div>
+            @if (s.trackingUrl) {
+              <div class="detail-row"><span class="label">Track</span><span class="value"><a [href]="s.trackingUrl | safeUrl" target="_blank" rel="noopener">Track Package <i class="pi pi-external-link"></i></a></span></div>
+            }
+            @if (s.shippedAt) { <div class="detail-row"><span class="label">Shipped</span><span class="value">{{ s.shippedAt | date:'mediumDate' }}</span></div> }
+            @if (s.deliveredAt) { <div class="detail-row"><span class="label">Delivered</span><span class="value">{{ s.deliveredAt | date:'mediumDate' }}</span></div> }
+          </div>
+        } @else {
+          <p class="no-data-text">No shipment record yet.</p>
+        }
+
+        @if (showShipmentForm()) {
+          <div class="shipment-form">
+            <div class="shipment-form__row">
+              <label>Tracking Number</label>
+              <input class="co-input" type="text" placeholder="e.g. 1Z999AA10123456784" [(ngModel)]="shipmentTracking" />
+            </div>
+            <div class="shipment-form__row">
+              <label>Carrier</label>
+              <input class="co-input" type="text" placeholder="e.g. UPS, FedEx, USPS" [(ngModel)]="shipmentCarrier" />
+            </div>
+            @if (shipmentMessage()) {
+              <div class="shipment-message" role="alert">{{ shipmentMessage() }}</div>
+            }
+            <div class="shipment-form__actions">
+              <button class="btn btn-primary" (click)="saveShipment()">Save</button>
+              <button class="btn btn-outline" (click)="closeShipmentForm()">Cancel</button>
+            </div>
+          </div>
+        } @else {
+          <div class="shipment-actions">
+            <button class="btn btn-primary" (click)="openShipmentForm()">
+              @if (shipment()) {
+                <i class="pi pi-pencil"></i> Update Tracking
+              } @else {
+                <i class="pi pi-plus"></i> Create Shipment
+              }
+            </button>
+          </div>
+        }
+      </div>
+
+      <!-- Invoice -->
+      <div class="detail-card">
+        <h3><i class="pi pi-receipt"></i> Invoice</h3>
+        @if (invoice(); as inv) {
+          <div class="invoice-detail">
+            <div class="detail-row"><span class="label">Invoice #</span><span class="value">{{ inv.invoiceNumber }}</span></div>
+            <div class="detail-row"><span class="label">Status</span><span class="status-badge" [class]="getStatusSeverity(inv.status)">{{ inv.status }}</span></div>
+            @if (inv.issuedAt) { <div class="detail-row"><span class="label">Issued</span><span class="value">{{ inv.issuedAt | date:'mediumDate' }}</span></div> }
+            <div class="detail-row"><span class="label">Total</span><span class="value value--bold">{{ inv.grandTotal | currency:'USD':'symbol':'1.2-2' }}</span></div>
+          </div>
+          <div class="invoice-actions">
+            @if (inv.downloadUrl) {
+              <button class="btn btn-outline" (click)="openUrl(inv.downloadUrl)">
+                <i class="pi pi-download"></i> Download Invoice
+              </button>
+            }
+            @if (inv.status === 'ISSUED') {
+              <button class="btn btn-primary" (click)="markInvoicePaid()">
+                <i class="pi pi-check"></i> Mark Paid
+              </button>
+            }
+          </div>
+        } @else {
+          <p class="no-data-text">No invoice yet.</p>
+          <button class="btn btn-primary" (click)="generateInvoice()">
+            <i class="pi pi-plus"></i> Generate Invoice
+          </button>
+        }
       </div>
 
       <div class="back-link">

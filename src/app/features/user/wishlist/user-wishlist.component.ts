@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
@@ -16,12 +17,13 @@ import { CartService } from '../../../core/services/cart.service';
 export class UserWishlistComponent implements OnInit {
   private wishlistService = inject(WishlistService);
   private cartService = inject(CartService);
+  private destroyRef = inject(DestroyRef);
 
   loading = signal(true);
   wishlistItems = signal<Product[]>([]);
 
   ngOnInit(): void {
-    this.wishlistService.getWishlistProducts().subscribe({
+    this.wishlistService.getWishlistProducts().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         this.wishlistItems.set(res.data || []);
         this.loading.set(false);

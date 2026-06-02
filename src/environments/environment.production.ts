@@ -1,6 +1,7 @@
 export const environment = {
   production: true,
-  apiBaseUrl: 'https://your-domain.com/api',
+  // TODO: Replace with actual production backend URL before deploying
+  apiBaseUrl: 'http://localhost:8080/api',
   useMockData: false,
   useFakeApi: false,
   appName: 'Seth Store',

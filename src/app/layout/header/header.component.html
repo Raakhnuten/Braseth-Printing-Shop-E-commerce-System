@@ -1,4 +1,4 @@
-<header class="header">
+<header class="header" [class.header--menu-open]="mobileMenuOpen">
   <!-- TOP ROW -->
   <div class="header__top">
     <div class="header__left">
@@ -47,7 +47,7 @@
         }
       </a>
 
-      <button class="header__menu-btn" (click)="toggleMobileMenu()" aria-label="Menu">
+      <button class="header__menu-btn" (click)="toggleMobileMenu(); $event.stopPropagation()" aria-label="Menu" [attr.aria-expanded]="mobileMenuOpen" aria-controls="mobile-menu-dropdown">
         <i class="pi" [ngClass]="mobileMenuOpen ? 'pi-times' : 'pi-bars'"></i>
       </button>
     </div>
@@ -130,77 +130,66 @@
     </div>
   </div>
 
-  <!-- MOBILE OVERLAY & MENU -->
-  @if (mobileMenuOpen) {
-    <div class="header__overlay" (click)="closeMobileMenu()"></div>
-    <div class="header__mobile-menu">
-      <div class="header__mobile-menu-header">
-        @if (isLoggedIn) {
-          <div class="header__mobile-user">
-            <i class="pi pi-user"></i>
-            <span>{{ displayName }}</span>
-          </div>
-          @if (isAdmin) {
-            <a routerLink="/admin/dashboard" class="header__mobile-admin-link" (click)="closeMobileMenu()">Admin Panel</a>
-          }
-        } @else {
-          <div class="header__mobile-auth">
-            <a routerLink="/auth/login" class="btn btn-primary btn-sm" (click)="closeMobileMenu()">Login</a>
-            <a routerLink="/auth/register" class="btn btn-outline btn-sm" (click)="closeMobileMenu()">Register</a>
-          </div>
-        }
-      </div>
-
-      <nav class="header__mobile-nav">
-        <a routerLink="/" class="header__mobile-link" (click)="closeMobileMenu()"><i class="pi pi-home"></i> Home</a>
-
-        @for (cat of navCategories; track cat.name) {
-          <div class="header__mobile-cat">
-            <button class="header__mobile-link header__mobile-link--cat" (click)="toggleMobileCategory(cat.name)">
-              <span>{{ cat.name }}</span>
-              <i class="pi" [ngClass]="expandedMobileCategory() === cat.name ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
-            </button>
-            @if (expandedMobileCategory() === cat.name) {
-              <div class="header__mobile-subs">
-                @for (sub of cat.subcategories; track sub.name) {
-                  <a [routerLink]="sub.route" class="header__mobile-sublink" (click)="closeMobileMenu()">{{ sub.name }}</a>
-                }
-              </div>
-            }
-          </div>
-        }
-      </nav>
-
-      <div class="header__mobile-divider"></div>
-
-      <nav class="header__mobile-nav">
-        <a routerLink="/categories" class="header__mobile-link" (click)="closeMobileMenu()"><i class="pi pi-th-large"></i> Categories</a>
-        <a routerLink="/products" class="header__mobile-link" (click)="closeMobileMenu()"><i class="pi pi-percentage"></i> Deals</a>
-      </nav>
-
-      <div class="header__mobile-divider"></div>
-
-      <div class="header__mobile-footer">
-        <div class="header__mobile-dropdowns">
-          <div class="header__dropdown">
-            <i class="pi pi-globe"></i>
-            <select>
-              <option value="EN">EN</option>
-            </select>
-          </div>
-          <div class="header__dropdown">
-            <i class="pi pi-dollar"></i>
-            <select>
-              <option value="USD">USD $</option>
-            </select>
-          </div>
-        </div>
-        @if (isLoggedIn) {
-          <button class="header__mobile-logout" (click)="onLogout()">
-            <i class="pi pi-sign-out"></i> Logout
-          </button>
-        }
-      </div>
-    </div>
-  }
 </header>
+
+<!-- MOBILE MENU DROPDOWN (compact floating card) -->
+@if (mobileMenuOpen) {
+  <div class="header__menu-dropdown" id="mobile-menu-dropdown" (click)="$event.stopPropagation()">
+    @if (isLoggedIn) {
+      <div class="header__dropdown-user">
+        <div class="header__dropdown-avatar">{{ userInitials }}</div>
+        <div class="header__dropdown-user-info">
+          <div class="header__dropdown-user-name">{{ displayName }}</div>
+          <div class="header__dropdown-user-email">{{ userEmail }}</div>
+        </div>
+      </div>
+    } @else {
+      <div class="header__dropdown-auth">
+        <a routerLink="/auth/login" class="header__dropdown-btn" (click)="closeMobileMenu()">Login</a>
+        <a routerLink="/auth/register" class="header__dropdown-btn header__dropdown-btn--outline" (click)="closeMobileMenu()">Register</a>
+      </div>
+    }
+
+    <div class="header__dropdown-divider"></div>
+
+    <nav class="header__dropdown-nav">
+      <a routerLink="/products" class="header__dropdown-link" (click)="closeMobileMenu()">
+        <i class="pi pi-th-large"></i> Browse Products
+      </a>
+
+      @if (isLoggedIn) {
+        <a routerLink="/user/orders" class="header__dropdown-link" (click)="closeMobileMenu()">
+          <i class="pi pi-clock"></i> Order History
+        </a>
+        <a routerLink="/user/profile" class="header__dropdown-link" (click)="closeMobileMenu()">
+          <i class="pi pi-user"></i> Account
+        </a>
+        <a routerLink="/user/dashboard" class="header__dropdown-link" (click)="closeMobileMenu()">
+          <i class="pi pi-wallet"></i> Add Balance
+        </a>
+        @if (isAdmin) {
+          <a routerLink="/admin/dashboard" class="header__dropdown-link" (click)="closeMobileMenu()">
+            <i class="pi pi-shield"></i> Dashboard
+          </a>
+        }
+        <a routerLink="/user/dashboard" class="header__dropdown-link" (click)="closeMobileMenu()">
+          <i class="pi pi-star"></i> Reward Points
+        </a>
+      }
+
+      <a routerLink="/categories" class="header__dropdown-link" (click)="closeMobileMenu()">
+        <i class="pi pi-th-large"></i> Categories
+      </a>
+      <a routerLink="/products" class="header__dropdown-link" (click)="closeMobileMenu()">
+        <i class="pi pi-percentage"></i> Deals
+      </a>
+    </nav>
+
+    @if (isLoggedIn) {
+      <div class="header__dropdown-divider"></div>
+      <button class="header__dropdown-logout" (click)="onLogout()">
+        <i class="pi pi-sign-out"></i> Logout
+      </button>
+    }
+  </div>
+}

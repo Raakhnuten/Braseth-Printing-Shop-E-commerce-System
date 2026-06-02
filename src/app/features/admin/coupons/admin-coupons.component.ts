@@ -1,4 +1,5 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, signal, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
@@ -16,6 +17,7 @@ import { Coupon, CouponDiscountType } from '../../../core/models/coupon.model';
 export class AdminCouponsComponent implements OnInit {
   private couponService = inject(CouponService);
   private fb = inject(FormBuilder);
+  private destroyRef = inject(DestroyRef);
 
   pageTitle = 'Manage Coupons';
 
@@ -50,7 +52,7 @@ export class AdminCouponsComponent implements OnInit {
   loadCoupons(): void {
     this.loading.set(true);
     this.error.set('');
-    this.couponService.getCoupons().subscribe({
+    this.couponService.getCoupons().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         this.coupons.set(res.data);
         this.loading.set(false);
@@ -107,7 +109,7 @@ export class AdminCouponsComponent implements OnInit {
     const value = this.form.value;
 
     if (this.formMode() === 'create') {
-      this.couponService.createCoupon(value).subscribe({
+      this.couponService.createCoupon(value).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
           this.saving.set(false);
           this.closeForm();
@@ -121,7 +123,7 @@ export class AdminCouponsComponent implements OnInit {
         },
       });
     } else {
-      this.couponService.updateCoupon(this.editingId()!, value).subscribe({
+      this.couponService.updateCoupon(this.editingId()!, value).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
           this.saving.set(false);
           this.closeForm();
@@ -139,7 +141,7 @@ export class AdminCouponsComponent implements OnInit {
 
   deleteCoupon(id: string): void {
     if (!confirm('Are you sure you want to delete this coupon?')) return;
-    this.couponService.deleteCoupon(id).subscribe({
+    this.couponService.deleteCoupon(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.successMessage.set('Coupon deleted successfully');
         this.loadCoupons();

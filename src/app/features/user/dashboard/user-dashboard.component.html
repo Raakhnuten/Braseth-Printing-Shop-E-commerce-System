@@ -6,41 +6,88 @@
   } @else if (error()) {
     <app-empty-state title="Error" [message]="error()" />
   } @else {
-    <div class="dashboard-welcome">
-      <h2>Welcome back, {{ user?.firstName || 'User' }}!</h2>
+    <!-- Profile Summary Card -->
+    <div class="profile-card">
+      <div class="profile-card__top">
+        <div class="profile-card__avatar">{{ user?.firstName?.charAt(0) || 'U' }}</div>
+        <div class="profile-card__info">
+          <h2 class="profile-card__name">Welcome back, {{ user?.firstName || 'User' }}!</h2>
+          <p class="profile-card__email">{{ user?.email || '' }}</p>
+          <span class="profile-card__badge">Member</span>
+        </div>
+      </div>
+      <div class="profile-card__stats">
+        <div class="profile-stat">
+          <span class="profile-stat__value">{{ totalOrders() }}</span>
+          <span class="profile-stat__label">Orders</span>
+        </div>
+        <div class="profile-stat">
+          <span class="profile-stat__value">{{ pendingOrders() }}</span>
+          <span class="profile-stat__label">Pending</span>
+        </div>
+        <div class="profile-stat">
+          <span class="profile-stat__value">{{ wishlistItems() }}</span>
+          <span class="profile-stat__label">Wishlist</span>
+        </div>
+      </div>
     </div>
 
+    <!-- Stats Grid -->
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-icon stat-icon--orders">
-          <i class="pi pi-box"></i>
+        <div class="stat-card__icon stat-card__icon--orders"><i class="pi pi-box"></i></div>
+        <div class="stat-card__body">
+          <span class="stat-card__value">{{ totalOrders() }}</span>
+          <span class="stat-card__label">Total Orders</span>
         </div>
-        <div class="stat-value">{{ totalOrders() }}</div>
-        <div class="stat-label">Total Orders</div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon stat-icon--spent">
-          <i class="pi pi-dollar"></i>
+        <div class="stat-card__icon stat-card__icon--spent"><i class="pi pi-dollar"></i></div>
+        <div class="stat-card__body">
+          <span class="stat-card__value">${{ totalSpent().toFixed(2) }}</span>
+          <span class="stat-card__label">Total Spent</span>
         </div>
-        <div class="stat-value">${{ totalSpent().toFixed(2) }}</div>
-        <div class="stat-label">Total Spent</div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon stat-icon--wishlist">
-          <i class="pi pi-heart"></i>
+        <div class="stat-card__icon stat-card__icon--wishlist"><i class="pi pi-heart"></i></div>
+        <div class="stat-card__body">
+          <span class="stat-card__value">{{ wishlistItems() }}</span>
+          <span class="stat-card__label">Wishlist Items</span>
         </div>
-        <div class="stat-value">{{ wishlistItems() }}</div>
-        <div class="stat-label">Wishlist Items</div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon stat-icon--pending">
-          <i class="pi pi-clock"></i>
+        <div class="stat-card__icon stat-card__icon--pending"><i class="pi pi-clock"></i></div>
+        <div class="stat-card__body">
+          <span class="stat-card__value">{{ pendingOrders() }}</span>
+          <span class="stat-card__label">Pending Orders</span>
         </div>
-        <div class="stat-value">{{ pendingOrders() }}</div>
-        <div class="stat-label">Pending Orders</div>
       </div>
     </div>
 
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+      <h3 class="quick-actions__title">Quick Actions</h3>
+      <div class="quick-actions__grid">
+        <a routerLink="/products" class="action-card">
+          <i class="pi pi-shopping-bag"></i>
+          <span>Continue Shopping</span>
+        </a>
+        <a routerLink="/user/orders" class="action-card">
+          <i class="pi pi-receipt"></i>
+          <span>Order History</span>
+        </a>
+        <a routerLink="/user/profile" class="action-card">
+          <i class="pi pi-user-edit"></i>
+          <span>Edit Profile</span>
+        </a>
+        <a routerLink="/user/wishlist" class="action-card">
+          <i class="pi pi-heart"></i>
+          <span>View Wishlist</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Recent Orders -->
     <div class="recent-orders">
       <div class="section-header">
         <h3>Recent Orders</h3>
@@ -71,27 +118,31 @@
             }
           </tbody>
         </table>
+        <div class="order-cards">
+          @for (order of recentOrders(); track order.id) {
+            <a [routerLink]="['/user/orders', order.id]" class="order-card">
+              <div class="order-card__top">
+                <span class="order-card__number">{{ order.orderNumber }}</span>
+                <span class="status-badge status-{{ order.status.toLowerCase() }}">{{ order.status }}</span>
+              </div>
+              <div class="order-card__mid">
+                <span>{{ order.createdAt | date:'mediumDate' }}</span>
+                <span class="order-card__dot">•</span>
+                <span>{{ order.items.length }} item(s)</span>
+              </div>
+              <div class="order-card__bottom">
+                <span class="order-card__total">${{ order.grandTotal.toFixed(2) }}</span>
+                <span class="order-card__view">View Details <i class="pi pi-arrow-right"></i></span>
+              </div>
+            </a>
+          }
+        </div>
       } @else {
         <app-empty-state
           title="No Orders Yet"
           message="Start shopping to see your orders here!"
         />
       }
-    </div>
-
-    <div class="quick-actions">
-      <a routerLink="/products" class="action-card">
-        <i class="pi pi-shopping-bag"></i>
-        <span>Continue Shopping</span>
-      </a>
-      <a routerLink="/user/profile" class="action-card">
-        <i class="pi pi-user"></i>
-        <span>Edit Profile</span>
-      </a>
-      <a routerLink="/user/wishlist" class="action-card">
-        <i class="pi pi-heart"></i>
-        <span>View Wishlist</span>
-      </a>
     </div>
   }
 </div>

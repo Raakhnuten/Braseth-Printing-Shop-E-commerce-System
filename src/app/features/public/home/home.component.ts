@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
@@ -23,6 +24,7 @@ export class HomeComponent implements OnInit {
   private bannerService = inject(BannerService);
   private titleService = inject(Title);
   private metaService = inject(Meta);
+  private destroyRef = inject(DestroyRef);
 
   banners = signal<Banner[]>([]);
   categories = signal<Category[]>([]);
@@ -75,15 +77,15 @@ export class HomeComponent implements OnInit {
   private loadData(): void {
     this.loading.set(true);
 
-    this.bannerService.getBanners().subscribe((res) => {
+    this.bannerService.getBanners().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res) => {
       this.banners.set(res.data || []);
     });
 
-    this.categoryService.getCategories().subscribe((res) => {
+    this.categoryService.getCategories().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res) => {
       this.categories.set((res.data || []).slice(0, 6));
     });
 
-    this.productService.getFeaturedProducts().subscribe((res) => {
+    this.productService.getFeaturedProducts().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res) => {
       const products = res.data || [];
       this.featuredProducts.set(products.slice(0, 8));
       this.bestSellers.set(products.slice(8, 16));
@@ -93,7 +95,6 @@ export class HomeComponent implements OnInit {
 
   onNewsletterSubmit(): void {
     if (this.newsletterEmail) {
-      console.log('Newsletter subscription:', this.newsletterEmail);
       alert('Thank you for subscribing to Seth Store newsletter!');
       this.newsletterEmail = '';
     }

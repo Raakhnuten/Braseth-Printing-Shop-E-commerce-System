@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LowerCasePipe } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
@@ -16,6 +17,7 @@ import { PaymentMethod, PaymentMethodType } from '../../../core/models/payment-m
 export class AdminPaymentMethodsComponent implements OnInit {
   private paymentMethodService = inject(PaymentMethodService);
   private fb = inject(FormBuilder);
+  private destroyRef = inject(DestroyRef);
 
   pageTitle = 'Manage Payment Methods';
   loading = signal(false);
@@ -45,7 +47,7 @@ export class AdminPaymentMethodsComponent implements OnInit {
   loadPaymentMethods(): void {
     this.loading.set(true);
     this.error.set('');
-    this.paymentMethodService.getPaymentMethods().subscribe({
+    this.paymentMethodService.getPaymentMethods().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         this.paymentMethods.set(res.data);
         this.loading.set(false);
@@ -108,7 +110,7 @@ export class AdminPaymentMethodsComponent implements OnInit {
     };
 
     if (this.formMode() === 'create') {
-      this.paymentMethodService.createPaymentMethod(payload as any).subscribe({
+      this.paymentMethodService.createPaymentMethod(payload as any).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
           this.saving.set(false);
           this.closeForm();
@@ -122,7 +124,7 @@ export class AdminPaymentMethodsComponent implements OnInit {
         },
       });
     } else {
-      this.paymentMethodService.updatePaymentMethod(this.editingId()!, payload).subscribe({
+      this.paymentMethodService.updatePaymentMethod(this.editingId()!, payload).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
           this.saving.set(false);
           this.closeForm();
@@ -140,7 +142,7 @@ export class AdminPaymentMethodsComponent implements OnInit {
 
   deletePaymentMethod(id: string): void {
     if (!confirm('Are you sure you want to delete this payment method?')) return;
-    this.paymentMethodService.deletePaymentMethod(id).subscribe({
+    this.paymentMethodService.deletePaymentMethod(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.successMessage.set('Payment method deleted successfully');
         this.loadPaymentMethods();

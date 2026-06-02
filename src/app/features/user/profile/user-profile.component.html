@@ -1,23 +1,53 @@
-<app-page-header title="My Profile" />
+<app-page-header title="My Account" subtitle="Manage your profile and security settings" />
 
 <div class="profile-page">
+  <!-- Alerts -->
   @if (success) {
-    <div class="alert alert-success">Profile updated successfully!</div>
+    <div class="alert alert-success">
+      <i class="pi pi-check-circle"></i>
+      Profile updated successfully!
+    </div>
   }
   @if (error) {
-    <div class="alert alert-error">{{ error }}</div>
+    <div class="alert alert-error">
+      <i class="pi pi-exclamation-circle"></i>
+      {{ error }}
+    </div>
+  }
+  @if (pwSuccess) {
+    <div class="alert alert-success">
+      <i class="pi pi-check-circle"></i>
+      Password changed successfully!
+    </div>
+  }
+  @if (pwError) {
+    <div class="alert alert-error">
+      <i class="pi pi-exclamation-circle"></i>
+      {{ pwError }}
+    </div>
   }
 
-  <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile-card">
-    <h3>Personal Information</h3>
-    <div class="form-grid">
+  <!-- Profile Summary -->
+  <div class="profile-summary">
+    <div class="profile-summary__avatar">{{ initials }}</div>
+    <div class="profile-summary__info">
+      <h2 class="profile-summary__name">{{ fullName }}</h2>
+      <p class="profile-summary__email">{{ user?.email || '' }}</p>
+      <span class="profile-summary__badge">Member</span>
+    </div>
+  </div>
+
+  <!-- Edit Profile -->
+  <div class="form-card">
+    <h3 class="form-card__title">Edit Profile</h3>
+    <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="form-card__body">
       <div class="form-group">
         <label for="firstName">First Name</label>
         <input
           id="firstName"
           type="text"
           formControlName="firstName"
-          placeholder="First name"
+          placeholder="Enter your first name"
           [class.input-error]="submitted && profileForm.get('firstName')?.errors"
         />
         @if (submitted && profileForm.get('firstName')?.errors) {
@@ -30,7 +60,7 @@
           id="lastName"
           type="text"
           formControlName="lastName"
-          placeholder="Last name"
+          placeholder="Enter your last name"
           [class.input-error]="submitted && profileForm.get('lastName')?.errors"
         />
         @if (submitted && profileForm.get('lastName')?.errors) {
@@ -52,10 +82,57 @@
           id="phone"
           type="tel"
           formControlName="phone"
-          placeholder="Phone number"
+          placeholder="Enter your phone number"
         />
       </div>
-    </div>
-    <button type="submit" class="btn btn-primary">Save Changes</button>
-  </form>
+      <button type="submit" class="btn btn-primary btn--full">Save Changes</button>
+    </form>
+  </div>
+
+  <!-- Change Password -->
+  <div class="form-card">
+    <h3 class="form-card__title">Change Password</h3>
+    <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()" class="form-card__body">
+      <div class="form-group">
+        <label for="currentPassword">Current Password</label>
+        <input
+          id="currentPassword"
+          type="password"
+          formControlName="currentPassword"
+          placeholder="Enter current password"
+          [class.input-error]="pwSubmitted && passwordForm.get('currentPassword')?.errors"
+        />
+        @if (pwSubmitted && passwordForm.get('currentPassword')?.errors) {
+          <span class="field-error">Current password is required.</span>
+        }
+      </div>
+      <div class="form-group">
+        <label for="newPassword">New Password</label>
+        <input
+          id="newPassword"
+          type="password"
+          formControlName="newPassword"
+          placeholder="Enter new password"
+          [class.input-error]="pwSubmitted && passwordForm.get('newPassword')?.errors"
+        />
+        @if (pwSubmitted && passwordForm.get('newPassword')?.errors) {
+          <span class="field-error">Minimum 6 characters required.</span>
+        }
+      </div>
+      <div class="form-group">
+        <label for="confirmPassword">Confirm Password</label>
+        <input
+          id="confirmPassword"
+          type="password"
+          formControlName="confirmPassword"
+          placeholder="Confirm new password"
+          [class.input-error]="pwSubmitted && passwordForm.get('confirmPassword')?.errors"
+        />
+        @if (pwSubmitted && passwordForm.get('confirmPassword')?.errors) {
+          <span class="field-error">Please confirm your password.</span>
+        }
+      </div>
+      <button type="submit" class="btn btn-primary btn--full">Change Password</button>
+    </form>
+  </div>
 </div>

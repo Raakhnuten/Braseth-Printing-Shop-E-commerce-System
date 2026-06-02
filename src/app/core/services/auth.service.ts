@@ -1,5 +1,6 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { from, map, Observable, of, switchMap, tap } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
 import { User, UserRole } from '../models/user.model';
 import {
   AuthUser,
@@ -11,9 +12,19 @@ import {
 } from '../models/auth.model';
 import { APP_CONFIG } from '../constants/app-config';
 import { API_ENDPOINTS } from '../constants/api-endpoints';
+import { ApiResponse } from '../models/api-response.model';
 import { MOCK_USERS } from '../../mock-data/mock-users';
 import { PlatziAuthService } from './platzi-auth.service';
 import { ApiService } from './api.service';
+import {
+  getAuthToken,
+  getRefreshToken,
+  getUserFromStorage,
+  setAuthToken,
+  setRefreshToken,
+  setUserToStorage,
+  removeAuthData,
+} from '../../shared/utils/storage.util';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -55,9 +66,55 @@ export class AuthService {
       });
     }
     this.currentUserSubject.set(null);
-    localStorage.removeItem(APP_CONFIG.STORAGE_KEYS.AUTH_TOKEN);
-    localStorage.removeItem(APP_CONFIG.STORAGE_KEYS.REFRESH_TOKEN);
-    localStorage.removeItem(APP_CONFIG.STORAGE_KEYS.USER);
+    removeAuthData();
+  }
+
+  refreshToken(): Observable<AuthResponse> {
+    const token = getRefreshToken();
+    if (!token) {
+      return throwError(() => new Error('No refresh token available'));
+    }
+    // TODO: In production, the backend MUST validate the refresh token and return
+    // a new access/refresh token pair. The current mock/fake implementation simply
+    // returns the same tokens, which provides no real security benefit.
+    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+      const user = this.currentUserSubject();
+      return of({
+        user: user ?? { id: '', firstName: '', lastName: '', email: '', phone: '', role: '', enabled: false, token: '', refreshToken: '', expiresIn: 0 },
+        token: user?.token ?? 'mock-jwt-token',
+        refreshToken: user?.refreshToken ?? 'mock-refresh-token',
+        expiresIn: 3600,
+      });
+    }
+    return this.apiService.post<AuthResponse>(API_ENDPOINTS.AUTH.REFRESH, { refreshToken: token }).pipe(
+      tap((res) => this.saveUserToStorage(res)),
+    );
+  }
+
+  // TODO: When the backend supports a token validation endpoint, this method
+  // should delegate to it. Until then, it returns the current client-side state.
+  // Do NOT rely on this for server-side authorization — backend must enforce
+  // authorization on every protected API endpoint.
+  validateSession(): Observable<ApiResponse<boolean>> {
+    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+      return of({ success: true, message: 'OK', data: this.isLoggedIn() });
+    }
+    // GET /auth/me — lightweight token validation
+    return this.apiService.get<ApiResponse<AuthUser>>(API_ENDPOINTS.AUTH.ME).pipe(
+      map(() => ({ success: true, message: 'OK', data: true })),
+      catchError(() => of({ success: true, message: 'Session invalid', data: false })),
+    );
+  }
+
+  validateAdminSession(): Observable<ApiResponse<boolean>> {
+    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+      return of({ success: true, message: 'OK', data: this.isAdmin() });
+    }
+    // GET /auth/me — lightweight token + role validation
+    return this.apiService.get<ApiResponse<AuthUser>>(API_ENDPOINTS.AUTH.ME).pipe(
+      map((res) => ({ success: true, message: 'OK', data: res.data?.role === UserRole.ADMIN })),
+      catchError(() => of({ success: true, message: 'Not authorized', data: false })),
+    );
   }
 
   getCurrentUser(): AuthUser | null {
@@ -109,11 +166,14 @@ export class AuthService {
     return this.apiService.post<AuthResponse>(API_ENDPOINTS.AUTH.REGISTER, data);
   }
 
+  // TODO: Migrate to HttpOnly, Secure, SameSite cookies for production.
+  // localStorage-based auth is vulnerable to XSS token theft and should be
+  // replaced once the backend supports cookie-based authentication.
   private saveUserToStorage(authResponse: AuthResponse): void {
     try {
-      localStorage.setItem(APP_CONFIG.STORAGE_KEYS.AUTH_TOKEN, authResponse.token);
-      localStorage.setItem(APP_CONFIG.STORAGE_KEYS.REFRESH_TOKEN, authResponse.refreshToken);
-      localStorage.setItem(APP_CONFIG.STORAGE_KEYS.USER, JSON.stringify(authResponse.user));
+      setAuthToken(authResponse.token);
+      setRefreshToken(authResponse.refreshToken);
+      setUserToStorage(authResponse.user);
     } catch {
       // Storage unavailable
     }
@@ -121,10 +181,10 @@ export class AuthService {
 
   private loadUserFromStorage(): AuthUser | null {
     try {
-      const token = localStorage.getItem(APP_CONFIG.STORAGE_KEYS.AUTH_TOKEN);
-      const userStr = localStorage.getItem(APP_CONFIG.STORAGE_KEYS.USER);
-      if (token && userStr) {
-        return JSON.parse(userStr);
+      const token = getAuthToken();
+      const user = getUserFromStorage<AuthUser>();
+      if (token && user) {
+        return user;
       }
     } catch {
       // Storage unavailable

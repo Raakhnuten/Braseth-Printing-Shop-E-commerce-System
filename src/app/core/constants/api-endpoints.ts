@@ -1,12 +1,25 @@
-// ============ AUTH ENDPOINTS ============
 export const API_ENDPOINTS = {
+  // ============ AUTH ENDPOINTS ============
   AUTH: {
     LOGIN: '/auth/login',
     REGISTER: '/auth/register',
     LOGOUT: '/auth/logout',
+    REFRESH: '/auth/refresh',
     FORGOT_PASSWORD: '/auth/forgot-password',
     RESET_PASSWORD: '/auth/reset-password',
     ME: '/auth/me',
+  },
+
+  // ============ SECURITY ENDPOINTS ============
+  // TODO: When migrating to cookie-based auth, the backend must:
+  //   1. Set a readable XSRF-TOKEN cookie on the first GET request
+  //   2. Validate the X-XSRF-TOKEN header on every mutating request
+  //   3. Use Secure, HttpOnly, SameSite=Strict cookies for the session token
+  // Frontend should send X-XSRF-TOKEN header matching the XSRF-TOKEN cookie value.
+  // This is only needed for cookie-based auth; Bearer token auth has built-in CSRF
+  // protection since tokens are not automatically sent by the browser.
+  SECURITY: {
+    CSRF_TOKEN: '/security/csrf-token',
   },
 
   // ============ PRODUCT ENDPOINTS ============
@@ -47,10 +60,14 @@ export const API_ENDPOINTS = {
   ORDERS: {
     BASE: '/orders',
     GET_ALL: '/orders',
+    GET_MY: '/orders/my',
     GET_BY_ID: (id: string) => `/orders/${id}`,
     CREATE: '/orders',
     UPDATE_STATUS: (id: string) => `/orders/${id}/status`,
+    UPDATE_PAYMENT_STATUS: (id: string) => `/orders/${id}/payment-status`,
     CANCEL: (id: string) => `/orders/${id}/cancel`,
+    TRACK: (id: string) => `/orders/${id}/track`,
+    VALIDATE_BEFORE_CREATE: '/orders/validate',
   },
 
   // ============ ADDRESS ENDPOINTS ============
@@ -104,6 +121,22 @@ export const API_ENDPOINTS = {
     CREATE: '/reviews',
     UPDATE: (id: string) => `/reviews/${id}`,
     DELETE: (id: string) => `/reviews/${id}`,
+  },
+
+  // ============ PRODUCT VARIANT ENDPOINTS ============
+  PRODUCT_VARIANTS: {
+    BASE: '/product-variants',
+    GET_BY_PRODUCT: (productId: string) => `/product-variants/product/${productId}`,
+    COLORS_BY_PRODUCT: (productId: string) => `/product-variants/colors/${productId}`,
+    SIZES_BY_PRODUCT: (productId: string) => `/product-variants/sizes/${productId}`,
+  },
+
+  // ============ FEATURE CONTROL ENDPOINTS ============
+  FEATURE_CONTROLS: {
+    BASE: '/product-feature-controls',
+    GET_BY_PRODUCT: (productId: string) => `/product-feature-controls/product/${productId}`,
+    CREATE: '/product-feature-controls',
+    UPDATE: (id: string) => `/product-feature-controls/${id}`,
   },
 
   // ============ PAYMENT METHOD ENDPOINTS ============

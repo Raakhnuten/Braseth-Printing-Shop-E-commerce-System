@@ -1,4 +1,5 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
@@ -24,6 +25,7 @@ import { Category } from '../../../core/models/category.model';
 export class AdminProductsComponent implements OnInit {
   private productService = inject(ProductService);
   private categoryService = inject(CategoryService);
+  private destroyRef = inject(DestroyRef);
 
   protected readonly ProductStatus = ProductStatus;
 
@@ -69,7 +71,7 @@ export class AdminProductsComponent implements OnInit {
   private loadProducts(): void {
     this.loading.set(true);
     this.error.set(null);
-    this.productService.getProducts().subscribe({
+    this.productService.getProducts().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         this.products.set(res.data);
         this.loading.set(false);
@@ -82,7 +84,7 @@ export class AdminProductsComponent implements OnInit {
   }
 
   private loadCategories(): void {
-    this.categoryService.getCategories().subscribe({
+    this.categoryService.getCategories().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => this.categories.set(res.data),
     });
   }
@@ -93,7 +95,7 @@ export class AdminProductsComponent implements OnInit {
 
   deleteProduct(id: string): void {
     if (!confirm('Are you sure you want to delete this product?')) return;
-    this.productService.deleteProduct(id).subscribe({
+    this.productService.deleteProduct(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => this.loadProducts(),
       error: () => this.error.set('Failed to delete product.'),
     });

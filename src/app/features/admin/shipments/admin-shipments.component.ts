@@ -1,6 +1,8 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal, computed } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
+import { SafeUrlPipe } from '../../../shared/pipes/safe-url.pipe';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
@@ -11,10 +13,11 @@ import { Shipment, ShipmentStatus } from '../../../core/models/shipping.model';
   selector: 'app-admin-shipments',
   templateUrl: './admin-shipments.component.html',
   styleUrl: './admin-shipments.component.scss',
-  imports: [PageHeaderComponent, LoadingSpinnerComponent, EmptyStateComponent, DatePipe, FormsModule],
+  imports: [PageHeaderComponent, LoadingSpinnerComponent, EmptyStateComponent, DatePipe, FormsModule, SafeUrlPipe],
 })
 export class AdminShipmentsComponent implements OnInit {
   private shipmentService = inject(ShipmentService);
+  private destroyRef = inject(DestroyRef);
 
   pageTitle = 'Manage Shipments';
   loading = signal(false);
@@ -52,7 +55,7 @@ export class AdminShipmentsComponent implements OnInit {
   loadShipments(): void {
     this.loading.set(true);
     this.error.set('');
-    this.shipmentService.getShipments().subscribe({
+    this.shipmentService.getShipments().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => { this.shipments.set(res.data); this.loading.set(false); },
       error: () => { this.error.set('Failed to load shipments'); this.loading.set(false); },
     });
@@ -71,7 +74,7 @@ export class AdminShipmentsComponent implements OnInit {
   updateTracking(): void {
     const s = this.selectedShipment();
     if (!s) return;
-    this.shipmentService.updateTrackingNumber(s.id, this.editTracking()).subscribe({
+    this.shipmentService.updateTrackingNumber(s.id, this.editTracking()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         this.dialogMessage.set('Tracking updated');
         if (res.data) this.selectedShipment.set(res.data);
@@ -84,7 +87,7 @@ export class AdminShipmentsComponent implements OnInit {
   updateStatus(): void {
     const s = this.selectedShipment();
     if (!s) return;
-    this.shipmentService.updateShipmentStatus(s.id, this.editStatus() as ShipmentStatus).subscribe({
+    this.shipmentService.updateShipmentStatus(s.id, this.editStatus() as ShipmentStatus).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         this.dialogMessage.set(`Status updated to ${this.editStatus()}`);
         if (res.data) this.selectedShipment.set(res.data);
@@ -97,7 +100,7 @@ export class AdminShipmentsComponent implements OnInit {
   markDelivered(): void {
     const s = this.selectedShipment();
     if (!s) return;
-    this.shipmentService.markAsDelivered(s.id).subscribe({
+    this.shipmentService.markAsDelivered(s.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         this.dialogMessage.set('Marked as delivered');
         if (res.data) this.selectedShipment.set(res.data);

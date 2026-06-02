@@ -62,6 +62,11 @@ export class CouponService {
     return this.apiService.put<ApiResponse<Coupon>>(API_ENDPOINTS.COUPONS.UPDATE(id), coupon);
   }
 
+  // Synchronous lookup for checkout service (mock-only)
+  getCouponSync(code: string): Coupon | null {
+    return MOCK_COUPONS.find((c) => c.code === code) ?? null;
+  }
+
   deleteCoupon(id: string): Observable<ApiResponse<void | null>> {
     if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
       console.warn('[CouponService] deleteCoupon not supported in mock/fake data mode');

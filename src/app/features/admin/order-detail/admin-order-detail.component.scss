@@ -22,12 +22,6 @@
   }
 }
 
-.detail-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
-}
-
 .detail-card {
   background: #fff;
   border-radius: 8px;
@@ -39,7 +33,18 @@
     font-size: 1rem;
     font-weight: 600;
     color: #333;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    i { color: #2563eb; font-size: 0.9rem; }
   }
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
 }
 
 .items-card {
@@ -66,6 +71,18 @@
   .value {
     font-size: 0.875rem;
     color: #333;
+    text-align: right;
+
+    a {
+      color: #2563eb;
+      text-decoration: none;
+      &:hover { text-decoration: underline; }
+    }
+  }
+
+  &--bold {
+    font-weight: 700;
+    font-size: 1rem;
   }
 }
 
@@ -73,6 +90,18 @@
   font-size: 0.875rem;
   line-height: 1.6;
   color: #333;
+}
+
+.note-text {
+  margin: 0.75rem 0 0;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.no-data-text {
+  color: #9ca3af;
+  font-size: 0.85rem;
+  margin: 0 0 0.75rem;
 }
 
 .table-responsive {
@@ -130,6 +159,25 @@
   font-weight: 600;
 }
 
+.customization-cell {
+  .cust-tag {
+    display: inline-block;
+    padding: 2px 6px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: #374151;
+    background: #f3f4f6;
+    border-radius: 4px;
+    margin: 1px 2px;
+    white-space: nowrap;
+
+    &.cust-fee {
+      background: #eff6ff;
+      color: #2563eb;
+    }
+  }
+}
+
 .order-summary {
   border-top: 2px solid #eee;
   padding: 1rem 1rem 0;
@@ -153,7 +201,7 @@
   }
 
   .discount {
-    color: #dc3545;
+    color: #16a34a;
   }
 }
 
@@ -174,6 +222,69 @@
   }
 }
 
+.shipment-detail,
+.invoice-detail {
+  margin-bottom: 0.75rem;
+}
+
+.shipment-form {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 0.75rem;
+
+  &__row {
+    margin-bottom: 0.75rem;
+
+    label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 0.25rem;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+}
+
+.co-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1.5px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  color: #111;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+
+  &:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  }
+}
+
+.shipment-message {
+  font-size: 0.82rem;
+  color: #dc2626;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.shipment-actions,
+.invoice-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
 .back-link {
   margin-top: 0.5rem;
 }
@@ -184,18 +295,25 @@
   border-radius: 12px;
   font-size: 0.75rem;
   font-weight: 600;
-  text-transform: uppercase;
-}
+  text-transform: capitalize;
 
-.status-pending { background: #fff3cd; color: #856404; }
-.status-confirmed { background: #cce5ff; color: #004085; }
-.status-processing { background: #d4edda; color: #155724; }
-.status-shipped { background: #d1ecf1; color: #0c5460; }
-.status-delivered { background: #e8d5f5; color: #5a2d82; }
-.status-cancelled { background: #f8d7da; color: #721c24; }
-.status-refunded { background: #e2e3e5; color: #383d41; }
-.status-paid { background: #d4edda; color: #155724; }
-.status-failed { background: #f8d7da; color: #721c24; }
+  &.status-pending { background: #fff3cd; color: #856404; }
+  &.status-confirmed { background: #cce5ff; color: #004085; }
+  &.status-processing { background: #d4edda; color: #155724; }
+  &.status-ready { background: #cce5ff; color: #004085; }
+  &.status-shipped { background: #d1ecf1; color: #0c5460; }
+  &.status-in-transit { background: #d1ecf1; color: #0c5460; }
+  &.status-delivered { background: #e8d5f5; color: #5a2d82; }
+  &.status-cancelled { background: #f8d7da; color: #dc2626; }
+  &.status-refunded { background: #e2e3e5; color: #383d41; }
+  &.status-paid { background: #d4edda; color: #16a34a; }
+  &.status-failed { background: #f8d7da; color: #dc2626; }
+  &.status-not-shipped { background: #f3f4f6; color: #9ca3af; }
+  &.status-preparing { background: #e8f5e9; color: #2e7d32; }
+  &.status-returned { background: #eceff1; color: #37474f; }
+  &.status-draft { background: #f3f4f6; color: #9ca3af; }
+  &.status-issued { background: #cce5ff; color: #004085; }
+}
 
 .btn {
   display: inline-flex;
@@ -207,44 +325,48 @@
   font-weight: 500;
   cursor: pointer;
   border: 1px solid transparent;
-  transition: all 0.2s;
+  transition: all 0.15s;
   text-decoration: none;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
 
 .btn-primary {
-  background: #007bff;
+  background: #2563eb;
   color: #fff;
-  border-color: #007bff;
+  border-color: #2563eb;
 
-  &:hover {
-    background: #0069d9;
-  }
+  &:hover:not(:disabled) { background: #1d4ed8; }
 }
 
 .btn-outline {
   background: transparent;
   color: #555;
-  border-color: #ddd;
+  border-color: #d1d5db;
 
-  &:hover {
-    background: #f0f0f0;
-  }
+  &:hover { background: #f9fafb; border-color: #9ca3af; }
 }
 
 .btn-outline-danger {
   background: transparent;
-  color: #dc3545;
-  border-color: #dc3545;
+  color: #dc2626;
+  border-color: #dc2626;
 
-  &:hover {
-    background: #dc3545;
-    color: #fff;
-  }
+  &:hover:not(:disabled) { background: #fef2f2; }
+}
+
+.value--bold {
+  font-weight: 700;
+  font-size: 1rem;
 }
 
 .error-message {
-  background: #f8d7da;
-  color: #721c24;
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
   padding: 1rem;
   border-radius: 6px;
   margin-bottom: 1rem;
