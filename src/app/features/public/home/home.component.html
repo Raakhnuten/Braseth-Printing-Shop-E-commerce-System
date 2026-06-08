@@ -1,4 +1,22 @@
 <div class="banner-section">
+  <!-- Mobile Search Bar -->
+  <div class="mobile-search">
+    <div class="mobile-search__bar">
+      <i class="pi pi-search mobile-search__icon"></i>
+      <input
+        type="text"
+        class="mobile-search__input"
+        placeholder="Search for products..."
+        [ngModel]="searchQuery()"
+        (ngModelChange)="searchQuery.set($event)"
+        (keydown.enter)="onSearch()"
+      />
+      <button class="mobile-search__btn" (click)="onSearch()" aria-label="Search">
+        <i class="pi pi-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+
   <div class="banner-container">
     <!-- Hero Slider -->
     <div class="hero-slider" #sliderContainer>
@@ -62,6 +80,14 @@
       (categorySelected)="onCategorySelected($event)"
     />
   </section>
+
+  <!-- Explore All Products (mobile only) -->
+  <div class="mobile-explore">
+    <a routerLink="/products" class="mobile-explore__link">
+      Explore All Products
+      <i class="pi pi-arrow-right"></i>
+    </a>
+  </div>
 
   <!-- Featured Products Section -->
   @if (featuredProducts().length) {

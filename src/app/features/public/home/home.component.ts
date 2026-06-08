@@ -1,6 +1,6 @@
 import { Component, DestroyRef, inject, OnInit, signal, computed, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import KeenSlider, { KeenSliderInstance } from 'keen-slider';
@@ -31,6 +31,7 @@ interface HeroSlide {
   imports: [RouterLink, ProductCardComponent, LoadingSpinnerComponent, FormsModule, CategoryChipComponent],
 })
 export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
+  private router = inject(Router);
   private productService = inject(ProductService);
   private categoryService = inject(CategoryService);
   private bannerService = inject(BannerService);
@@ -46,6 +47,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   bestSellers = signal<Product[]>([]);
   loading = signal(true);
   newsletterEmail = '';
+  searchQuery = signal('');
   currentSlide = 0;
   totalSlides = 0;
 
@@ -218,6 +220,14 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       this.bestSellers.set(products.slice(8, 16));
       this.loading.set(false);
     });
+  }
+
+  onSearch(): void {
+    const q = this.searchQuery().trim();
+    if (q) {
+      this.router.navigate(['/search'], { queryParams: { q } });
+      this.searchQuery.set('');
+    }
   }
 
   onNewsletterSubmit(): void {
