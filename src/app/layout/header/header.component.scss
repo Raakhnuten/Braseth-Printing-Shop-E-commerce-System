@@ -745,7 +745,11 @@ $bp-mobile: 768px;
   }
 
   .header__search-mobile-btn {
-    display: flex;
+    display: none;
+  }
+
+  .header__account-btn {
+    display: none;
   }
 
   .header__top {
