@@ -54,8 +54,8 @@
 @if (loading()) {
   <app-loading-spinner />
 } @else {
-  <!-- Category Chips -->
-  <section class="section container">
+  <!-- Category Chips (mobile only) -->
+  <section class="category-chips-section">
     <app-category-chip
       [categories]="categoryChips()"
       [selectedId]="selectedCategoryId()"

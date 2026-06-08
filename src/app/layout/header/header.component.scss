@@ -1,6 +1,6 @@
 $top-height: 64px;
 $bottom-height: 44px;
-$bp-mobile: 960px;
+$bp-mobile: 768px;
 
 .header {
   position: sticky;
@@ -703,7 +703,7 @@ $bp-mobile: 960px;
   }
 }
 
-@media (max-width: 959px) {
+@media (max-width: 767px) {
   .header__search {
     display: none;
   }
@@ -815,7 +815,7 @@ $bp-mobile: 960px;
   }
 }
 
-@media (min-width: 960px) {
+@media (min-width: 768px) {
   .header__menu-dropdown {
     display: none !important;
   }
