@@ -1,48 +1,45 @@
-<aside class="checkout-summary">
-  <div class="checkout-summary__inner">
-    <div class="checkout-summary__head">
+<aside class="co-summary" aria-label="Order summary">
+  <div class="co-summary__inner">
+    <div class="co-summary__head">
       <i class="pi pi-receipt"></i>
-      <span>Payment Summary</span>
+      <span>Order Summary</span>
+      <span class="co-summary__count">{{ itemCount }} item{{ itemCount === 1 ? '' : 's' }}</span>
     </div>
 
-    <div class="checkout-summary__items">
-      <div class="checkout-summary__items-header">
-        <span>Total Items ({{ itemCount }})</span>
-      </div>
+    <div class="co-summary__items">
       @for (item of cartItems; track item.id) {
-        <div class="co-cart-item">
-          <div class="co-cart-item__img-wrap">
+        <div class="co-item">
+          <div class="co-item__img-wrap">
             <img
               [src]="item.productImage"
               [alt]="item.productName"
-              class="co-cart-item__img"
+              class="co-item__img"
               (error)="onCartImgError($event)"
+              loading="lazy"
             />
           </div>
-          <div class="co-cart-item__info">
-            <div class="co-cart-item__name">{{ item.productName }}</div>
-            <div class="co-cart-item__price">${{ item.unitPrice.toFixed(2) }} x {{ item.quantity }}</div>
+          <div class="co-item__info">
+            <div class="co-item__name">{{ item.productName }}</div>
+            <div class="co-item__meta">
+              <span class="co-item__price">${{ item.unitPrice.toFixed(2) }}</span>
+              <span class="co-item__qty">&times; {{ item.quantity }}</span>
+            </div>
             @if (item.selectedSize || item.selectedColor || item.selectedDecorationMethod || item.selectedPrintPosition || item.selectedPrintColors.length > 0 || item.customizationFee > 0) {
-              <div class="co-cart-item__options">
+              <div class="co-item__options">
                 @if (item.selectedSize) { <span class="co-opt-tag">Size: {{ item.selectedSize }}</span> }
                 @if (item.selectedColor) { <span class="co-opt-tag">Color: {{ item.selectedColor }}</span> }
                 @if (item.selectedDecorationMethod) { <span class="co-opt-tag">{{ item.selectedDecorationMethod }}</span> }
-                @if (item.selectedPrintPosition) { <span class="co-opt-tag">Position: {{ item.selectedPrintPosition }}</span> }
+                @if (item.selectedPrintPosition) { <span class="co-opt-tag">Pos: {{ item.selectedPrintPosition }}</span> }
                 @for (pc of item.selectedPrintColors; track pc.colorId) {
                   <span class="co-opt-tag" [style.border-left-color]="pc.colorHex">{{ pc.colorName }}</span>
                 }
                 @if (item.customizationFee > 0) { <span class="co-opt-tag co-opt-tag--fee">+${{ item.customizationFee.toFixed(2) }}</span> }
               </div>
             }
-            <div class="co-cart-item__qty">
-              <button class="co-qty-btn" (click)="updateQty.emit({ productId: item.productId, quantity: item.quantity - 1 })" [disabled]="item.quantity <= 1">−</button>
-              <span class="co-qty-val">{{ item.quantity }}</span>
-              <button class="co-qty-btn" (click)="updateQty.emit({ productId: item.productId, quantity: item.quantity + 1 })">+</button>
-            </div>
           </div>
-          <div class="co-cart-item__right">
-            <div class="co-cart-item__line-total">${{ getLineTotal(item).toFixed(2) }}</div>
-            <button class="co-cart-item__remove" (click)="removeItem.emit(item.id)" aria-label="Remove item">
+          <div class="co-item__right">
+            <div class="co-item__line-total">${{ getLineTotal(item).toFixed(2) }}</div>
+            <button class="co-item__remove" (click)="removeItem.emit(item.id)" type="button" aria-label="Remove {{ item.productName }} from order">
               <i class="pi pi-trash"></i>
             </button>
           </div>
@@ -50,28 +47,22 @@
       }
     </div>
 
-    <div class="checkout-summary__divider"></div>
+    <div class="co-summary__divider"></div>
 
-    <div class="checkout-summary__totals">
-      <div class="checkout-summary__row">
-        <span>Subtotal ({{ itemCount }})</span>
-        <span>${{ subtotal.toFixed(2) }}</span>
+    <div class="co-summary__totals">
+      <div class="co-summary__row">
+        <span class="co-summary__label">Subtotal</span>
+        <span class="co-summary__value">${{ subtotal.toFixed(2) }}</span>
       </div>
       @if (customizationFeeTotal > 0) {
-        <div class="checkout-summary__row">
-          <span>Customization Fees</span>
-          <span>${{ customizationFeeTotal.toFixed(2) }}</span>
+        <div class="co-summary__row">
+          <span class="co-summary__label">Customization</span>
+          <span class="co-summary__value">${{ customizationFeeTotal.toFixed(2) }}</span>
         </div>
       }
-      @if (discount > 0) {
-        <div class="checkout-summary__row">
-          <span>Discount</span>
-          <span class="co-free">-${{ discount.toFixed(2) }}</span>
-        </div>
-      }
-      <div class="checkout-summary__row">
-        <span>Delivery Fee</span>
-        <span>
+      <div class="co-summary__row">
+        <span class="co-summary__label">Shipping</span>
+        <span class="co-summary__value">
           @if (deliveryFee === 0) {
             <span class="co-free">FREE</span>
           } @else {
@@ -79,28 +70,44 @@
           }
         </span>
       </div>
-      <div class="checkout-summary__divider"></div>
-      <div class="checkout-summary__row checkout-summary__row--total">
-        <span>Total</span>
-        <span>${{ total.toFixed(2) }}</span>
+      @if (tax > 0) {
+        <div class="co-summary__row">
+          <span class="co-summary__label">Tax</span>
+          <span class="co-summary__value">${{ tax.toFixed(2) }}</span>
+        </div>
+      }
+      @if (discount > 0) {
+        <div class="co-summary__row">
+          <span class="co-summary__label">Discount</span>
+          <span class="co-summary__value co-summary__value--discount">&minus;${{ discount.toFixed(2) }}</span>
+        </div>
+      }
+      <div class="co-summary__divider"></div>
+      <div class="co-summary__row co-summary__row--total">
+        <span class="co-summary__label co-summary__label--total">Order Total</span>
+        <span class="co-summary__value co-summary__value--total">${{ total.toFixed(2) }}</span>
       </div>
     </div>
 
-    <div class="checkout-summary__actions">
-      <a routerLink="/products" class="co-btn co-btn--secondary">
-        <i class="pi pi-plus"></i> Add More Items
-      </a>
+    <div class="co-summary__actions">
       <button
-        class="co-btn co-btn--primary"
+        class="co-summary__btn"
         (click)="placeOrder.emit()"
         [disabled]="cartItems.length === 0 || processing"
+        type="button"
       >
         @if (processing) {
-          <i class="pi pi-spin pi-spinner"></i> Processing...
+          <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+          <span>Processing&hellip;</span>
         } @else {
-          <i class="pi pi-check"></i> Place Order
+          <i class="pi pi-check" aria-hidden="true"></i>
+          <span>Place Order</span>
         }
       </button>
+      <a routerLink="/products" class="co-summary__continue">
+        <i class="pi pi-plus" aria-hidden="true"></i>
+        Add more items
+      </a>
     </div>
   </div>
 </aside>

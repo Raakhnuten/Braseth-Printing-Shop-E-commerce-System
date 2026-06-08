@@ -1,21 +1,18 @@
 import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { NgClass } from '@angular/common';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-footer',
   templateUrl: './footer.component.html',
   styleUrl: './footer.component.scss',
-  imports: [FormsModule],
+  imports: [NgClass, RouterLink],
 })
 export class FooterComponent {
   year = new Date().getFullYear();
-  newsletterEmail = '';
+  activeAccordion: string | null = null;
 
-  onSubscribe() {
-    if (this.newsletterEmail) {
-      // TODO: Implement newsletter subscription logic
-      alert('Thank you for subscribing to Seth Store newsletter!');
-      this.newsletterEmail = '';
-    }
+  toggleAccordion(section: string): void {
+    this.activeAccordion = this.activeAccordion === section ? null : section;
   }
 }

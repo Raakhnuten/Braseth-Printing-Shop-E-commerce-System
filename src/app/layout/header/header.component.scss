@@ -469,7 +469,7 @@ $bp-mobile: 960px;
     position: fixed;
     top: calc($top-height + 10px);
     right: 12px;
-    width: min(340px, calc(100vw - 24px));
+    width: min(360px, calc(100vw - 24px));
     background: rgba(255, 255, 255, 0.96);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
@@ -477,7 +477,6 @@ $bp-mobile: 960px;
     border-radius: 18px;
     box-shadow: 0 20px 50px rgba(15, 23, 42, 0.14);
     z-index: var(--z-modal);
-    padding: 8px 0;
     animation: dropdownFadeIn 200ms cubic-bezier(0.16, 1, 0.3, 1) both;
     transform-origin: top right;
     max-height: calc(100dvh - $top-height - 24px);
@@ -490,126 +489,142 @@ $bp-mobile: 960px;
     to { opacity: 1; transform: scale(1) translateY(0); }
   }
 
-  // ── User profile section ──────────────────────────────
-  &__dropdown-user {
+  // ── Profile Header ──────────────────────────────────
+  .menu-profile {
     display: flex;
     align-items: center;
     gap: 14px;
     padding: 16px 16px 14px;
     border-bottom: 1px solid #e5e7eb;
     margin-bottom: 6px;
-  }
 
-  &__dropdown-avatar {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: var(--font-size-sm);
-    font-weight: 700;
-    color: #fff;
-    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
-    flex-shrink: 0;
-    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25);
-  }
+    &__avatar {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25);
+    }
 
-  &__dropdown-user-info {
-    min-width: 0;
-  }
+    &__info {
+      min-width: 0;
+    }
 
-  &__dropdown-user-name {
-    font-size: 0.9375rem;
-    font-weight: 600;
-    color: var(--color-text-primary);
-    line-height: 1.35;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+    &__name {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      line-height: 1.35;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
 
-  &__dropdown-user-email {
-    font-size: var(--font-size-xs);
-    color: var(--color-text-muted);
-    line-height: 1.35;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    margin-top: 1px;
+    &__email {
+      font-size: var(--font-size-xs);
+      color: var(--color-text-muted);
+      line-height: 1.35;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      margin-top: 1px;
+    }
+
+    &__badge {
+      display: inline-block;
+      font-size: 0.6rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 1px 6px;
+      border-radius: var(--radius-full);
+      background: var(--color-primary-subtle);
+      color: var(--color-primary);
+      margin-top: 4px;
+    }
   }
 
   // ── Auth (logged-out) section ─────────────────────────
-  &__dropdown-auth {
+  .menu-auth {
     display: flex;
     gap: 12px;
     padding: 12px 16px 14px;
     border-bottom: 1px solid #e5e7eb;
     margin-bottom: 6px;
-  }
 
-  &__dropdown-btn {
-    flex: 1;
-    height: 38px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 10px;
-    font-size: var(--font-size-sm);
-    font-weight: 600;
-    font-family: inherit;
-    cursor: pointer;
-    text-decoration: none;
-    background: var(--color-primary);
-    color: #fff;
-    border: none;
-    transition: background var(--transition-fast);
-
-    &:hover {
-      background: var(--color-primary-hover);
-    }
-
-    &:focus-visible {
-      outline: 2px solid var(--color-primary);
-      outline-offset: 2px;
-    }
-
-    &--outline {
-      background: none;
-      color: var(--color-text-secondary);
-      border: 1px solid #e5e7eb;
+    &__btn {
+      flex: 1;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      text-decoration: none;
+      background: var(--color-primary);
+      color: #fff;
+      border: none;
+      transition: background var(--transition-fast);
 
       &:hover {
-        background: #f5f8ff;
-        border-color: var(--color-primary);
-        color: var(--color-primary);
+        background: var(--color-primary-hover);
       }
 
       &:focus-visible {
         outline: 2px solid var(--color-primary);
         outline-offset: 2px;
       }
+
+      &--outline {
+        background: none;
+        color: var(--color-text-secondary);
+        border: 1px solid #e5e7eb;
+
+        &:hover {
+          background: #f5f8ff;
+          border-color: var(--color-primary);
+          color: var(--color-primary);
+        }
+
+        &:focus-visible {
+          outline: 2px solid var(--color-primary);
+          outline-offset: 2px;
+        }
+      }
     }
   }
 
-  // ── Divider ───────────────────────────────────────────
-  &__dropdown-divider {
-    height: 1px;
-    background: #e5e7eb;
-    margin: 6px 14px;
+  // ── Section Label ───────────────────────────────────
+  .menu-section-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    padding: 10px 16px 4px;
   }
 
-  // ── Navigation ────────────────────────────────────────
-  &__dropdown-nav {
-    padding: 6px 0;
+  // ── Menu Items ─────────────────────────────────────
+  .menu-items {
+    padding: 2px 0;
   }
 
-  &__dropdown-link {
+  .menu-link {
     display: flex;
     align-items: center;
     gap: 12px;
-    min-height: 48px;
-    padding: 0 14px;
+    min-height: 44px;
+    padding: 0 16px;
     margin: 0 8px;
     font-size: var(--font-size-sm);
     font-weight: 500;
@@ -617,6 +632,12 @@ $bp-mobile: 960px;
     text-decoration: none;
     border-radius: 12px;
     transition: all 180ms ease-out;
+    background: none;
+    border: none;
+    width: calc(100% - 16px);
+    font-family: inherit;
+    cursor: pointer;
+    text-align: left;
 
     i:first-child {
       font-size: 1.05rem;
@@ -625,6 +646,13 @@ $bp-mobile: 960px;
       text-align: center;
       flex-shrink: 0;
       transition: color 180ms ease-out;
+    }
+
+    span {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     &:hover {
@@ -646,50 +674,31 @@ $bp-mobile: 960px;
       border-radius: 12px;
     }
 
-    .header__dropdown-nav & {
-      letter-spacing: var(--tracking-normal);
-    }
-  }
+    &--danger {
+      color: var(--color-danger);
 
-  // ── Logout button ────────────────────────────────────
-  &__dropdown-logout {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-height: 48px;
-    padding: 0 14px;
-    margin: 4px 8px 6px;
-    width: calc(100% - 16px);
-    font-size: var(--font-size-sm);
-    font-weight: 500;
-    color: var(--color-danger);
-    background: none;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    font-family: inherit;
-    transition: all 180ms ease-out;
+      i:first-child {
+        color: var(--color-danger);
+      }
 
-    i {
-      font-size: 1.05rem;
-      width: 22px;
-      text-align: center;
-      flex-shrink: 0;
-      transition: color 180ms ease-out;
-    }
+      &:hover {
+        background: var(--color-danger-subtle);
+        color: var(--color-danger);
 
-    &:hover {
-      background: var(--color-danger-subtle);
-    }
+        i:first-child {
+          color: var(--color-danger);
+        }
+      }
 
-    &:active {
-      background: rgba(239, 68, 68, 0.15);
-    }
+      &:active {
+        background: rgba(239, 68, 68, 0.15);
+      }
 
-    &:focus-visible {
-      outline: 2px solid var(--color-danger);
-      outline-offset: -2px;
-      border-radius: 12px;
+      &:focus-visible {
+        outline: 2px solid var(--color-danger);
+        outline-offset: -2px;
+        border-radius: 12px;
+      }
     }
   }
 }

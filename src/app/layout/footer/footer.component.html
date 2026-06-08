@@ -1,99 +1,116 @@
 <footer class="footer">
-  <!-- Decorative wave top with shoe silhouettes -->
-  <div class="footer__wave-top">
-    <div class="footer__shoe footer__shoe--left"></div>
-    <div class="footer__shoe footer__shoe--right"></div>
-    <svg class="footer__wave-svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
-      <path d="M0,0 Q150,60 300,40 T600,50 T900,30 T1200,50 L1200,120 L0,120 Z" fill="#ffffff"/>
-    </svg>
-  </div>
-
   <div class="footer__container">
     <div class="footer__grid">
-      <!-- Newsletter Section -->
-      <div class="footer__section footer__section--newsletter">
-        <h4 class="footer__heading">Seth Store Newsletter</h4>
-        <p class="footer__newsletter-desc">Stay updated with our latest offers and products</p>
-        <form class="footer__newsletter-form" (ngSubmit)="onSubscribe()">
-          <input 
-            type="email" 
-            class="footer__newsletter-input" 
-            placeholder="Your email"
-            [(ngModel)]="newsletterEmail"
-            name="email"
-            required
-          />
-          <button type="submit" class="footer__newsletter-btn">Subscribe</button>
-        </form>
+      <!-- Brand -->
+      <div class="footer__brand">
+        <span class="footer__logo">BRASETH T-SHIRT PRINTING HOUSE</span>
+        <p class="footer__description">Premium custom t-shirt printing with quality fabrics and expert craftsmanship.</p>
+        <div class="footer__social">
+          <a href="#" class="footer__social-link" aria-label="Facebook">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+            </svg>
+          </a>
+          <a href="#" class="footer__social-link" aria-label="Telegram">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21.5 2L2.5 10.5l7 3 3 7L21.5 2z"/>
+              <path d="M12.5 13.5L17 9"/>
+            </svg>
+          </a>
+          <a href="#" class="footer__social-link" aria-label="Instagram">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+            </svg>
+          </a>
+          <a href="#" class="footer__social-link" aria-label="X">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+          </a>
+        </div>
+        <div class="footer__contact">
+          <a href="mailto:shiryuprem@gmail.com" class="footer__contact-item footer__contact-item--email">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+            shiryuprem&#64;gmail.com
+          </a>
+          <span class="footer__contact-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+            Cambodia, Phnom Penh
+          </span>
+        </div>
       </div>
 
-      <!-- Terms and Conditions Section -->
-      <div class="footer__section">
-        <h4 class="footer__heading">Terms and Conditions</h4>
-        <ul class="footer__links">
-          <li><a href="#">Free returns</a></li>
-          <li><a href="#">30 days return policy</a></li>
-          <li><a href="#">All items in stock</a></li>
-        </ul>
+      <!-- Shop -->
+      <div class="footer__section" [ngClass]="{'is-open': activeAccordion === 'shop'}">
+        <button class="footer__section-toggle" (click)="toggleAccordion('shop')" [attr.aria-expanded]="activeAccordion === 'shop'" aria-controls="footer-shop">
+          Shop
+          <svg class="footer__chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+        <div class="footer__section-content" id="footer-shop" role="region">
+          <ul class="footer__links">
+            <li><a routerLink="/products">Products</a></li>
+            <li><a routerLink="/categories">Categories</a></li>
+            <li><a routerLink="/products" [queryParams]="{sort: 'new'}">New Arrivals</a></li>
+            <li><a routerLink="/products" [queryParams]="{sort: 'popular'}">Popular</a></li>
+            <li><a routerLink="/user/dashboard">Dashboard</a></li>
+          </ul>
+        </div>
       </div>
 
-      <!-- Information Section -->
-      <div class="footer__section">
-        <h4 class="footer__heading">Information</h4>
-        <ul class="footer__links">
-          <li><a href="#">FAQs</a></li>
-          <li><a href="#">About us</a></li>
-          <li><a href="#">Privacy Policy</a></li>
-          <li><a href="#">Shipping & Delivery</a></li>
-          <li><a href="#">Return Policy</a></li>
-        </ul>
+      <!-- Support -->
+      <div class="footer__section" [ngClass]="{'is-open': activeAccordion === 'support'}">
+        <button class="footer__section-toggle" (click)="toggleAccordion('support')" [attr.aria-expanded]="activeAccordion === 'support'" aria-controls="footer-support">
+          Support
+          <svg class="footer__chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+        <div class="footer__section-content" id="footer-support" role="region">
+          <ul class="footer__links">
+            <li><a href="#">Help Center</a></li>
+            <li><a href="#">Contact Us</a></li>
+            <li><a href="#">FAQ</a></li>
+            <li><a href="#">Refund Policy</a></li>
+          </ul>
+        </div>
       </div>
 
-      <!-- Contact Section -->
-      <div class="footer__section">
-        <h4 class="footer__heading">Contact</h4>
-        <ul class="footer__links footer__links--contact">
-          <li><strong>Seth Store</strong></li>
-          <li><i class="pi pi-send"></i> Telegram: &#64;sethstore</li>
-          <li><i class="pi pi-phone"></i> 0800 098 830</li>
-          <li><i class="pi pi-envelope"></i> support&#64;sethstore.com</li>
-          <li><i class="pi pi-map-marker"></i> Head office:<br/>Phnom Penh, Cambodia</li>
-        </ul>
+      <!-- Legal -->
+      <div class="footer__section" [ngClass]="{'is-open': activeAccordion === 'legal'}">
+        <button class="footer__section-toggle" (click)="toggleAccordion('legal')" [attr.aria-expanded]="activeAccordion === 'legal'" aria-controls="footer-legal">
+          Legal
+          <svg class="footer__chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+        <div class="footer__section-content" id="footer-legal" role="region">
+          <ul class="footer__links">
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Terms of Service</a></li>
+            <li><a href="#">Cookies</a></li>
+          </ul>
+        </div>
       </div>
     </div>
 
-    <!-- Bottom Section -->
+    <!-- Bottom -->
     <div class="footer__bottom">
       <div class="footer__bottom-content">
-        <!-- Trust Badges -->
-        <div class="footer__trust-badges">
-          <span class="footer__badge">🔒 Secure Shopping</span>
-          <span class="footer__badge">✓ Trusted Shop</span>
-        </div>
-
-        <!-- Company Info & Copyright -->
-        <div class="footer__company-info">
-          <p class="footer__company-text">Part of Seth Store Group</p>
-          <div class="footer__copyright">
-            <span>&copy; {{ year }} Seth Store. All rights reserved.</span>
-            <div class="footer__flags">
-              <span class="footer__flag">🇰🇭</span>
-              <span class="footer__flag">🇺🇸</span>
-              <span class="footer__flag">🇬🇧</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Payment Methods -->
-        <div class="footer__payment-methods">
-          <span class="footer__payment-label">We accept:</span>
-          <div class="footer__payment-logos">
-            <span class="footer__payment-logo">ABA</span>
-            <span class="footer__payment-logo">Mastercard</span>
-            <span class="footer__payment-logo">Visa</span>
-            <span class="footer__payment-logo">Wing</span>
-            <span class="footer__payment-logo">KHQR</span>
-          </div>
+        <p class="footer__copyright">&copy; {{ year }} BRASETH T-SHIRT PRINTING HOUSE. All rights reserved.</p>
+        <div class="footer__legal-links">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+          <a href="#">Cookies</a>
         </div>
       </div>
     </div>

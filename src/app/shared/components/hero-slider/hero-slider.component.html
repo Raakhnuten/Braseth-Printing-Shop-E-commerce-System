@@ -1,0 +1,90 @@
+<section
+  class="hero-slider"
+  role="region"
+  aria-label="Featured promotions"
+  aria-roledescription="carousel"
+  (mouseenter)="pause()"
+  (mouseleave)="resume()"
+  (focusin)="pause()"
+  (focusout)="resume()"
+>
+  @if (banners.length === 0) {
+    <div class="hero-slider__empty skeleton-pulse"></div>
+  } @else {
+    <div class="hero-slider__viewport" aria-live="polite">
+      <div
+        class="hero-slider__track"
+        [style.transform]="'translateX(-' + currentIndex() * 100 + '%)'"
+      >
+        @for (banner of banners; track banner.id; let i = $index) {
+          <div
+            class="hero-slider__slide"
+            role="group"
+            [attr.aria-roledescription]="'slide'"
+            [attr.aria-label]="'Slide ' + (i + 1) + ' of ' + banners.length"
+            [class.hero-slider__slide--active]="i === currentIndex()"
+          >
+            <div class="hero-slider__image-wrap">
+              <img
+                [src]="banner.imageUrl"
+                [alt]="banner.title"
+                class="hero-slider__image"
+                loading="lazy"
+              />
+            </div>
+            <div class="hero-slider__overlay">
+              <div class="hero-slider__content">
+                <h2 class="hero-slider__title">{{ banner.title }}</h2>
+                @if (banner.subtitle) {
+                  <p class="hero-slider__subtitle">{{ banner.subtitle }}</p>
+                }
+                @if (banner.linkUrl) {
+                  <a
+                    [routerLink]="banner.linkUrl"
+                    class="btn btn-primary btn-lg hero-slider__cta"
+                  >
+                    {{ banner.linkText || 'Shop Now' }}
+                  </a>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    @if (banners.length > 1) {
+      @if (showDots) {
+        <div class="hero-slider__dots" role="tablist" aria-label="Slides">
+          @for (banner of banners; track banner.id; let i = $index) {
+            <button
+              class="hero-slider__dot"
+              [class.hero-slider__dot--active]="i === currentIndex()"
+              (click)="goTo(i)"
+              role="tab"
+              [attr.aria-selected]="i === currentIndex()"
+              [attr.aria-label]="'Go to slide ' + (i + 1)"
+            ></button>
+          }
+        </div>
+      }
+
+      @if (showArrows) {
+        <button
+          class="hero-slider__arrow hero-slider__arrow--prev"
+          (click)="prev(); pause()"
+          aria-label="Previous slide"
+        >
+          <i class="pi pi-chevron-left"></i>
+        </button>
+        <button
+          class="hero-slider__arrow hero-slider__arrow--next"
+          (click)="next(); pause()"
+          aria-label="Next slide"
+        >
+          <i class="pi pi-chevron-right"></i>
+        </button>
+      }
+    }
+  }
+</section>

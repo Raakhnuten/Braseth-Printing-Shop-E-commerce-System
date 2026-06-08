@@ -1,0 +1,24 @@
+<div class="category-chip__wrapper" [class.category-chip__wrapper--compact]="compact">
+  <div class="category-chip__track" role="group" aria-label="Categories">
+    @for (category of categories; track category.id) {
+      <button
+        class="category-chip__item"
+        [class.category-chip__item--active]="category.id === selectedId"
+        [class.category-chip__item--compact]="compact"
+        [attr.aria-pressed]="category.id === selectedId"
+        [attr.aria-label]="'Select category: ' + category.name"
+        (click)="selectCategory(category)"
+      >
+        @if (category.icon) {
+          <span class="category-chip__icon-wrap">
+            <img [src]="category.icon" [alt]="category.name + ' icon'" class="category-chip__icon" />
+          </span>
+        }
+        <span class="category-chip__label">{{ category.name }}</span>
+        @if (counts && counts[category.id] !== undefined) {
+          <span class="category-chip__count">{{ counts[category.id] }}</span>
+        }
+      </button>
+    }
+  </div>
+</div>

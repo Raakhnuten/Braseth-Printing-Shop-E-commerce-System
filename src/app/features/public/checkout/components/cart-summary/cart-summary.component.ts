@@ -15,6 +15,7 @@ export class CartSummaryComponent {
   @Input({ required: true }) deliveryFee = 0;
   @Input({ required: true }) customizationFeeTotal = 0;
   @Input({ required: true }) discount = 0;
+  @Input({ required: true }) tax = 0;
   @Input({ required: true }) total = 0;
   @Input({ required: true }) processing = false;
 

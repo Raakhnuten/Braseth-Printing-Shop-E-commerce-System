@@ -1,64 +1,77 @@
+<!-- Hero Slider -->
+<div class="hero-slider" #sliderContainer>
+  <div class="hero-slider__track">
+    @for (slide of slides; track $index) {
+      <div class="hero-slider__slide" [style.background]="slide.gradient">
+        <div class="hero-slider__slide-bg">
+          <div class="hero-slider__shape hero-slider__shape--1"></div>
+          <div class="hero-slider__shape hero-slider__shape--2"></div>
+          <div class="hero-slider__shape hero-slider__shape--3"></div>
+        </div>
+        <div class="hero-slider__body">
+          <div class="hero-slider__icon">
+            <i [class]="'pi ' + slide.icon"></i>
+          </div>
+          <h2 class="hero-slider__title">{{ slide.title }}</h2>
+          <p class="hero-slider__subtitle">{{ slide.subtitle }}</p>
+          <a [routerLink]="slide.ctaLink" [queryParams]="slide.ctaQueryParams || {}" class="hero-slider__cta">
+            {{ slide.cta }}
+          </a>
+        </div>
+      </div>
+    }
+  </div>
+
+  @if (totalSlides > 1) {
+    <button class="hero-slider__arrow hero-slider__arrow--prev" (click)="prev()" aria-label="Previous slide">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
+    <button class="hero-slider__arrow hero-slider__arrow--next" (click)="next()" aria-label="Next slide">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </button>
+
+    <div class="hero-slider__dots">
+      @for (slide of slides; track $index) {
+        <button
+          class="hero-slider__dot"
+          [class.is-active]="currentSlide === $index"
+          (click)="goTo($index)"
+          [attr.aria-label]="'Go to slide ' + ($index + 1)"
+        ></button>
+      }
+    </div>
+  }
+</div>
+
 @if (loading()) {
   <app-loading-spinner />
 } @else {
-  <!-- Hero Section -->
-  <section class="hero">
-    <div class="hero__bg"></div>
-    <div class="container hero__content">
-      <div class="hero__text">
-        <h1 class="hero__title">Shop the Latest Trends in Cambodia</h1>
-        <p class="hero__subtitle">Discover fashion, shoes, electronics, beauty, and lifestyle products with fast delivery and secure checkout.</p>
-        <div class="hero__actions">
-          <a routerLink="/products" class="btn btn-primary btn-lg">Shop Now</a>
-          <a routerLink="/products" [queryParams]="{sale: true}" class="btn btn-secondary btn-lg">View Deals</a>
-        </div>
-        <div class="hero__badges">
-          <div class="hero__badge">
-            <i class="pi pi-bolt"></i>
-            <span>Fast Delivery</span>
-          </div>
-          <div class="hero__badge">
-            <i class="pi pi-shield"></i>
-            <span>Secure Payment</span>
-          </div>
-          <div class="hero__badge">
-            <i class="pi pi-refresh"></i>
-            <span>Easy Returns</span>
-          </div>
-        </div>
-      </div>
-      <div class="hero__image">
-        <div class="hero__image-card">
-          <i class="pi pi-shopping-bag"></i>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Category Section -->
+  <!-- Category Chips -->
   <section class="section container">
-    <h2 class="section-title">Shop by Category</h2>
-    <p class="section-subtitle">Browse our most popular categories</p>
-    <div class="categories-grid">
-      @for (cat of displayCategories; track cat.id) {
-        <a [routerLink]="cat.route" [queryParams]="cat.queryParams" class="category-card">
-          <div class="category-card__icon">
-            <i [class]="'pi ' + cat.icon"></i>
-          </div>
-          <div class="category-card__body">
-            <h3 class="category-card__name">{{ cat.name }}</h3>
-            <span class="category-card__link">Explore <i class="pi pi-arrow-right"></i></span>
-          </div>
-        </a>
-      }
-    </div>
+    <app-category-chip
+      [categories]="categoryChips()"
+      [selectedId]="selectedCategoryId()"
+      (categorySelected)="onCategorySelected($event)"
+    />
   </section>
 
   <!-- Featured Products Section -->
   @if (featuredProducts().length) {
     <section class="section container">
-      <h2 class="section-title">Featured Products</h2>
-      <p class="section-subtitle">Handpicked favorites just for you</p>
+      <div class="section-header">
+        <div class="section-header__text">
+          <h2 class="section-title">Featured Products</h2>
+          <p class="section-subtitle">Handpicked favorites just for you</p>
+        </div>
+        <a routerLink="/products" class="section-header__link">
+          See More
+          <i class="pi pi-arrow-right"></i>
+        </a>
+      </div>
       <div class="products-grid">
         @for (product of featuredProducts(); track product.id) {
           <app-product-card [product]="product" />
@@ -165,9 +178,9 @@
       <h2 class="newsletter-section__title">Get Exclusive Deals</h2>
       <p class="newsletter-section__text">Subscribe to receive new arrivals, discounts, and special offers.</p>
       <form class="newsletter-form" (ngSubmit)="onNewsletterSubmit()">
-        <input 
-          type="email" 
-          class="newsletter-form__input" 
+        <input
+          type="email"
+          class="newsletter-form__input"
           placeholder="Enter your email address"
           [(ngModel)]="newsletterEmail"
           name="email"
@@ -180,12 +193,12 @@
 
   <!-- SEO Text Section -->
   <section class="section container seo-section">
-    <h2 class="seo-section__title">Online Shopping Made Easy with Seth Store</h2>
+    <h2 class="seo-section__title">Premium Custom T-Shirt Printing with BRASETH</h2>
     <p class="seo-section__text">
-      Seth Store makes online shopping in Cambodia simple, stylish, and reliable. Browse fashion, shoes, electronics, beauty products, and lifestyle essentials from one modern shopping experience. Our store is designed for fast browsing, easy checkout, and a smooth shopping journey on every device.
+      BRASETH T-SHIRT PRINTING HOUSE brings you premium custom t-shirt printing with quality fabrics, vibrant designs, and expert craftsmanship. From personalized gifts to branded merchandise, we deliver prints that last — wash after wash.
     </p>
     <p class="seo-section__text">
-      Whether you're looking for the latest fashion trends, quality footwear, cutting-edge electronics, or beauty products, Seth Store has everything you need. We offer competitive prices, secure payment options, and fast delivery across Cambodia. Shop with confidence knowing that every purchase is backed by our customer satisfaction guarantee and easy return policy.
+      Whether you need custom t-shirts for your business, event, or personal style, BRASETH offers competitive pricing, fast turnaround, and reliable service. Shop with confidence knowing every order is backed by our quality guarantee.
     </p>
   </section>
 }

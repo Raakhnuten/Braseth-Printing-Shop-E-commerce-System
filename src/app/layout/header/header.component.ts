@@ -18,6 +18,19 @@ export interface NavCategory {
   isMore?: boolean;
 }
 
+export interface MenuItem {
+  icon: string;
+  label: string;
+  route?: string;
+  action?: string;
+  danger?: boolean;
+}
+
+export interface MenuSection {
+  label?: string;
+  items: MenuItem[];
+}
+
 const NAV_CATEGORIES: NavCategory[] = [
   {
     name: 'Men',
@@ -118,6 +131,44 @@ const NAV_CATEGORIES: NavCategory[] = [
   },
 ];
 
+const LOGGED_IN_SECTIONS: MenuSection[] = [
+  {
+    label: 'My Account',
+    items: [
+      { icon: 'pi-th-large', label: 'Dashboard', route: '/user/dashboard' },
+      { icon: 'pi-box', label: 'Orders', route: '/user/orders' },
+      { icon: 'pi-heart', label: 'Wishlist', route: '/user/wishlist' },
+      { icon: 'pi-user', label: 'Profile', route: '/user/profile' },
+      { icon: 'pi-map-marker', label: 'Addresses', route: '/user/addresses' },
+    ],
+  },
+  {
+    label: 'Shopping',
+    items: [
+      { icon: 'pi-th-large', label: 'Browse Products', route: '/products' },
+      { icon: 'pi-shopping-cart', label: 'Cart', route: '/cart' },
+    ],
+  },
+  {
+    items: [
+      { icon: 'pi-shield', label: 'Admin Dashboard', route: '/admin/dashboard' },
+    ],
+  },
+  {
+    items: [
+      { icon: 'pi-sign-out', label: 'Logout', action: 'logout', danger: true },
+    ],
+  },
+];
+
+const LOGGED_OUT_SECTIONS: MenuSection[] = [
+  {
+    items: [
+      { icon: 'pi-th-large', label: 'Browse Products', route: '/products' },
+    ],
+  },
+];
+
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
@@ -163,6 +214,16 @@ export class HeaderComponent {
 
   get userEmail(): string {
     return this.authService.getCurrentUser()?.email ?? '';
+  }
+
+  get menuSections(): MenuSection[] {
+    if (!this.isLoggedIn) return LOGGED_OUT_SECTIONS;
+    return LOGGED_IN_SECTIONS.filter((section) => {
+      if (section.items.length === 1 && section.items[0].route === '/admin/dashboard') {
+        return this.isAdmin;
+      }
+      return true;
+    });
   }
 
   @HostListener('document:keydown.escape')
@@ -215,6 +276,14 @@ export class HeaderComponent {
       this.expandedMobileCategory.set(null);
     } else {
       this.expandedMobileCategory.set(name);
+    }
+  }
+
+  handleMenuAction(action: string): void {
+    if (action === 'logout') {
+      this.authService.logout();
+      this.closeMobileMenu();
+      this.router.navigate(['/']);
     }
   }
 

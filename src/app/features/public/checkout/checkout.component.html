@@ -1,4 +1,4 @@
-<div class="container checkout-page">
+<div class="checkout-page">
   <div class="checkout-header">
     <h1 class="checkout-header__title">Checkout</h1>
     <p class="checkout-header__subtitle">Complete your order details below.</p>
@@ -12,18 +12,18 @@
         <p class="checkout-success__desc">Order number: <strong>{{ orderNumber() }}</strong></p>
       }
       <p class="checkout-success__desc">Thank you for your order. We'll process it shortly.</p>
-      <a routerLink="/products" class="checkout-success__btn">Continue Shopping</a>
+      <a routerLink="/products" class="btn btn-primary btn-lg">Continue Shopping</a>
     </div>
   } @else if (cartItems().length === 0) {
     <div class="checkout-empty">
       <div class="checkout-empty__icon"><i class="pi pi-shopping-cart"></i></div>
       <h2 class="checkout-empty__title">Your cart is empty</h2>
       <p class="checkout-empty__desc">Add items before checkout.</p>
-      <a routerLink="/products" class="checkout-empty__btn">Continue Shopping</a>
+      <a routerLink="/products" class="btn btn-primary btn-lg">Continue Shopping</a>
     </div>
   } @else {
     <div class="checkout-grid">
-      <!-- LEFT COLUMN -->
+      <!-- Left Column -->
       <div class="checkout-main">
         <app-address-form [form]="form" [submitted]="submitted()" />
 
@@ -43,67 +43,88 @@
           (selectMethod)="selectShippingMethod($event)"
           (selectZone)="selectShippingZone($event)"
         />
+      </div>
 
-        <!-- Payment Method -->
+      <!-- Right Column - Order Summary (sticky on desktop) -->
+      <div class="checkout-sidebar">
+        @if (orderValidationErrors().length > 0 || submitError()) {
+          <div class="co-validation-error" role="alert" aria-live="assertive">
+            @for (err of orderValidationErrors(); track $index) {
+              <div class="co-validation-error__item">{{ err }}</div>
+            }
+            @if (submitError(); as msg) {
+              <div class="co-validation-error__item">{{ msg }}</div>
+            }
+          </div>
+        }
+        <app-cart-summary
+          [cartItems]="cartItems()"
+          [itemCount]="itemCount()"
+          [subtotal]="subtotal()"
+          [deliveryFee]="deliveryFee()"
+          [customizationFeeTotal]="checkoutSummary().customizationFeeTotal"
+          [discount]="discount()"
+          [tax]="checkoutSummary().tax"
+          [total]="total()"
+          [processing]="processing()"
+          (updateQty)="updateQty($event.productId, $event.quantity)"
+          (removeItem)="removeItem($event)"
+          (placeOrder)="placeOrder()"
+        />
+      </div>
+
+      <!-- Payment Method - appears before summary on mobile, left column on desktop -->
+      <div class="checkout-payment">
         <section class="checkout-card">
           <div class="checkout-card__head">
             <i class="pi pi-credit-card"></i>
             <span>Payment Method</span>
           </div>
           <div class="checkout-card__body">
-            <div class="co-options">
+            <div class="co-options" role="radiogroup" aria-label="Payment method">
               @for (pm of paymentMethods; track pm.id) {
                 <button
                   class="co-option"
                   [class.co-option--sel]="selectedPayment().id === pm.id"
                   (click)="selectPayment(pm)"
                   type="button"
+                  role="radio"
+                  [attr.aria-checked]="selectedPayment().id === pm.id"
                 >
                   <div class="co-option__left">
-                    <span class="co-option__radio">
+                    <span class="co-option__radio" aria-hidden="true">
                       @if (selectedPayment().id === pm.id) {
                         <span class="co-option__dot"></span>
                       }
                     </span>
                     <span class="co-option__pm-icon">
-                      <i class="pi {{ pm.icon }}"></i>
+                      @if (pm.image) {
+                        <img
+                          [src]="pm.image"
+                          [alt]="pm.name"
+                          class="co-option__pm-img"
+                          (error)="onPaymentImgError($event)"
+                        />
+                      } @else {
+                        <i class="pi {{ pm.icon }}"></i>
+                      }
                     </span>
                     <div>
                       <div class="co-option__name">{{ pm.name }}</div>
                       <div class="co-option__desc">{{ pm.description }}</div>
                     </div>
                   </div>
+                  @if (selectedPayment().id === pm.id) {
+                    <span class="co-option__check" aria-hidden="true">
+                      <i class="pi pi-check"></i>
+                    </span>
+                  }
                 </button>
               }
             </div>
           </div>
         </section>
       </div>
-
-      <!-- RIGHT COLUMN - ORDER SUMMARY -->
-      @if (orderValidationErrors().length > 0 || submitError()) {
-        <div class="co-validation-error" role="alert" aria-live="polite">
-          @for (err of orderValidationErrors(); track $index) {
-            <div class="co-validation-error__item">{{ err }}</div>
-          }
-          @if (submitError(); as msg) {
-            <div class="co-validation-error__item">{{ msg }}</div>
-          }
-        </div>
-      }
-      <app-cart-summary
-        [cartItems]="cartItems()"
-        [itemCount]="itemCount()"
-        [subtotal]="subtotal()"
-        [deliveryFee]="deliveryFee()"
-        [customizationFeeTotal]="checkoutSummary().customizationFeeTotal"
-        [discount]="discount()"
-        [total]="total()"
-        [processing]="processing()"
-        (updateQty)="updateQty($event.productId, $event.quantity)"
-        (removeItem)="removeItem($event)"
-        (placeOrder)="placeOrder()"
-      />
     </div>
   }
 </div>

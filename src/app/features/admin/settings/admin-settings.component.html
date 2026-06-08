@@ -13,7 +13,7 @@
     <div class="form-grid">
       <div class="form-group">
         <label for="storeName">Store Name</label>
-        <input id="storeName" type="text" formControlName="storeName" placeholder="Seth Store" />
+        <input id="storeName" type="text" formControlName="storeName" placeholder="BRASETH T-SHIRT PRINTING HOUSE" />
         @if (submitted && settingsForm.get('storeName')?.errors?.['required']) {
           <small class="field-error">Store name is required</small>
         }
@@ -21,7 +21,7 @@
 
       <div class="form-group">
         <label for="storeEmail">Store Email</label>
-        <input id="storeEmail" type="email" formControlName="storeEmail" placeholder="admin@sethstore.com" />
+        <input id="storeEmail" type="email" formControlName="storeEmail" placeholder="admin@braseth.com" />
         @if (submitted && settingsForm.get('storeEmail')?.errors?.['required']) {
           <small class="field-error">Store email is required</small>
         }

@@ -20,4 +20,10 @@ export class CheckoutCouponComponent {
   @Output() removeCoupon = new EventEmitter<void>();
 
   inputCode = '';
+
+  apply(): void {
+    if (this.inputCode.trim()) {
+      this.applyCoupon.emit(this.inputCode.trim());
+    }
+  }
 }

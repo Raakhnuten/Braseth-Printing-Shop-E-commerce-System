@@ -4,6 +4,6 @@ export const environment = {
   apiBaseUrl: 'http://localhost:8080/api',
   useMockData: false,
   useFakeApi: false,
-  appName: 'Seth Store',
+  appName: 'BRASETH T-SHIRT PRINTING HOUSE',
   defaultPageSize: 12,
 };

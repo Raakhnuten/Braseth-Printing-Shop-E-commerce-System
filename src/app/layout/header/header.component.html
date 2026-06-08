@@ -3,7 +3,7 @@
   <div class="header__top">
     <div class="header__left">
       <a routerLink="/" class="header__logo" (click)="closeMobileMenu()">
-        Seth Store
+        BRASETH
       </a>
 
       <a routerLink="/categories" class="header__icon-btn header__icon-btn--label" (click)="closeMobileMenu()" aria-label="Categories">
@@ -130,66 +130,55 @@
     </div>
   </div>
 
-</header>
-
-<!-- MOBILE MENU DROPDOWN (compact floating card) -->
-@if (mobileMenuOpen) {
-  <div class="header__menu-dropdown" id="mobile-menu-dropdown" (click)="$event.stopPropagation()">
-    @if (isLoggedIn) {
-      <div class="header__dropdown-user">
-        <div class="header__dropdown-avatar">{{ userInitials }}</div>
-        <div class="header__dropdown-user-info">
-          <div class="header__dropdown-user-name">{{ displayName }}</div>
-          <div class="header__dropdown-user-email">{{ userEmail }}</div>
-        </div>
-      </div>
-    } @else {
-      <div class="header__dropdown-auth">
-        <a routerLink="/auth/login" class="header__dropdown-btn" (click)="closeMobileMenu()">Login</a>
-        <a routerLink="/auth/register" class="header__dropdown-btn header__dropdown-btn--outline" (click)="closeMobileMenu()">Register</a>
-      </div>
-    }
-
-    <div class="header__dropdown-divider"></div>
-
-    <nav class="header__dropdown-nav">
-      <a routerLink="/products" class="header__dropdown-link" (click)="closeMobileMenu()">
-        <i class="pi pi-th-large"></i> Browse Products
-      </a>
+  <!-- MOBILE MENU DROPDOWN -->
+  @if (mobileMenuOpen) {
+    <div class="header__menu-dropdown" id="mobile-menu-dropdown" (click)="$event.stopPropagation()">
 
       @if (isLoggedIn) {
-        <a routerLink="/user/orders" class="header__dropdown-link" (click)="closeMobileMenu()">
-          <i class="pi pi-clock"></i> Order History
-        </a>
-        <a routerLink="/user/profile" class="header__dropdown-link" (click)="closeMobileMenu()">
-          <i class="pi pi-user"></i> Account
-        </a>
-        <a routerLink="/user/dashboard" class="header__dropdown-link" (click)="closeMobileMenu()">
-          <i class="pi pi-wallet"></i> Add Balance
-        </a>
-        @if (isAdmin) {
-          <a routerLink="/admin/dashboard" class="header__dropdown-link" (click)="closeMobileMenu()">
-            <i class="pi pi-shield"></i> Dashboard
-          </a>
-        }
-        <a routerLink="/user/dashboard" class="header__dropdown-link" (click)="closeMobileMenu()">
-          <i class="pi pi-star"></i> Reward Points
-        </a>
+        <div class="menu-profile">
+          <div class="menu-profile__avatar">{{ userInitials }}</div>
+          <div class="menu-profile__info">
+            <div class="menu-profile__name">{{ displayName }}</div>
+            <div class="menu-profile__email">{{ userEmail }}</div>
+            <span class="menu-profile__badge">Member</span>
+          </div>
+        </div>
+      } @else {
+        <div class="menu-auth">
+          <a routerLink="/auth/login" class="menu-auth__btn menu-auth__btn--primary" (click)="closeMobileMenu()">Login</a>
+          <a routerLink="/auth/register" class="menu-auth__btn menu-auth__btn--outline" (click)="closeMobileMenu()">Register</a>
+        </div>
       }
 
-      <a routerLink="/categories" class="header__dropdown-link" (click)="closeMobileMenu()">
-        <i class="pi pi-th-large"></i> Categories
-      </a>
-      <a routerLink="/products" class="header__dropdown-link" (click)="closeMobileMenu()">
-        <i class="pi pi-percentage"></i> Deals
-      </a>
-    </nav>
+      @for (section of menuSections; track $index) {
+        @if (section.label) {
+          <div class="menu-section-label">{{ section.label }}</div>
+        }
+        <div class="menu-items">
+          @for (item of section.items; track $index) {
+            @if (item.route && !item.action) {
+              <a
+                [routerLink]="item.route"
+                class="menu-link"
+                [class.menu-link--danger]="item.danger"
+                (click)="closeMobileMenu()"
+              >
+                <i class="pi {{ item.icon }}"></i>
+                <span>{{ item.label }}</span>
+              </a>
+            } @else if (item.action === 'logout') {
+              <button
+                class="menu-link menu-link--danger"
+                (click)="handleMenuAction('logout')"
+              >
+                <i class="pi {{ item.icon }}"></i>
+                <span>{{ item.label }}</span>
+              </button>
+            }
+          }
+        </div>
+      }
 
-    @if (isLoggedIn) {
-      <div class="header__dropdown-divider"></div>
-      <button class="header__dropdown-logout" (click)="onLogout()">
-        <i class="pi pi-sign-out"></i> Logout
-      </button>
-    }
-  </div>
-}
+    </div>
+  }
+</header>

@@ -6,27 +6,40 @@
   <div class="checkout-card__body">
     @if (couponCode) {
       <div class="co-coupon-applied">
-        <span class="co-coupon-applied__code">{{ couponCode }}</span>
-        <button class="co-coupon-applied__remove" (click)="removeCoupon.emit()" type="button">
-          <i class="pi pi-times"></i> Remove
+        <div class="co-coupon-applied__left">
+          <i class="pi pi-check-circle" aria-hidden="true"></i>
+          <span class="co-coupon-applied__code">{{ couponCode }}</span>
+        </div>
+        <button class="co-coupon-applied__remove" (click)="removeCoupon.emit()" type="button" aria-label="Remove coupon {{ couponCode }}">
+          <i class="pi pi-times"></i>
+          <span>Remove</span>
         </button>
       </div>
     } @else {
       <div class="co-coupon-input-row">
-        <input
-          class="co-input co-coupon-input"
-          type="text"
-          placeholder="Enter coupon code"
-          [(ngModel)]="inputCode"
-          (keyup.enter)="applyCoupon.emit(inputCode)"
-        />
-        <button class="co-btn co-btn--apply" (click)="applyCoupon.emit(inputCode)" type="button">
+        <div class="co-coupon-input-wrap">
+          <input
+            class="co-input"
+            type="text"
+            placeholder="Enter coupon code"
+            [(ngModel)]="inputCode"
+            (keyup.enter)="apply()"
+            aria-label="Coupon code"
+          />
+        </div>
+        <button class="co-coupon-btn" (click)="apply()" type="button" [disabled]="!inputCode.trim()">
           Apply
         </button>
       </div>
     }
     @if (message) {
-      <span class="co-coupon-msg" [class.co-coupon-msg--ok]="message.type === 'success'" [class.co-coupon-msg--err]="message.type === 'error'">
+      <span
+        class="co-coupon-msg"
+        [class.co-coupon-msg--ok]="message.type === 'success'"
+        [class.co-coupon-msg--err]="message.type === 'error'"
+        role="status"
+        aria-live="polite"
+      >
         {{ message.text }}
       </span>
     }

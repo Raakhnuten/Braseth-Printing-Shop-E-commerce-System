@@ -3,6 +3,6 @@ export const environment = {
   apiBaseUrl: 'https://api.escuelajs.co/api/v1',
   useMockData: false,
   useFakeApi: true,
-  appName: 'Seth Store (Dev)',
+  appName: 'BRASETH T-SHIRT PRINTING HOUSE (Dev)',
   defaultPageSize: 12,
 };

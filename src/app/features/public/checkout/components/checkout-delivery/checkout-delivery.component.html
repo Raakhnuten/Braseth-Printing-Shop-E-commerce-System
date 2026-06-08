@@ -6,21 +6,23 @@
   </div>
   <div class="checkout-card__body">
     @if (loading) {
-      <div class="co-loading">
-        <i class="pi pi-spin pi-spinner"></i>
-        <span>Loading shipping options...</span>
+      <div class="co-skeleton-stack" aria-label="Loading shipping options">
+        <div class="co-skeleton-card skeleton-pulse"></div>
+        <div class="co-skeleton-card skeleton-pulse"></div>
       </div>
     } @else {
-      <div class="co-options">
+      <div class="co-options" role="radiogroup" aria-label="Shipping method">
         @for (sm of shippingMethods; track sm.id) {
           <button
             class="co-option"
             [class.co-option--sel]="selectedMethod?.id === sm.id"
             (click)="selectMethod.emit(sm)"
             type="button"
+            role="radio"
+            [attr.aria-checked]="selectedMethod?.id === sm.id"
           >
             <div class="co-option__left">
-              <span class="co-option__radio">
+              <span class="co-option__radio" aria-hidden="true">
                 @if (selectedMethod?.id === sm.id) {
                   <span class="co-option__dot"></span>
                 }
@@ -52,21 +54,23 @@
   </div>
   <div class="checkout-card__body">
     @if (loading) {
-      <div class="co-loading">
-        <i class="pi pi-spin pi-spinner"></i>
-        <span>Loading zones...</span>
+      <div class="co-skeleton-stack" aria-label="Loading delivery zones">
+        <div class="co-skeleton-card skeleton-pulse"></div>
+        <div class="co-skeleton-card skeleton-pulse"></div>
       </div>
     } @else {
-      <div class="co-options">
+      <div class="co-options" role="radiogroup" aria-label="Delivery zone">
         @for (zone of shippingZones; track zone.id) {
           <button
             class="co-option"
             [class.co-option--sel]="selectedZone?.id === zone.id"
             (click)="selectZone.emit(zone)"
             type="button"
+            role="radio"
+            [attr.aria-checked]="selectedZone?.id === zone.id"
           >
             <div class="co-option__left">
-              <span class="co-option__radio">
+              <span class="co-option__radio" aria-hidden="true">
                 @if (selectedZone?.id === zone.id) {
                   <span class="co-option__dot"></span>
                 }

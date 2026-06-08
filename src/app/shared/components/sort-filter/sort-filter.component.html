@@ -1,0 +1,182 @@
+<div class="sf-bar" role="toolbar" aria-label="Sort and filter products">
+  <!-- Sort Section -->
+  <button
+    type="button"
+    class="sf-bar__section"
+    (click)="openSortOverlay()"
+    aria-label="Open sort options"
+  >
+    <i class="pi pi-sort-alt sf-bar__icon"></i>
+    <div class="sf-bar__text">
+      <span class="sf-bar__title">Sort by</span>
+      <span class="sf-bar__subtitle">{{ sortSubtitle }}</span>
+    </div>
+    <i class="pi pi-chevron-right sf-bar__chevron"></i>
+  </button>
+
+  <div class="sf-bar__divider" aria-hidden="true"></div>
+
+  <!-- Filter Section -->
+  <button
+    type="button"
+    class="sf-bar__section"
+    (click)="openFilterOverlay()"
+    aria-label="Open filters"
+  >
+    <i class="pi pi-filter sf-bar__icon"></i>
+    <div class="sf-bar__text">
+      <span class="sf-bar__title">Filter</span>
+      <span class="sf-bar__subtitle">{{ filterSubtitle }}</span>
+    </div>
+    @if (filterCount > 0) {
+      <span class="sf-bar__badge">{{ filterCount }}</span>
+    }
+    <i class="pi pi-chevron-right sf-bar__chevron"></i>
+  </button>
+</div>
+
+<!-- ===================== SORT OVERLAY ===================== -->
+@if (sortOverlayOpen()) {
+  <div class="sf-overlay" (click)="onOverlayClick($event, 'sort')" role="presentation">
+    <div class="sf-overlay__sheet" role="dialog" aria-label="Sort options" aria-modal="true">
+      <div class="sf-overlay__header">
+        <h2 class="sf-overlay__title">Sort by</h2>
+        <button
+          type="button"
+          class="sf-overlay__close"
+          (click)="closeSortOverlay()"
+          aria-label="Close sort options"
+        >
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+
+      <div class="sf-overlay__body">
+        @for (opt of sortOptions; track opt.value) {
+          <button
+            type="button"
+            class="sf-overlay__option"
+            [class.sf-overlay__option--active]="sortState().option === opt.value"
+            (click)="selectSortOption(opt.value)"
+            [attr.aria-pressed]="sortState().option === opt.value"
+          >
+            <i class="pi {{ opt.icon }} sf-overlay__option-icon"></i>
+            <span class="sf-overlay__option-label">{{ opt.label }}</span>
+            @if (sortState().option === opt.value) {
+              <i class="pi pi-check sf-overlay__option-check"></i>
+            }
+          </button>
+        }
+      </div>
+
+      @if (sortState().option) {
+        <div class="sf-overlay__footer">
+          <button type="button" class="sf-overlay__clear" (click)="clearSort()">
+            <i class="pi pi-times"></i>
+            Clear sort
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+}
+
+<!-- ===================== FILTER OVERLAY ===================== -->
+@if (filterOverlayOpen()) {
+  <div class="sf-overlay" (click)="onOverlayClick($event, 'filter')" role="presentation">
+    <div class="sf-overlay__modal" role="dialog" aria-label="Filter products" aria-modal="true">
+      <div class="sf-overlay__header">
+        <h2 class="sf-overlay__title">Filters</h2>
+        <button
+          type="button"
+          class="sf-overlay__close"
+          (click)="closeFilterOverlay()"
+          aria-label="Close filters"
+        >
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+
+      <div class="sf-overlay__body">
+        <!-- Category -->
+        <fieldset class="sf-fieldset">
+          <legend class="sf-fieldset__legend">
+            <i class="pi pi-tag sf-fieldset__icon"></i>
+            Category
+          </legend>
+          <div class="sf-fieldset__chips">
+            @for (cat of allCategories; track cat) {
+              <button
+                type="button"
+                class="sf-fieldset__chip"
+                [class.sf-fieldset__chip--active]="selectedCategories().includes(cat)"
+                (click)="toggleCategory(cat)"
+              >
+                {{ cat }}
+              </button>
+            }
+          </div>
+        </fieldset>
+
+        <!-- Price Range -->
+        <fieldset class="sf-fieldset">
+          <legend class="sf-fieldset__legend">
+            <i class="pi pi-dollar sf-fieldset__icon"></i>
+            Price Range
+          </legend>
+          <div class="sf-fieldset__price-row">
+            <div class="sf-fieldset__price-field">
+              <label class="sf-fieldset__price-label" for="sf-price-min">Min</label>
+              <input
+                id="sf-price-min"
+                type="number"
+                class="sf-fieldset__price-input"
+                placeholder="$0"
+                formControlName="priceMin"
+                min="0"
+              />
+            </div>
+            <span class="sf-fieldset__price-sep">—</span>
+            <div class="sf-fieldset__price-field">
+              <label class="sf-fieldset__price-label" for="sf-price-max">Max</label>
+              <input
+                id="sf-price-max"
+                type="number"
+                class="sf-fieldset__price-input"
+                placeholder="$999"
+                formControlName="priceMax"
+                min="0"
+              />
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Availability -->
+        <fieldset class="sf-fieldset">
+          <legend class="sf-fieldset__legend">
+            <i class="pi pi-box sf-fieldset__icon"></i>
+            Availability
+          </legend>
+          <label class="sf-fieldset__toggle">
+            <input type="checkbox" formControlName="inStock" value="true" />
+            <span class="sf-fieldset__toggle-track">
+              <span class="sf-fieldset__toggle-thumb"></span>
+            </span>
+            <span class="sf-fieldset__toggle-label">In stock only</span>
+          </label>
+        </fieldset>
+      </div>
+
+      <div class="sf-overlay__footer sf-overlay__footer--cols">
+        <button type="button" class="sf-btn sf-btn--reset" (click)="resetFilters()">
+          <i class="pi pi-refresh"></i>
+          Reset
+        </button>
+        <button type="button" class="sf-btn sf-btn--apply" (click)="applyFilters()">
+          <i class="pi pi-check"></i>
+          Apply
+        </button>
+      </div>
+    </div>
+  </div>
+}

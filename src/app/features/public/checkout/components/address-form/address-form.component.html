@@ -5,7 +5,9 @@
   </div>
   <div class="checkout-card__body" [formGroup]="form">
     <div class="co-field">
-      <label class="co-label" for="name">Name <span class="co-req">*</span></label>
+      <label class="co-label" for="name">
+        Name <span class="co-req" aria-hidden="true">*</span>
+      </label>
       <input
         id="name"
         type="text"
@@ -13,13 +15,18 @@
         [class.co-input--err]="form.get('name')?.invalid && (form.get('name')?.touched || submitted)"
         placeholder="Your full name"
         formControlName="name"
+        [attr.aria-required]="true"
+        [attr.aria-invalid]="form.get('name')?.invalid && (form.get('name')?.touched || submitted) || null"
+        [attr.aria-describedby]="(form.get('name')?.invalid && (form.get('name')?.touched || submitted)) ? 'name-err' : null"
       />
       @if (form.get('name')?.invalid && (form.get('name')?.touched || submitted)) {
-        <span class="co-err">Name is required.</span>
+        <span class="co-err" id="name-err" role="alert">Name is required.</span>
       }
     </div>
     <div class="co-field">
-      <label class="co-label" for="email">Email <span class="co-req">*</span></label>
+      <label class="co-label" for="email">
+        Email <span class="co-req" aria-hidden="true">*</span>
+      </label>
       <input
         id="email"
         type="email"
@@ -27,17 +34,24 @@
         [class.co-input--err]="form.get('email')?.invalid && (form.get('email')?.touched || submitted)"
         placeholder="your@email.com"
         formControlName="email"
+        [attr.aria-required]="true"
+        [attr.aria-invalid]="form.get('email')?.invalid && (form.get('email')?.touched || submitted) || null"
+        [attr.aria-describedby]="(form.get('email')?.invalid && (form.get('email')?.touched || submitted)) ? 'email-err' : null"
       />
       @if (form.get('email')?.invalid && (form.get('email')?.touched || submitted)) {
-        @if (form.get('email')?.errors?.['required']) {
-          <span class="co-err">Email is required.</span>
-        } @else {
-          <span class="co-err">Enter a valid email address.</span>
-        }
+        <span class="co-err" id="email-err" role="alert">
+          @if (form.get('email')?.errors?.['required']) {
+            Email is required.
+          } @else {
+            Enter a valid email address.
+          }
+        </span>
       }
     </div>
     <div class="co-field">
-      <label class="co-label" for="telegram">Telegram Username <span class="co-req">*</span></label>
+      <label class="co-label" for="telegram">
+        Telegram Username <span class="co-req" aria-hidden="true">*</span>
+      </label>
       <input
         id="telegram"
         type="text"
@@ -45,13 +59,18 @@
         [class.co-input--err]="form.get('telegram')?.invalid && (form.get('telegram')?.touched || submitted)"
         placeholder="@username"
         formControlName="telegram"
+        [attr.aria-required]="true"
+        [attr.aria-invalid]="form.get('telegram')?.invalid && (form.get('telegram')?.touched || submitted) || null"
+        [attr.aria-describedby]="(form.get('telegram')?.invalid && (form.get('telegram')?.touched || submitted)) ? 'telegram-err' : null"
       />
       @if (form.get('telegram')?.invalid && (form.get('telegram')?.touched || submitted)) {
-        <span class="co-err">Telegram username is required.</span>
+        <span class="co-err" id="telegram-err" role="alert">Telegram username is required.</span>
       }
     </div>
     <div class="co-field">
-      <label class="co-label" for="address">Address <span class="co-req">*</span></label>
+      <label class="co-label" for="address">
+        Address <span class="co-req" aria-hidden="true">*</span>
+      </label>
       <textarea
         id="address"
         class="co-input co-textarea"
@@ -59,9 +78,12 @@
         placeholder="Street, city, province, etc."
         rows="3"
         formControlName="address"
+        [attr.aria-required]="true"
+        [attr.aria-invalid]="form.get('address')?.invalid && (form.get('address')?.touched || submitted) || null"
+        [attr.aria-describedby]="(form.get('address')?.invalid && (form.get('address')?.touched || submitted)) ? 'address-err' : null"
       ></textarea>
       @if (form.get('address')?.invalid && (form.get('address')?.touched || submitted)) {
-        <span class="co-err">Address is required.</span>
+        <span class="co-err" id="address-err" role="alert">Address is required.</span>
       }
     </div>
     <div class="co-field">

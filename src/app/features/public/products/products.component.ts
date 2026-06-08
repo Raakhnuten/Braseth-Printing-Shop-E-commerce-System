@@ -1,53 +1,63 @@
-import { Component, DestroyRef, inject, OnInit, signal, computed, ViewChild, ElementRef } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Product } from '../../../core/models/product.model';
 import { Category } from '../../../core/models/category.model';
+import { Banner } from '../../../core/models/banner.model';
 import { ProductService } from '../../../core/services/product.service';
 import { CategoryService } from '../../../core/services/category.service';
+import { BannerService } from '../../../core/services/banner.service';
 import { ProductCardComponent } from '../../../shared/components/product-card/product-card.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { HeroSliderComponent } from '../../../shared/components/hero-slider/hero-slider.component';
+import { CategoryChipComponent, CategoryChip } from '../../../shared/components/category-chip/category-chip.component';
+import {
+  SortFilterComponent,
+  SortState,
+  FilterState,
+} from '../../../shared/components/sort-filter/sort-filter.component';
 
 @Component({
   selector: 'app-products',
   templateUrl: './products.component.html',
   styleUrl: './products.component.scss',
-  imports: [FormsModule, ProductCardComponent, EmptyStateComponent],
+  imports: [ProductCardComponent, EmptyStateComponent, HeroSliderComponent, CategoryChipComponent, SortFilterComponent],
 })
 export class ProductsComponent implements OnInit {
   private productService = inject(ProductService);
   private categoryService = inject(CategoryService);
+  private bannerService = inject(BannerService);
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
 
   products = signal<Product[]>([]);
   categories = signal<Category[]>([]);
+  banners = signal<Banner[]>([]);
+  heroBanners = computed(() => this.banners().filter((b) => b.position === 'HERO' && b.enabled));
   filteredProducts = signal<Product[]>([]);
   loading = signal(true);
 
   selectedCategory = signal('');
-  sortBy = signal('recommend');
+
+  private sortState: SortState = { option: null, label: '' };
+  private filterState: FilterState = {
+    categories: [],
+    priceMin: null,
+    priceMax: null,
+    inStock: null,
+  };
 
   readonly skeletonItems = Array(8);
 
-  @ViewChild('categoryScroll') categoryScrollRef?: ElementRef<HTMLElement>;
-
-  categoryCounts = computed<Map<string, number>>(() => {
-    const counts = new Map<string, number>();
-    for (const p of this.products()) {
-      const key = p.categoryId;
-      counts.set(key, (counts.get(key) ?? 0) + 1);
-    }
-    return counts;
-  });
+  categoryChips = computed<CategoryChip[]>(() =>
+    this.categories().map((cat) => ({ id: cat.id, name: cat.name, icon: cat.imageUrl }))
+  );
 
   constructor() {
     this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       if (params['category']) {
         this.selectedCategory.set(params['category']);
       }
-
     });
   }
 
@@ -67,6 +77,10 @@ export class ProductsComponent implements OnInit {
     this.categoryService.getCategories().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res) => {
       this.categories.set(res.data || []);
     });
+
+    this.bannerService.getBanners().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res) => {
+      this.banners.set(res.data || []);
+    });
   }
 
   applyFilters(): void {
@@ -77,53 +91,51 @@ export class ProductsComponent implements OnInit {
       result = result.filter((p) => p.categoryId === cat);
     }
 
-    const sort = this.sortBy();
+    const filter = this.filterState;
+    if (filter.categories.length) {
+      result = result.filter((p) => filter.categories.includes(p.categoryName));
+    }
+    if (filter.priceMin !== null) {
+      result = result.filter((p) => p.price >= filter.priceMin!);
+    }
+    if (filter.priceMax !== null) {
+      result = result.filter((p) => p.price <= filter.priceMax!);
+    }
+    if (filter.inStock === true) {
+      result = result.filter((p) => p.stockQuantity > 0);
+    }
+
+    const sort = this.sortState.option;
     if (sort === 'price-asc') {
       result = [...result].sort((a, b) => a.price - b.price);
     } else if (sort === 'price-desc') {
       result = [...result].sort((a, b) => b.price - a.price);
-    } else if (sort === 'name-asc') {
-      result = [...result].sort((a, b) => a.name.localeCompare(b.name));
     } else if (sort === 'newest') {
       result = [...result].sort(
         (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       );
+    } else if (sort === 'popular') {
+      result = [...result].sort((a, b) => (b.reviewCount ?? 0) - (a.reviewCount ?? 0));
+    } else if (sort === 'rating') {
+      result = [...result].sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
     }
 
     this.filteredProducts.set(result);
   }
 
-  onCategoryChange(categoryId: string): void {
-    this.selectedCategory.set(categoryId);
+  onCategoryChange(category: CategoryChip): void {
+    const id = String(category.id);
+    this.selectedCategory.set(this.selectedCategory() === id ? '' : id);
     this.applyFilters();
   }
 
-  onSortChange(sort: string): void {
-    this.sortBy.set(sort);
+  onSortChanged(sort: SortState): void {
+    this.sortState = sort;
     this.applyFilters();
   }
 
-  clearFilters(): void {
-    this.selectedCategory.set('');
-    this.sortBy.set('recommend');
+  onFilterChanged(filter: FilterState): void {
+    this.filterState = filter;
     this.applyFilters();
-  }
-
-  scrollCategories(direction: 'left' | 'right'): void {
-    const el = this.categoryScrollRef?.nativeElement;
-    if (!el) return;
-    const scrollAmount = 240;
-    el.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
-  }
-
-  canScrollLeft(): boolean {
-    const el = this.categoryScrollRef?.nativeElement;
-    return el ? el.scrollLeft > 4 : false;
-  }
-
-  canScrollRight(): boolean {
-    const el = this.categoryScrollRef?.nativeElement;
-    if (!el) return false;
-    return el.scrollLeft + el.clientWidth < el.scrollWidth - 4;
   }
 }
