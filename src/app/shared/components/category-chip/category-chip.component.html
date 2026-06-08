@@ -9,9 +9,14 @@
         [attr.aria-label]="'Select category: ' + category.name"
         (click)="selectCategory(category)"
       >
-        @if (category.icon) {
+        @if (category.icon && !failedImages.has(category.id)) {
           <span class="category-chip__icon-wrap">
-            <img [src]="category.icon" [alt]="category.name + ' icon'" class="category-chip__icon" />
+            <img [src]="category.icon" [alt]="category.name + ' icon'" class="category-chip__icon" (error)="onImageError(category.id)" loading="lazy" />
+          </span>
+        }
+        @if (!category.icon || failedImages.has(category.id)) {
+          <span class="category-chip__icon-wrap category-chip__icon-wrap--fallback">
+            <span class="category-chip__fallback-text">{{ category.name.charAt(0) }}</span>
           </span>
         }
         <span class="category-chip__label">{{ category.name }}</span>

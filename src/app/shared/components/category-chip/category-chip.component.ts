@@ -19,7 +19,13 @@ export class CategoryChipComponent {
 
   @Output() categorySelected = new EventEmitter<CategoryChip>();
 
+  failedImages = new Set<string | number>();
+
   selectCategory(category: CategoryChip): void {
     this.categorySelected.emit(category);
+  }
+
+  onImageError(categoryId: string | number): void {
+    this.failedImages.add(categoryId);
   }
 }

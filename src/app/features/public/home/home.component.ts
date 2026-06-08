@@ -109,6 +109,10 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onCategorySelected(category: CategoryChip): void {
     this.selectedCategoryId.set(category.id);
+    const cat = this.categories().find((c) => c.id === category.id);
+    if (cat?.slug) {
+      this.router.navigate(['/products'], { queryParams: { category: cat.slug } });
+    }
   }
 
   ngOnInit(): void {
