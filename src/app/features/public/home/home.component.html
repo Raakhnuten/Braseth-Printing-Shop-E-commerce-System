@@ -1,5 +1,7 @@
-<!-- Hero Slider -->
-<div class="hero-slider" #sliderContainer>
+<div class="banner-section">
+  <div class="banner-container">
+    <!-- Hero Slider -->
+    <div class="hero-slider" #sliderContainer>
   <div class="hero-slider__track">
     @for (slide of slides; track $index) {
       <div class="hero-slider__slide" [style.background]="slide.gradient">
@@ -46,6 +48,8 @@
     </div>
   }
 </div>
+</div>
+</div>
 
 @if (loading()) {
   <app-loading-spinner />
@@ -63,15 +67,13 @@
   @if (featuredProducts().length) {
     <section class="section container">
       <div class="section-header">
-        <div class="section-header__text">
-          <h2 class="section-title">Featured Products</h2>
-          <p class="section-subtitle">Handpicked favorites just for you</p>
-        </div>
+        <h2 class="section-title">Featured Products</h2>
         <a routerLink="/products" class="section-header__link">
           See More
           <i class="pi pi-arrow-right"></i>
         </a>
       </div>
+      <p class="section-subtitle">Handpicked favorites just for you</p>
       <div class="products-grid">
         @for (product of featuredProducts(); track product.id) {
           <app-product-card [product]="product" />

@@ -1,11 +1,31 @@
 :host {
   display: block;
+  padding: 24px 16px 32px;
+}
+
+.banner-container {
+  max-width: 1400px;
+  margin-inline: auto;
+}
+
+@media (min-width: 640px) {
+  :host {
+    padding: 28px 24px 32px;
+  }
+}
+
+@media (min-width: 1024px) {
+  :host {
+    padding: 32px 32px 32px;
+  }
 }
 
 .hero-slider {
   position: relative;
   overflow: hidden;
   background: var(--color-bg);
+  border-radius: 20px;
+  box-shadow: var(--shadow-lg);
 
   &__empty {
     width: 100%;

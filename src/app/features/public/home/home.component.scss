@@ -1,8 +1,31 @@
 // ─── HERO SLIDER ───────────────────────────────────────────
+.banner-section {
+  padding: 24px 16px 32px;
+}
+
+.banner-container {
+  max-width: 1400px;
+  margin-inline: auto;
+}
+
+@media (min-width: 640px) {
+  .banner-section {
+    padding: 28px 24px 32px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .banner-section {
+    padding: 32px 32px 32px;
+  }
+}
+
 .hero-slider {
   position: relative;
   overflow: hidden;
   width: 100%;
+  border-radius: 20px;
+  box-shadow: var(--shadow-lg);
 
   [class*='keen-slider'] {
     width: 100%;
@@ -260,10 +283,10 @@
 // ─── SECTION HEADER ─────────────────────────────────────────
 .section-header {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.15rem;
 
   &__text {
     flex: 1;
