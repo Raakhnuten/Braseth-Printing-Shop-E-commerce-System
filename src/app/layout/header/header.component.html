@@ -58,7 +58,7 @@
     <nav class="header__nav">
       <a routerLink="/" class="header__nav-link header__nav-link--home" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" (click)="closeMobileMenu()">Home</a>
 
-      @for (cat of navCategories; track cat.name) {
+      @for (cat of navCategories(); track cat.name) {
         <div
           class="header__nav-item"
           (mouseenter)="openDropdown(cat.name)"
@@ -88,7 +88,7 @@
                   }
                 </div>
 
-                @if (cat.featured?.length) {
+                @if (cat.featured?.length || cat.isMore) {
                   <div class="header__mega-featured">
                     @for (item of cat.featured; track item.label) {
                       <a [routerLink]="item.route" class="header__mega-feat-link" (click)="closeMobileMenu()">

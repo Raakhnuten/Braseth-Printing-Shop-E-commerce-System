@@ -2,8 +2,12 @@ import { Component, inject, signal, HostListener } from '@angular/core';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NgClass } from '@angular/common';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { CartService } from '../../core/services/cart.service';
+import { CategoryService } from '../../core/services/category.service';
+import { Category } from '../../core/models/category.model';
 
 export interface NavSubcategory {
   name: string;
@@ -30,106 +34,6 @@ export interface MenuSection {
   label?: string;
   items: MenuItem[];
 }
-
-const NAV_CATEGORIES: NavCategory[] = [
-  {
-    name: 'Men',
-    route: '/products',
-    subcategories: [
-      { name: 'T-Shirts', route: '/products' },
-      { name: 'Shirts', route: '/products' },
-      { name: 'Pants', route: '/products' },
-      { name: 'Shoes', route: '/products' },
-      { name: 'Accessories', route: '/products' },
-    ],
-    featured: [
-      { label: 'New Collection', route: '/products' },
-      { label: 'Summer Sale', route: '/products' },
-    ],
-  },
-  {
-    name: 'Women',
-    route: '/products',
-    subcategories: [
-      { name: 'Dresses', route: '/products' },
-      { name: 'Tops', route: '/products' },
-      { name: 'Skirts', route: '/products' },
-      { name: 'Shoes', route: '/products' },
-      { name: 'Bags', route: '/products' },
-    ],
-    featured: [
-      { label: 'Trending Now', route: '/products' },
-      { label: 'New Arrivals', route: '/products' },
-    ],
-  },
-  {
-    name: 'Kids',
-    route: '/products',
-    subcategories: [
-      { name: 'Boys Clothing', route: '/products' },
-      { name: 'Girls Clothing', route: '/products' },
-      { name: 'Shoes', route: '/products' },
-      { name: 'Toys', route: '/products' },
-      { name: 'School Bags', route: '/products' },
-    ],
-  },
-  {
-    name: 'Electronics',
-    route: '/products',
-    subcategories: [
-      { name: 'Phones', route: '/products' },
-      { name: 'Laptops', route: '/products' },
-      { name: 'Headphones', route: '/products' },
-      { name: 'Cameras', route: '/products' },
-      { name: 'Gaming', route: '/products' },
-    ],
-  },
-  {
-    name: 'Home & Living',
-    route: '/products',
-    subcategories: [
-      { name: 'Furniture', route: '/products' },
-      { name: 'Kitchen', route: '/products' },
-      { name: 'Bedding', route: '/products' },
-      { name: 'Decor', route: '/products' },
-      { name: 'Storage', route: '/products' },
-    ],
-  },
-  {
-    name: 'Beauty',
-    route: '/products',
-    subcategories: [
-      { name: 'Makeup', route: '/products' },
-      { name: 'Skincare', route: '/products' },
-      { name: 'Hair Care', route: '/products' },
-      { name: 'Fragrance', route: '/products' },
-      { name: 'Tools', route: '/products' },
-    ],
-  },
-  {
-    name: 'Sports',
-    route: '/products',
-    subcategories: [
-      { name: 'Sportswear', route: '/products' },
-      { name: 'Shoes', route: '/products' },
-      { name: 'Gym Equipment', route: '/products' },
-      { name: 'Outdoor', route: '/products' },
-      { name: 'Football', route: '/products' },
-    ],
-  },
-  {
-    name: 'More',
-    route: '/products',
-    isMore: true,
-    subcategories: [
-      { name: 'New Arrivals', route: '/products' },
-      { name: 'Best Sellers', route: '/products' },
-      { name: 'Sale', route: '/products' },
-      { name: 'Brands', route: '/products' },
-      { name: 'Gift Cards', route: '/products' },
-    ],
-  },
-];
 
 const LOGGED_IN_SECTIONS: MenuSection[] = [
   {
@@ -179,8 +83,50 @@ export class HeaderComponent {
   private router = inject(Router);
   protected authService = inject(AuthService);
   protected cartService = inject(CartService);
+  private categoryService = inject(CategoryService);
 
-  readonly navCategories = NAV_CATEGORIES;
+  private readonly MAX_NAV_ITEMS = 7;
+
+  readonly navCategories = toSignal(
+    this.categoryService.getCategories().pipe(
+      map(res => this.buildNavCategories(res.data || [])),
+    ),
+    { initialValue: [] },
+  );
+
+  private buildNavCategories(categories: Category[]): NavCategory[] {
+    const all = categories.filter(c => c.enabled);
+    const parents = all
+      .filter(c => c.parentId === null)
+      .sort((a, b) => a.sortOrder - b.sortOrder);
+
+    const result: NavCategory[] = parents.map(parent => ({
+      name: parent.name,
+      route: parent.slug ? `/products?category=${parent.slug}` : '/products',
+      subcategories: all
+        .filter(c => c.parentId === parent.id)
+        .sort((a, b) => a.sortOrder - b.sortOrder)
+        .map(child => ({
+          name: child.name,
+          route: child.slug ? `/products?category=${child.slug}` : '/products',
+        })),
+    }));
+
+    if (result.length > this.MAX_NAV_ITEMS) {
+      const overflow = result.splice(this.MAX_NAV_ITEMS);
+      result.push({
+        name: 'More',
+        route: '/products',
+        isMore: true,
+        subcategories: overflow.flatMap(cat => [
+          { name: `All ${cat.name}`, route: cat.route },
+          ...cat.subcategories,
+        ]),
+      });
+    }
+
+    return result;
+  }
 
   mobileMenuOpen = false;
   searchMobileOpen = false;

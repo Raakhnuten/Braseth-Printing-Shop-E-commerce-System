@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { map, Observable, of } from 'rxjs';
+import { map, Observable, of, shareReplay } from 'rxjs';
 import { Category } from '../models/category.model';
 import { ApiResponse } from '../models/api-response.model';
 import { APP_CONFIG } from '../constants/app-config';
@@ -19,14 +19,25 @@ export class CategoryService {
     return { success: true, message: 'OK', data };
   }
 
+  private categories$: Observable<ApiResponse<Category[]>> | null = null;
+
   getCategories(): Observable<ApiResponse<Category[]>> {
     if (APP_CONFIG.USE_MOCK_DATA) {
       return of(this.ok(MOCK_CATEGORIES));
     }
-    if (APP_CONFIG.USE_FAKE_API) {
-      return this.platzi.getCategories().pipe(map((list) => this.ok(list)));
+    if (!this.categories$) {
+      if (APP_CONFIG.USE_FAKE_API) {
+        this.categories$ = this.platzi.getCategories().pipe(
+          map((list) => this.ok(list)),
+          shareReplay(1),
+        );
+      } else {
+        this.categories$ = this.apiService.get<ApiResponse<Category[]>>(API_ENDPOINTS.CATEGORIES.GET_ALL).pipe(
+          shareReplay(1),
+        );
+      }
     }
-    return this.apiService.get<ApiResponse<Category[]>>(API_ENDPOINTS.CATEGORIES.GET_ALL);
+    return this.categories$;
   }
 
   getCategoryById(id: string): Observable<ApiResponse<Category | null>> {
