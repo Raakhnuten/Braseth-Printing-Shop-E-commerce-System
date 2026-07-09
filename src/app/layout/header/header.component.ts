@@ -102,13 +102,13 @@ export class HeaderComponent {
 
     const result: NavCategory[] = parents.map(parent => ({
       name: parent.name,
-      route: parent.slug ? `/products?category=${parent.slug}` : '/products',
+      route: parent.id ? `/products?category=${parent.id}` : '/products',
       subcategories: all
         .filter(c => c.parentId === parent.id)
         .sort((a, b) => a.sortOrder - b.sortOrder)
         .map(child => ({
           name: child.name,
-          route: child.slug ? `/products?category=${child.slug}` : '/products',
+          route: child.id ? `/products?category=${child.id}` : '/products',
         })),
     }));
 

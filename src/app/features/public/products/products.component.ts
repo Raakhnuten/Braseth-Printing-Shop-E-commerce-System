@@ -10,7 +10,7 @@ import { BannerService } from '../../../core/services/banner.service';
 import { ProductCardComponent } from '../../../shared/components/product-card/product-card.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { HeroSliderComponent } from '../../../shared/components/hero-slider/hero-slider.component';
-import { CategoryChipComponent, CategoryChip } from '../../../shared/components/category-chip/category-chip.component';
+import { CategoryFilterComponent } from '../../../shared/components/category-filter/category-filter.component';
 import {
   SortFilterComponent,
   SortState,
@@ -21,7 +21,7 @@ import {
   selector: 'app-products',
   templateUrl: './products.component.html',
   styleUrl: './products.component.scss',
-  imports: [ProductCardComponent, EmptyStateComponent, HeroSliderComponent, CategoryChipComponent, SortFilterComponent],
+  imports: [ProductCardComponent, EmptyStateComponent, HeroSliderComponent, CategoryFilterComponent, SortFilterComponent],
 })
 export class ProductsComponent implements OnInit {
   private productService = inject(ProductService);
@@ -49,9 +49,7 @@ export class ProductsComponent implements OnInit {
 
   readonly skeletonItems = Array(8);
 
-  categoryChips = computed<CategoryChip[]>(() =>
-    this.categories().map((cat) => ({ id: cat.id, name: cat.name, icon: cat.imageUrl }))
-  );
+  categoryNames = computed<string[]>(() => this.categories().map((c) => c.name));
 
   constructor() {
     this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
@@ -70,12 +68,12 @@ export class ProductsComponent implements OnInit {
 
     this.productService.getProducts().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res) => {
       this.products.set(res.data || []);
-      this.applyFilters();
       this.loading.set(false);
     });
 
     this.categoryService.getCategories().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res) => {
       this.categories.set(res.data || []);
+      this.applyFilters();
     });
 
     this.bannerService.getBanners().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res) => {
@@ -88,12 +86,17 @@ export class ProductsComponent implements OnInit {
 
     const cat = this.selectedCategory();
     if (cat) {
-      result = result.filter((p) => p.categoryId === cat);
+      const matched = this.categories().find((c) => c.id === cat || c.slug === cat);
+      if (matched) {
+        result = result.filter((p) => p.categoryId === matched.id);
+      }
     }
 
     const filter = this.filterState;
     if (filter.categories.length) {
-      result = result.filter((p) => filter.categories.includes(p.categoryName));
+      result = result.filter(
+        (p) => p.categoryId && filter.categories.includes(p.categoryName),
+      );
     }
     if (filter.priceMin !== null) {
       result = result.filter((p) => p.price >= filter.priceMin!);
@@ -123,9 +126,8 @@ export class ProductsComponent implements OnInit {
     this.filteredProducts.set(result);
   }
 
-  onCategoryChange(category: CategoryChip): void {
-    const id = String(category.id);
-    this.selectedCategory.set(this.selectedCategory() === id ? '' : id);
+  onCategoryChange(categoryId: string | null): void {
+    this.selectedCategory.set(categoryId ?? '');
     this.applyFilters();
   }
 

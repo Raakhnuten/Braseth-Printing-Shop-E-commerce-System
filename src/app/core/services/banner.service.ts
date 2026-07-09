@@ -16,14 +16,14 @@ export class BannerService {
   }
 
   getBanners(): Observable<ApiResponse<Banner[]>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       return of(this.ok(MOCK_BANNERS));
     }
     return this.apiService.get<ApiResponse<Banner[]>>(API_ENDPOINTS.BANNERS.GET_ALL);
   }
 
   getBannerById(id: string): Observable<ApiResponse<Banner | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       const banner = MOCK_BANNERS.find((b) => b.id === id) ?? null;
       return of(this.ok(banner));
     }
@@ -31,7 +31,7 @@ export class BannerService {
   }
 
   createBanner(banner: Banner): Observable<ApiResponse<Banner | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       console.warn('[BannerService] createBanner not supported in mock/fake data mode');
       return of(this.ok(null));
     }
@@ -39,7 +39,7 @@ export class BannerService {
   }
 
   updateBanner(id: string, banner: Partial<Banner>): Observable<ApiResponse<Banner | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       console.warn('[BannerService] updateBanner not supported in mock/fake data mode');
       return of(this.ok(null));
     }
@@ -47,7 +47,7 @@ export class BannerService {
   }
 
   deleteBanner(id: string): Observable<ApiResponse<void | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       console.warn('[BannerService] deleteBanner not supported in mock/fake data mode');
       return of(this.ok(null));
     }

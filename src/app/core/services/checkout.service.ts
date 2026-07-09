@@ -73,7 +73,7 @@ export class CheckoutService {
   // its own records (product catalog, coupon database, shipping config). The
   // client-submitted totals should be treated as display-only estimates.
   validateOrderBeforeCreate(request: OrderCreateRequest): Observable<ApiResponse<OrderValidationResult>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       return of({
         success: true,
         message: 'Mock order validation: client prices accepted as estimates.',
@@ -105,7 +105,7 @@ export class CheckoutService {
   //   - usage limit not reached
   //   - product/category restrictions satisfied (if applicable)
   validateCoupon(code: string): Observable<ApiResponse<CouponValidationResult>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       const result = this.validateCouponSync(code);
       return of({ success: true, message: result.message, data: result });
     }
@@ -173,7 +173,7 @@ export class CheckoutService {
 
   // TODO: POST /api/orders
   createOrder(request: OrderCreateRequest): Observable<ApiResponse<{ orderId: string; orderNumber: string }>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       const now = new Date().toISOString();
       const id = 'ord-' + Date.now().toString(36);
       const orderNumber = 'ORD-2026-' + String(Math.floor(Math.random() * 9000 + 1000));

@@ -16,14 +16,14 @@ export class PaymentMethodService {
   }
 
   getPaymentMethods(): Observable<ApiResponse<PaymentMethod[]>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       return of(this.ok(MOCK_PAYMENT_METHODS));
     }
     return this.apiService.get<ApiResponse<PaymentMethod[]>>(API_ENDPOINTS.PAYMENT_METHODS.GET_ALL);
   }
 
   getPaymentMethodById(id: string): Observable<ApiResponse<PaymentMethod | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       const pm = MOCK_PAYMENT_METHODS.find((m) => m.id === id) ?? null;
       return of(this.ok(pm));
     }
@@ -31,7 +31,7 @@ export class PaymentMethodService {
   }
 
   createPaymentMethod(paymentMethod: PaymentMethod): Observable<ApiResponse<PaymentMethod | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       console.warn('[PaymentMethodService] createPaymentMethod not supported in mock/fake data mode');
       return of(this.ok(null));
     }
@@ -39,7 +39,7 @@ export class PaymentMethodService {
   }
 
   updatePaymentMethod(id: string, paymentMethod: Partial<PaymentMethod>): Observable<ApiResponse<PaymentMethod | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       console.warn('[PaymentMethodService] updatePaymentMethod not supported in mock/fake data mode');
       return of(this.ok(null));
     }
@@ -47,7 +47,7 @@ export class PaymentMethodService {
   }
 
   deletePaymentMethod(id: string): Observable<ApiResponse<void | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       console.warn('[PaymentMethodService] deletePaymentMethod not supported in mock/fake data mode');
       return of(this.ok(null));
     }

@@ -69,10 +69,10 @@ export class CartService {
     return this.calculateCartTotals();
   }
 
-  // TODO: Replace with real API call when backend is ready
-  // GET /api/cart
+  // >>> API CONNECTION: This method is called when USE_MOCK_DATA=false <<<
+  //     GET /api/cart — Backend must return the authenticated user's cart.
   getCartFromApi(): Observable<ApiResponse<Cart>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       return of({ success: true, message: 'OK', data: this.getCart() });
     }
     return this.apiService.get<ApiResponse<Cart>>(API_ENDPOINTS.CART.GET);
@@ -120,7 +120,6 @@ export class CartService {
     this.saveGuestCartToLocalStorage();
   }
 
-  // Convenience: add with legacy customization (backward compat)
   // Convenience: add with legacy customization (backward compat)
   addToCart(product: Product, quantity: number = 1, customization?: CartCustomization): void {
     if (customization) {
@@ -189,7 +188,7 @@ export class CartService {
 
   // TODO: POST /api/cart/add
   addToCartApi(productId: string, quantity: number = 1): Observable<ApiResponse<Cart>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       this.addProductToCart(
         { id: productId, name: '', slug: '', description: '', price: 0, salePrice: null, stockQuantity: 0, sku: '', thumbnailUrl: '', images: [], featured: false, enabled: false, status: 'DRAFT' as any, categoryId: '', categoryName: '', allowReview: false, allowCoupon: false, allowCart: false, allowCheckout: false, createdAt: '', updatedAt: '' },
         quantity,
@@ -232,7 +231,7 @@ export class CartService {
 
   // TODO: POST /api/cart/update
   updateQuantityApi(productId: string, quantity: number): Observable<ApiResponse<Cart>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       this.updateQuantity(productId, quantity);
       return of({ success: true, message: 'OK', data: this.getCart() });
     }
@@ -246,7 +245,7 @@ export class CartService {
 
   // TODO: DELETE /api/cart/remove/:id
   removeFromCartApi(productId: string): Observable<ApiResponse<Cart>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       this.removeItem(productId);
       return of({ success: true, message: 'OK', data: this.getCart() });
     }
@@ -260,7 +259,7 @@ export class CartService {
 
   // TODO: DELETE /api/cart/clear
   clearCartApi(): Observable<ApiResponse<void>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       this.clearCart();
       return of({ success: true, message: 'Cart cleared', data: undefined });
     }

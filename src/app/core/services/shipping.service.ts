@@ -4,6 +4,7 @@ import { map } from 'rxjs/operators';
 import { ShippingMethod, ShippingZone } from '../models/shipping.model';
 import { ApiResponse } from '../models/api-response.model';
 import { APP_CONFIG } from '../constants/app-config';
+import { API_ENDPOINTS } from '../constants/api-endpoints';
 import { ApiService } from './api.service';
 import { MOCK_SHIPPING_METHODS } from '../../mock-data/mock-shipping-methods';
 import { MOCK_SHIPPING_ZONES } from '../../mock-data/mock-shipping-zones';
@@ -14,10 +15,10 @@ export class ShippingService {
 
   // TODO: GET /api/shipping-methods
   getShippingMethods(): Observable<ApiResponse<ShippingMethod[]>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       return of({ success: true, message: 'OK', data: this.getMockShippingMethods() });
     }
-    return this.apiService.get<ApiResponse<ShippingMethod[]>>('/shipping-methods');
+    return this.apiService.get<ApiResponse<ShippingMethod[]>>(API_ENDPOINTS.SHIPPING_METHODS.GET_ALL);
   }
 
   getActiveShippingMethods(): Observable<ApiResponse<ShippingMethod[]>> {
@@ -41,10 +42,10 @@ export class ShippingService {
 
   // TODO: GET /api/shipping-zones
   getShippingZones(): Observable<ApiResponse<ShippingZone[]>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       return of({ success: true, message: 'OK', data: this.getMockShippingZones() });
     }
-    return this.apiService.get<ApiResponse<ShippingZone[]>>('/shipping-zones');
+    return this.apiService.get<ApiResponse<ShippingZone[]>>(API_ENDPOINTS.SHIPPING_ZONES.GET_ALL);
   }
 
   getActiveShippingZones(): Observable<ApiResponse<ShippingZone[]>> {
@@ -83,7 +84,7 @@ export class ShippingService {
 
   // TODO: POST /api/shipping-methods
   createShippingMethod(method: Partial<ShippingMethod>): Observable<ApiResponse<ShippingMethod | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       const newMethod: ShippingMethod = {
         id: 'sm-' + Date.now().toString(36),
         name: method.name ?? '',
@@ -96,28 +97,28 @@ export class ShippingService {
       };
       return of({ success: true, message: 'Created (mock)', data: newMethod });
     }
-    return this.apiService.post<ApiResponse<ShippingMethod>>('/shipping-methods', method);
+    return this.apiService.post<ApiResponse<ShippingMethod>>(API_ENDPOINTS.SHIPPING_METHODS.CREATE, method);
   }
 
   // TODO: PUT /api/shipping-methods/:id
   updateShippingMethod(id: string, method: Partial<ShippingMethod>): Observable<ApiResponse<ShippingMethod | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       return of({ success: true, message: 'Updated (mock)', data: null });
     }
-    return this.apiService.put<ApiResponse<ShippingMethod>>(`/shipping-methods/${id}`, method);
+    return this.apiService.put<ApiResponse<ShippingMethod>>(API_ENDPOINTS.SHIPPING_METHODS.UPDATE(id), method);
   }
 
   // TODO: DELETE /api/shipping-methods/:id
   deleteShippingMethod(id: string): Observable<ApiResponse<void>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       return of({ success: true, message: 'Deleted (mock)', data: undefined });
     }
-    return this.apiService.delete<ApiResponse<void>>(`/shipping-methods/${id}`);
+    return this.apiService.delete<ApiResponse<void>>(API_ENDPOINTS.SHIPPING_METHODS.DELETE(id));
   }
 
   // TODO: POST /api/shipping-zones
   createShippingZone(zone: Partial<ShippingZone>): Observable<ApiResponse<ShippingZone | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       const newZone: ShippingZone = {
         id: 'sz-' + Date.now().toString(36),
         name: zone.name ?? '',
@@ -129,23 +130,23 @@ export class ShippingService {
       };
       return of({ success: true, message: 'Created (mock)', data: newZone });
     }
-    return this.apiService.post<ApiResponse<ShippingZone>>('/shipping-zones', zone);
+    return this.apiService.post<ApiResponse<ShippingZone>>(API_ENDPOINTS.SHIPPING_ZONES.CREATE, zone);
   }
 
   // TODO: PUT /api/shipping-zones/:id
   updateShippingZone(id: string, zone: Partial<ShippingZone>): Observable<ApiResponse<ShippingZone | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       return of({ success: true, message: 'Updated (mock)', data: null });
     }
-    return this.apiService.put<ApiResponse<ShippingZone>>(`/shipping-zones/${id}`, zone);
+    return this.apiService.put<ApiResponse<ShippingZone>>(API_ENDPOINTS.SHIPPING_ZONES.UPDATE(id), zone);
   }
 
   // TODO: DELETE /api/shipping-zones/:id
   deleteShippingZone(id: string): Observable<ApiResponse<void>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       return of({ success: true, message: 'Deleted (mock)', data: undefined });
     }
-    return this.apiService.delete<ApiResponse<void>>(`/shipping-zones/${id}`);
+    return this.apiService.delete<ApiResponse<void>>(API_ENDPOINTS.SHIPPING_ZONES.DELETE(id));
   }
 
   private getMockShippingMethods(): ShippingMethod[] {

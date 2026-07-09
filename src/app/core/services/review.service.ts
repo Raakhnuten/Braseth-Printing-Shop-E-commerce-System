@@ -16,14 +16,14 @@ export class ReviewService {
   }
 
   getReviews(): Observable<ApiResponse<Review[]>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       return of(this.ok(MOCK_REVIEWS));
     }
     return this.apiService.get<ApiResponse<Review[]>>(API_ENDPOINTS.REVIEWS.GET_ALL);
   }
 
   getReviewsByProduct(productId: string): Observable<ApiResponse<Review[]>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       const filtered = MOCK_REVIEWS.filter((r) => r.productId === productId);
       return of(this.ok(filtered));
     }
@@ -31,7 +31,7 @@ export class ReviewService {
   }
 
   createReview(review: Review): Observable<ApiResponse<Review | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       console.warn('[ReviewService] createReview not supported in mock/fake data mode');
       return of(this.ok(null));
     }
@@ -39,7 +39,7 @@ export class ReviewService {
   }
 
   updateReview(id: string, review: Partial<Review>): Observable<ApiResponse<Review | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       console.warn('[ReviewService] updateReview not supported in mock/fake data mode');
       return of(this.ok(null));
     }
@@ -47,7 +47,7 @@ export class ReviewService {
   }
 
   deleteReview(id: string): Observable<ApiResponse<void | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       console.warn('[ReviewService] deleteReview not supported in mock/fake data mode');
       return of(this.ok(null));
     }

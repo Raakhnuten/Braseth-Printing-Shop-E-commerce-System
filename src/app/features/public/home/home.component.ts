@@ -12,7 +12,7 @@ import { CategoryService } from '../../../core/services/category.service';
 import { BannerService } from '../../../core/services/banner.service';
 import { ProductCardComponent } from '../../../shared/components/product-card/product-card.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
-import { CategoryChipComponent, CategoryChip } from '../../../shared/components/category-chip/category-chip.component';
+import { CategoryFilterComponent } from '../../../shared/components/category-filter/category-filter.component';
 
 interface HeroSlide {
   title: string;
@@ -28,7 +28,7 @@ interface HeroSlide {
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
-  imports: [RouterLink, ProductCardComponent, LoadingSpinnerComponent, FormsModule, CategoryChipComponent],
+  imports: [RouterLink, ProductCardComponent, LoadingSpinnerComponent, FormsModule, CategoryFilterComponent],
 })
 export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private router = inject(Router);
@@ -43,11 +43,13 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   banners = signal<Banner[]>([]);
   categories = signal<Category[]>([]);
-  featuredProducts = signal<Product[]>([]);
-  bestSellers = signal<Product[]>([]);
+  allProducts = signal<Product[]>([]);
+  displayLimit = signal(8);
   loading = signal(true);
-  newsletterEmail = '';
   searchQuery = signal('');
+
+  displayedProducts = computed(() => this.allProducts().slice(0, this.displayLimit()));
+  hasMore = computed(() => this.displayLimit() < this.allProducts().length);
   currentSlide = 0;
   totalSlides = 0;
 
@@ -76,8 +78,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       title: 'Premium Footwear',
       subtitle: 'Step up your game with our latest shoe collection',
       cta: 'Browse Shoes',
-      ctaLink: '/products',
-      ctaQueryParams: { category: 'shoes' },
+      ctaLink: '/products?category=cat-2',
       gradient: 'linear-gradient(135deg, #0d9488, #14b8a6)',
       icon: 'pi-shopping-bag',
     },
@@ -85,8 +86,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       title: 'Tech & Gadgets',
       subtitle: 'Discover the latest electronics and smart devices',
       cta: 'Discover',
-      ctaLink: '/products',
-      ctaQueryParams: { category: 'electronics' },
+      ctaLink: '/products?category=cat-1',
       gradient: 'linear-gradient(135deg, #1e293b, #334155)',
       icon: 'pi-mobile',
     },
@@ -95,23 +95,19 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       subtitle: 'Premium beauty products for your daily routine',
       cta: 'Shop Beauty',
       ctaLink: '/products',
-      ctaQueryParams: { category: 'beauty' },
       gradient: 'linear-gradient(135deg, #db2777, #e11d48)',
       icon: 'pi-heart',
     },
   ];
 
-  categoryChips = computed<CategoryChip[]>(() =>
-    this.categories().map((cat) => ({ id: cat.id, name: cat.name, icon: cat.imageUrl }))
-  );
+  selectedCategoryId = signal<string | null>(null);
 
-  selectedCategoryId = signal<string | number | null>(null);
-
-  onCategorySelected(category: CategoryChip): void {
-    this.selectedCategoryId.set(category.id);
-    const cat = this.categories().find((c) => c.id === category.id);
-    if (cat?.slug) {
-      this.router.navigate(['/products'], { queryParams: { category: cat.slug } });
+  onCategoryChange(categoryId: string | null): void {
+    this.selectedCategoryId.set(categoryId);
+    if (categoryId) {
+      this.router.navigate(['/products'], { queryParams: { category: categoryId } });
+    } else {
+      this.router.navigate(['/products']);
     }
   }
 
@@ -218,12 +214,14 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       this.categories.set((res.data || []).slice(0, 6));
     });
 
-    this.productService.getFeaturedProducts().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res) => {
-      const products = res.data || [];
-      this.featuredProducts.set(products.slice(0, 8));
-      this.bestSellers.set(products.slice(8, 16));
+    this.productService.getProducts().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res) => {
+      this.allProducts.set(res.data || []);
       this.loading.set(false);
     });
+  }
+
+  loadMore(): void {
+    this.displayLimit.update((n) => n + 8);
   }
 
   onSearch(): void {
@@ -234,10 +232,4 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  onNewsletterSubmit(): void {
-    if (this.newsletterEmail) {
-      alert('Thank you for subscribing to BRASETH newsletter!');
-      this.newsletterEmail = '';
-    }
-  }
 }

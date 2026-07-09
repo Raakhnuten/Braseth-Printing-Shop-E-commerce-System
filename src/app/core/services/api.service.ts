@@ -7,12 +7,15 @@ type HttpParamsInit = { [param: string]: string | number | boolean | readonly (s
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
+  // >>> API CONNECTION: baseUrl comes from APP_CONFIG.API_BASE_URL (read from environment.apiBaseUrl) <<<
   private readonly baseUrl: string;
 
   constructor(private http: HttpClient) {
     this.baseUrl = APP_CONFIG.API_BASE_URL.replace(/\/+$/, '');
   }
 
+  // >>> API CONNECTION: All HTTP calls below send requests to ${this.baseUrl}${path} <<<
+  // For example: get('/products') → GET http://localhost:8080/api/products
   get<T>(path: string, params?: HttpParamsInit): Observable<T> {
     return this.http.get<T>(`${this.baseUrl}${path}`, { params: this.toParams(params) });
   }

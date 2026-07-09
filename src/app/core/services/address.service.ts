@@ -31,21 +31,21 @@ export class AddressService {
   }
 
   getAddresses(): Observable<ApiResponse<Address[]>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       return of(this.ok([this.mockAddress]));
     }
     return this.apiService.get<ApiResponse<Address[]>>(API_ENDPOINTS.ADDRESSES.GET_ALL);
   }
 
   getAddressById(id: string): Observable<ApiResponse<Address | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       return of(this.ok(id === this.mockAddress.id ? this.mockAddress : null));
     }
     return this.apiService.get<ApiResponse<Address>>(API_ENDPOINTS.ADDRESSES.GET_BY_ID(id));
   }
 
   createAddress(address: Address): Observable<ApiResponse<Address | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       console.warn('[AddressService] createAddress not supported in mock/fake data mode');
       return of(this.ok(null));
     }
@@ -53,7 +53,7 @@ export class AddressService {
   }
 
   updateAddress(id: string, address: Partial<Address>): Observable<ApiResponse<Address | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       console.warn('[AddressService] updateAddress not supported in mock/fake data mode');
       return of(this.ok(null));
     }
@@ -61,7 +61,7 @@ export class AddressService {
   }
 
   deleteAddress(id: string): Observable<ApiResponse<void | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       console.warn('[AddressService] deleteAddress not supported in mock/fake data mode');
       return of(this.ok(null));
     }
@@ -69,7 +69,7 @@ export class AddressService {
   }
 
   setDefaultAddress(id: string): Observable<ApiResponse<Address | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       console.warn('[AddressService] setDefaultAddress not supported in mock/fake data mode');
       return of(this.ok(null));
     }

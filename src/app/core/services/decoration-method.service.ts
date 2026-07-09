@@ -4,6 +4,7 @@ import { map } from 'rxjs/operators';
 import { DecorationMethod, ProductDecorationMethod } from '../models/customization.model';
 import { ApiResponse } from '../models/api-response.model';
 import { APP_CONFIG } from '../constants/app-config';
+import { API_ENDPOINTS } from '../constants/api-endpoints';
 import { ApiService } from './api.service';
 import { MOCK_DECORATION_METHODS } from '../../mock-data/mock-decoration-methods';
 import { MOCK_PRODUCT_DECORATION_METHODS } from '../../mock-data/mock-product-decoration-methods';
@@ -14,10 +15,10 @@ export class DecorationMethodService {
 
   // TODO: GET /api/decoration-methods
   getDecorationMethods(): Observable<ApiResponse<DecorationMethod[]>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       return of({ success: true, message: 'OK', data: MOCK_DECORATION_METHODS.filter((m) => m.isActive) });
     }
-    return this.apiService.get<ApiResponse<DecorationMethod[]>>('/decoration-methods');
+    return this.apiService.get<ApiResponse<DecorationMethod[]>>(API_ENDPOINTS.DECORATION_METHODS.GET_ALL);
   }
 
   // TODO: GET /api/decoration-methods/product/:productId
@@ -32,11 +33,11 @@ export class DecorationMethodService {
   }
 
   getProductDecorationMethods(productId: string): Observable<ApiResponse<ProductDecorationMethod[]>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       const pdms = MOCK_PRODUCT_DECORATION_METHODS.filter((pdm) => pdm.productId === productId && pdm.isActive);
       return of({ success: true, message: 'OK', data: pdms });
     }
-    return this.apiService.get<ApiResponse<ProductDecorationMethod[]>>(`/product-decoration-methods/product/${productId}`);
+    return this.apiService.get<ApiResponse<ProductDecorationMethod[]>>(API_ENDPOINTS.DECORATION_METHODS.GET_BY_PRODUCT(productId));
   }
 
   getDecorationMethodExtraFee(productId: string, decorationMethodId: string): number {

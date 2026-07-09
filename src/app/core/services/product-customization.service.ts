@@ -48,54 +48,54 @@ export class ProductCustomizationService {
 
   // TODO: GET /api/product-feature-controls/product/:productId
   getFeatureControl(productId: string): Observable<ApiResponse<ProductFeatureControl | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       const control = MOCK_PRODUCT_FEATURE_CONTROLS.find((c) => c.productId === productId) ??
         MOCK_PRODUCT_FEATURE_CONTROLS.find((c) => c.productId === 'default') ?? null;
       return of({ success: true, message: 'OK', data: control });
     }
-    return this.apiService.get<ApiResponse<ProductFeatureControl>>(`/product-feature-controls/product/${productId}`);
+    return this.apiService.get<ApiResponse<ProductFeatureControl>>(API_ENDPOINTS.FEATURE_CONTROLS.GET_BY_PRODUCT(productId));
   }
 
   // TODO: GET /api/product-print-positions/product/:productId
   getPrintPositions(productId: string): Observable<ApiResponse<ProductPrintPosition[]>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       const positions = MOCK_PRODUCT_PRINT_POSITIONS.filter((p) => p.productId === productId);
       return of({ success: true, message: 'OK', data: positions });
     }
-    return this.apiService.get<ApiResponse<ProductPrintPosition[]>>(`/product-print-positions/product/${productId}`);
+    return this.apiService.get<ApiResponse<ProductPrintPosition[]>>(API_ENDPOINTS.PRODUCT_PRINT_POSITIONS.GET_BY_PRODUCT(productId));
   }
 
   // TODO: GET /api/product-price-breaks/product/:productId
   getPriceBreaks(productId: string): Observable<ApiResponse<ProductPriceBreak[]>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       const breaks = MOCK_PRODUCT_PRICE_BREAKS.filter((p) => p.productId === productId);
       return of({ success: true, message: 'OK', data: breaks });
     }
-    return this.apiService.get<ApiResponse<ProductPriceBreak[]>>(`/product-price-breaks/product/${productId}`);
+    return this.apiService.get<ApiResponse<ProductPriceBreak[]>>(API_ENDPOINTS.PRODUCT_PRICE_BREAKS.GET_BY_PRODUCT(productId));
   }
 
   // TODO: GET /api/product-production-times/product/:productId
   getProductionTime(productId: string): Observable<ApiResponse<ProductProductionTime | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       const time = MOCK_PRODUCT_PRODUCTION_TIMES.find((p) => p.productId === productId) ?? null;
       return of({ success: true, message: 'OK', data: time });
     }
-    return this.apiService.get<ApiResponse<ProductProductionTime>>(`/product-production-times/product/${productId}`);
+    return this.apiService.get<ApiResponse<ProductProductionTime>>(API_ENDPOINTS.PRODUCT_PRODUCTION_TIMES.GET_BY_PRODUCT(productId));
   }
 
   // TODO: GET /api/product-customization-fees/product/:productId
   getCustomizationFees(productId: string): Observable<ApiResponse<ProductCustomizationFee[]>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       const fees = MOCK_PRODUCT_CUSTOMIZATION_FEES.filter((f) => f.productId === productId);
       return of({ success: true, message: 'OK', data: fees });
     }
-    return this.apiService.get<ApiResponse<ProductCustomizationFee[]>>(`/product-customization-fees/product/${productId}`);
+    return this.apiService.get<ApiResponse<ProductCustomizationFee[]>>(API_ENDPOINTS.PRODUCT_CUSTOMIZATION_FEES.GET_BY_PRODUCT(productId));
   }
 
   // TODO: GET /api/product-print-colors/product/:productId
   // TODO: POST /api/product-feature-controls
   createFeatureControl(control: ProductFeatureControl): Observable<ApiResponse<ProductFeatureControl | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       console.warn('[ProductCustomizationService] createFeatureControl not supported in mock/fake data mode');
       return of({ success: true, message: 'OK', data: null });
     }
@@ -107,7 +107,7 @@ export class ProductCustomizationService {
 
   // TODO: PUT /api/product-feature-controls/:id
   updateFeatureControl(id: string, control: Partial<ProductFeatureControl>): Observable<ApiResponse<ProductFeatureControl | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       console.warn('[ProductCustomizationService] updateFeatureControl not supported in mock/fake data mode');
       return of({ success: true, message: 'OK', data: null });
     }
@@ -118,10 +118,10 @@ export class ProductCustomizationService {
   }
 
   getPrintColors(productId: string): Observable<ApiResponse<PrintColor[]>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       return of({ success: true, message: 'OK', data: MOCK_PRINT_COLORS });
     }
-    return this.apiService.get<ApiResponse<PrintColor[]>>(`/product-print-colors/product/${productId}`);
+    return this.apiService.get<ApiResponse<PrintColor[]>>(API_ENDPOINTS.PRODUCT_PRINT_COLORS.GET_BY_PRODUCT(productId));
   }
 
   calculateCustomizationTotal(payload: CustomizationPayload, basePrice: number, decorationBaseFee: number, positionExtraFee: number): CustomizationTotal {

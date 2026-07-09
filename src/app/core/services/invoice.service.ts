@@ -4,6 +4,7 @@ import { map } from 'rxjs/operators';
 import { Invoice, InvoiceStatus } from '../models/invoice.model';
 import { ApiResponse, PaginationParams } from '../models/api-response.model';
 import { APP_CONFIG } from '../constants/app-config';
+import { API_ENDPOINTS } from '../constants/api-endpoints';
 import { ApiService } from './api.service';
 import { MOCK_INVOICES } from '../../mock-data/mock-invoices';
 import { MOCK_ORDERS } from '../../mock-data/mock-orders';
@@ -13,10 +14,10 @@ export class InvoiceService {
   constructor(private apiService: ApiService) {}
 
   getInvoices(filters?: Partial<PaginationParams>): Observable<ApiResponse<Invoice[]>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       return of({ success: true, message: 'OK', data: MOCK_INVOICES });
     }
-    return this.apiService.get<ApiResponse<Invoice[]>>('/invoices', filters);
+    return this.apiService.get<ApiResponse<Invoice[]>>(API_ENDPOINTS.INVOICES.GET_ALL, filters);
   }
 
   getInvoiceById(id: string): Observable<ApiResponse<Invoice | null>> {
@@ -38,7 +39,7 @@ export class InvoiceService {
   }
 
   generateInvoice(orderId: string): Observable<ApiResponse<Invoice | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       const order = MOCK_ORDERS.find((o) => o.id === orderId);
       if (!order) {
         return of({ success: false, message: 'Order not found', data: null });
@@ -74,11 +75,11 @@ export class InvoiceService {
       MOCK_INVOICES.push(invoice);
       return of({ success: true, message: 'Invoice generated (mock)', data: invoice });
     }
-    return this.apiService.post<ApiResponse<Invoice>>(`/orders/${orderId}/invoice`, {});
+    return this.apiService.post<ApiResponse<Invoice>>(API_ENDPOINTS.INVOICES.GENERATE(orderId), {});
   }
 
   markInvoicePaid(invoiceId: string): Observable<ApiResponse<Invoice | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       const idx = MOCK_INVOICES.findIndex((i) => i.id === invoiceId);
       if (idx >= 0) {
         const now = new Date().toISOString();
@@ -86,13 +87,13 @@ export class InvoiceService {
       }
       return of({ success: true, message: 'Invoice marked as paid (mock)', data: MOCK_INVOICES[idx] ?? null });
     }
-    return this.apiService.post<ApiResponse<Invoice>>(`/invoices/${invoiceId}/pay`, {});
+    return this.apiService.post<ApiResponse<Invoice>>(API_ENDPOINTS.INVOICES.MARK_PAID(invoiceId), {});
   }
 
   downloadInvoice(invoiceId: string): Observable<ApiResponse<{ url: string } | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       return of({ success: true, message: 'Download initiated (mock)', data: { url: `/api/invoices/${invoiceId}/download` } });
     }
-    return this.apiService.get<ApiResponse<{ url: string }>>(`/invoices/${invoiceId}/download`);
+    return this.apiService.get<ApiResponse<{ url: string }>>(API_ENDPOINTS.INVOICES.DOWNLOAD(invoiceId));
   }
 }

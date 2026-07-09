@@ -16,14 +16,14 @@ export class CouponService {
   }
 
   getCoupons(): Observable<ApiResponse<Coupon[]>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       return of(this.ok(MOCK_COUPONS));
     }
     return this.apiService.get<ApiResponse<Coupon[]>>(API_ENDPOINTS.COUPONS.GET_ALL);
   }
 
   getCouponById(id: string): Observable<ApiResponse<Coupon | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       const coupon = MOCK_COUPONS.find((c) => c.id === id) ?? null;
       return of(this.ok(coupon));
     }
@@ -31,7 +31,7 @@ export class CouponService {
   }
 
   validateCouponCode(code: string): Observable<ApiResponse<Coupon | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       const coupon = MOCK_COUPONS.find((c) => c.code === code) ?? null;
       return of(this.ok(coupon));
     }
@@ -39,7 +39,7 @@ export class CouponService {
   }
 
   applyCoupon(code: string): Observable<ApiResponse<any>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       const coupon = MOCK_COUPONS.find((c) => c.code === code) ?? null;
       return of(this.ok(coupon ? { discount: coupon.discountValue, type: coupon.discountType } : null));
     }
@@ -47,7 +47,7 @@ export class CouponService {
   }
 
   createCoupon(coupon: Coupon): Observable<ApiResponse<Coupon | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       console.warn('[CouponService] createCoupon not supported in mock/fake data mode');
       return of(this.ok(null));
     }
@@ -55,7 +55,7 @@ export class CouponService {
   }
 
   updateCoupon(id: string, coupon: Partial<Coupon>): Observable<ApiResponse<Coupon | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       console.warn('[CouponService] updateCoupon not supported in mock/fake data mode');
       return of(this.ok(null));
     }
@@ -68,7 +68,7 @@ export class CouponService {
   }
 
   deleteCoupon(id: string): Observable<ApiResponse<void | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       console.warn('[CouponService] deleteCoupon not supported in mock/fake data mode');
       return of(this.ok(null));
     }

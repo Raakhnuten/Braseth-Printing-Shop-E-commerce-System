@@ -18,8 +18,9 @@ export class OrderService {
     return { success: true, message: 'OK', data, meta };
   }
 
+  // >>> API CONNECTION: GET /api/orders (admin) <<<
   getOrders(filters?: Partial<PaginationParams>): Observable<ApiResponse<Order[]>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       return of(this.ok(MOCK_ORDERS));
     }
     return this.apiService.get<ApiResponse<Order[]>>(API_ENDPOINTS.ORDERS.GET_ALL, filters);
@@ -28,7 +29,7 @@ export class OrderService {
   // TODO: GET /api/orders/my — Backend must return orders for the authenticated user.
   // In mock mode, returns all orders for user-1 to simulate a logged-in user.
   getMyOrders(filters?: Partial<PaginationParams>): Observable<ApiResponse<Order[]>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       const myOrders = MOCK_ORDERS.filter((o) => o.userId === 'user-1');
       return of(this.ok(myOrders));
     }
@@ -36,7 +37,7 @@ export class OrderService {
   }
 
   getOrderById(id: string): Observable<ApiResponse<Order | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       const order = MOCK_ORDERS.find((o) => o.id === id) ?? null;
       return of(this.ok(order));
     }
@@ -44,7 +45,7 @@ export class OrderService {
   }
 
   getOrdersByUserId(userId: string): Observable<ApiResponse<Order[]>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       const orders = MOCK_ORDERS.filter((o) => o.userId === userId);
       return of(this.ok(orders));
     }
@@ -52,7 +53,7 @@ export class OrderService {
   }
 
   createOrder(order: Partial<Order>): Observable<ApiResponse<Order | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       const now = new Date().toISOString();
       const id = 'ord-' + Date.now().toString(36);
       const orderNumber = 'ORD-2026-' + String(Math.floor(Math.random() * 9000 + 1000));
@@ -95,7 +96,7 @@ export class OrderService {
   }
 
   updateOrderStatus(id: string, status: OrderStatus): Observable<ApiResponse<Order | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       const idx = MOCK_ORDERS.findIndex((o) => o.id === id);
       if (idx >= 0) {
         MOCK_ORDERS[idx] = { ...MOCK_ORDERS[idx], status, updatedAt: new Date().toISOString() };
@@ -109,7 +110,7 @@ export class OrderService {
   // payment status transition and update the order. Only allowed transitions:
   // PENDING → PAID | FAILED, PAID → REFUNDED, FAILED → PENDING.
   updatePaymentStatus(id: string, paymentStatus: PaymentStatus): Observable<ApiResponse<Order | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       const idx = MOCK_ORDERS.findIndex((o) => o.id === id);
       if (idx >= 0) {
         MOCK_ORDERS[idx] = { ...MOCK_ORDERS[idx], paymentStatus, updatedAt: new Date().toISOString() };
@@ -120,7 +121,7 @@ export class OrderService {
   }
 
   cancelOrder(id: string): Observable<ApiResponse<Order | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       const idx = MOCK_ORDERS.findIndex((o) => o.id === id);
       if (idx >= 0) {
         MOCK_ORDERS[idx] = { ...MOCK_ORDERS[idx], status: OrderStatus.CANCELLED, updatedAt: new Date().toISOString() };
@@ -131,17 +132,17 @@ export class OrderService {
   }
 
   getOrderItems(orderId: string): Observable<ApiResponse<any[]>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       const order = MOCK_ORDERS.find((o) => o.id === orderId);
       return of(this.ok(order?.items ?? []));
     }
-    return this.apiService.get<ApiResponse<any[]>>(`/orders/${orderId}/items`);
+    return this.apiService.get<ApiResponse<any[]>>(API_ENDPOINTS.ORDERS.GET_ITEMS(orderId));
   }
 
   // TODO: GET /api/orders/:id/track — Backend must return shipment tracking info.
   // In mock mode, looks up shipment by orderId in mock data.
   trackOrder(orderId: string): Observable<ApiResponse<Shipment | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       const shipment = MOCK_SHIPMENTS.find((s) => s.orderId === orderId) ?? null;
       return of({ success: true, message: 'OK', data: shipment });
     }

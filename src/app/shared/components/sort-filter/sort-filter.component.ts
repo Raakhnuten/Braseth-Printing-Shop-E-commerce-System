@@ -1,4 +1,4 @@
-import { Component, inject, output, signal } from '@angular/core';
+import { Component, inject, Input, output, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 
 export type SortOption = 'price-asc' | 'price-desc' | 'newest' | 'popular' | 'rating';
@@ -29,16 +29,6 @@ const SORT_OPTIONS: SortOptionItem[] = [
   { value: 'rating', label: 'Best Rating', icon: 'pi-star' },
 ];
 
-const ALL_CATEGORIES = [
-  'Electronics',
-  'Clothing',
-  'Footwear',
-  'Accessories',
-  'Home & Kitchen',
-  'Sports',
-  'Beauty',
-];
-
 @Component({
   selector: 'app-sort-filter',
   templateUrl: './sort-filter.component.html',
@@ -48,8 +38,9 @@ const ALL_CATEGORIES = [
 export class SortFilterComponent {
   private fb = inject(FormBuilder);
 
+  @Input() categories: string[] = [];
+
   readonly sortOptions = SORT_OPTIONS;
-  readonly allCategories = ALL_CATEGORIES;
 
   sortState = signal<SortState>({ option: null, label: '' });
   filterState = signal<FilterState>({

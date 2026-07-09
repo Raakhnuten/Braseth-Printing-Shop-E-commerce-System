@@ -4,15 +4,17 @@
   }
 
   <section class="section container">
-    <app-category-chip
-      [categories]="categoryChips()"
-      [selectedId]="selectedCategory()"
-      (categorySelected)="onCategoryChange($event)"
+    <app-category-filter
+      [categories]="categories()"
+      [selectedCategoryId]="selectedCategory()"
+      [loading]="loading()"
+      (categoryChange)="onCategoryChange($event)"
     />
   </section>
 
   <div class="page-container">
     <app-sort-filter
+      [categories]="categoryNames()"
       (sortChanged)="onSortChanged($event)"
       (filterChanged)="onFilterChanged($event)"
     />

@@ -74,10 +74,10 @@
 } @else {
   <!-- Category Chips (mobile only) -->
   <section class="category-chips-section">
-    <app-category-chip
-      [categories]="categoryChips()"
-      [selectedId]="selectedCategoryId()"
-      (categorySelected)="onCategorySelected($event)"
+    <app-category-filter
+      [categories]="categories()"
+      [selectedCategoryId]="selectedCategoryId()"
+      (categoryChange)="onCategoryChange($event)"
     />
   </section>
 
@@ -90,7 +90,7 @@
   </div>
 
   <!-- Featured Products Section -->
-  @if (featuredProducts().length) {
+  @if (displayedProducts().length) {
     <section class="section container">
       <div class="section-header">
         <h2 class="section-title">Featured Products</h2>
@@ -101,123 +101,20 @@
       </div>
       <p class="section-subtitle">Handpicked favorites just for you</p>
       <div class="products-grid">
-        @for (product of featuredProducts(); track product.id) {
+        @for (product of displayedProducts(); track product.id) {
           <app-product-card [product]="product" />
         }
       </div>
+      @if (hasMore()) {
+        <div class="load-more-wrap">
+          <button class="load-more-btn" (click)="loadMore()">
+            Load More
+            <i class="pi pi-chevron-down"></i>
+          </button>
+        </div>
+      }
     </section>
   }
-
-  <!-- Deals / Promotion Section -->
-  <section class="promo-section">
-    <div class="container promo-section__content">
-      <div class="promo-section__badge">🔥 Limited Time Offer</div>
-      <h2 class="promo-section__title">Big Deals This Week</h2>
-      <p class="promo-section__text">Save up to 50% on selected products</p>
-      <div class="promo-section__countdown">
-        <div class="countdown-item">
-          <span class="countdown-value">02</span>
-          <span class="countdown-label">Days</span>
-        </div>
-        <div class="countdown-item">
-          <span class="countdown-value">14</span>
-          <span class="countdown-label">Hours</span>
-        </div>
-        <div class="countdown-item">
-          <span class="countdown-value">35</span>
-          <span class="countdown-label">Minutes</span>
-        </div>
-        <div class="countdown-item">
-          <span class="countdown-value">22</span>
-          <span class="countdown-label">Seconds</span>
-        </div>
-      </div>
-      <a routerLink="/products" [queryParams]="{sale: true}" class="btn btn-primary btn-lg">Explore Deals</a>
-    </div>
-  </section>
-
-  <!-- Why Shop With Us Section -->
-  <section class="section container">
-    <h2 class="section-title">Why Shop With Us</h2>
-    <p class="section-subtitle">Your trusted shopping partner in Cambodia</p>
-    <div class="features-grid">
-      <div class="feature-card">
-        <div class="feature-card__icon">
-          <i class="pi pi-truck"></i>
-        </div>
-        <h3 class="feature-card__title">Fast Delivery in Cambodia</h3>
-        <p class="feature-card__desc">Get your orders delivered quickly across Cambodia with our reliable shipping partners.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-card__icon">
-          <i class="pi pi-shield"></i>
-        </div>
-        <h3 class="feature-card__title">Secure Payment</h3>
-        <p class="feature-card__desc">Shop with confidence using our secure payment methods including ABA, Wing, and cards.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-card__icon">
-          <i class="pi pi-verified"></i>
-        </div>
-        <h3 class="feature-card__title">Quality Products</h3>
-        <p class="feature-card__desc">We carefully select every product to ensure you receive only the best quality items.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-card__icon">
-          <i class="pi pi-comments"></i>
-        </div>
-        <h3 class="feature-card__title">Friendly Support</h3>
-        <p class="feature-card__desc">Our customer support team is always ready to help you with any questions or concerns.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-card__icon">
-          <i class="pi pi-refresh"></i>
-        </div>
-        <h3 class="feature-card__title">Easy Return Policy</h3>
-        <p class="feature-card__desc">Not satisfied? Return your items within 30 days for a full refund, no questions asked.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Trending Products / Best Sellers Section -->
-  @if (bestSellers().length) {
-    <section class="section section--alt">
-      <div class="container">
-        <h2 class="section-title">Trending Now</h2>
-        <p class="section-subtitle">Best sellers and trending products</p>
-        <div class="products-grid">
-          @for (product of bestSellers(); track product.id) {
-            <app-product-card [product]="product" />
-          }
-        </div>
-        <div class="section-cta">
-          <a routerLink="/products" class="btn btn-secondary btn-lg">View All Products</a>
-        </div>
-      </div>
-    </section>
-  }
-
-  <!-- Newsletter Section -->
-  <section class="newsletter-section">
-    <div class="container newsletter-section__content">
-      <div class="newsletter-section__icon">
-        <i class="pi pi-envelope"></i>
-      </div>
-      <h2 class="newsletter-section__title">Get Exclusive Deals</h2>
-      <p class="newsletter-section__text">Subscribe to receive new arrivals, discounts, and special offers.</p>
-      <form class="newsletter-form" (ngSubmit)="onNewsletterSubmit()">
-        <input
-          type="email"
-          class="newsletter-form__input"
-          placeholder="Enter your email address"
-          [(ngModel)]="newsletterEmail"
-          name="email"
-          required
-        />
-        <button type="submit" class="btn btn-primary">Subscribe</button>
-      </form>
-    </div>
-  </section>
 
   <!-- SEO Text Section -->
   <section class="section container seo-section">

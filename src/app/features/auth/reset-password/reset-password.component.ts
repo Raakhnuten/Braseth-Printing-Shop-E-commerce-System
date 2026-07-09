@@ -22,7 +22,7 @@ const passwordMatchValidator: ValidatorFn = (
 @Component({
   selector: 'app-reset-password',
   templateUrl: './reset-password.component.html',
-  styleUrl: './reset-password.component.scss',
+
   imports: [RouterLink, ReactiveFormsModule],
 })
 export class ResetPasswordComponent {

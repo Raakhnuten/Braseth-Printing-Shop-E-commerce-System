@@ -1,5 +1,4 @@
 import { Injectable, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable, of, map } from 'rxjs';
 import { Product } from '../models/product.model';
 import { ApiResponse } from '../models/api-response.model';
@@ -13,7 +12,6 @@ export class WishlistService {
   readonly items = this.wishlistIds.asReadonly();
 
   constructor(
-    private http: HttpClient,
     private productService: ProductService,
   ) {}
 

@@ -1,0 +1,116 @@
+:host {
+  --cf-text-inverse: #ffffff;
+
+  display: block;
+  width: 100%;
+}
+
+.cf {
+  width: 100%;
+
+  &__track {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+    padding: 4px 0;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  &__pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    padding: 10px 18px;
+    border-radius: var(--radius-full);
+    font-family: var(--font-sans);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    flex-shrink: 0;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      background-color var(--transition-base),
+      color var(--transition-base),
+      border-color var(--transition-base),
+      transform var(--transition-base),
+      box-shadow var(--transition-base);
+
+    &:hover {
+      background: var(--color-primary-subtle);
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+      transform: translateY(-1px) scale(1.02);
+    }
+
+    &:active {
+      transform: scale(0.98);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    &--active {
+      background: var(--color-primary);
+      color: var(--cf-text-inverse);
+      border-color: var(--color-primary);
+
+      &:hover {
+        background: var(--color-primary-hover);
+        border-color: var(--color-primary-hover);
+        color: var(--cf-text-inverse);
+        transform: translateY(-1px) scale(1.02);
+      }
+
+      &:active {
+        transform: scale(0.98);
+      }
+    }
+  }
+
+  &__skeleton {
+    height: 40px;
+    min-width: 80px;
+    border-radius: var(--radius-full);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    flex-shrink: 0;
+    animation: cf-shimmer 1.4s ease-in-out infinite;
+  }
+}
+
+@keyframes cf-shimmer {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@media (min-width: 768px) {
+  .cf__track {
+    flex-wrap: wrap;
+  }
+}

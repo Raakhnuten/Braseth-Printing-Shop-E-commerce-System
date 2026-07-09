@@ -1,0 +1,24 @@
+<div class="cf">
+  @if (loading()) {
+    <div class="cf__track" role="status" aria-label="Loading categories">
+      @for (_ of [1, 2, 3, 4, 5]; track $index) {
+        <div class="cf__skeleton"></div>
+      }
+    </div>
+  } @else {
+    <div class="cf__track" role="tablist" aria-label="Category filter">
+      @for (item of filterItems(); track trackById($index, item)) {
+        <button
+          class="cf__pill"
+          [class.cf__pill--active]="item.id === selectedCategoryId()"
+          [attr.aria-selected]="item.id === selectedCategoryId()"
+          [attr.aria-label]="'Filter by ' + item.name"
+          role="tab"
+          (click)="selectCategory(item)"
+        >
+          {{ item.name }}
+        </button>
+      }
+    </div>
+  }
+</div>

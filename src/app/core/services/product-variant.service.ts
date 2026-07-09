@@ -16,11 +16,11 @@ export class ProductVariantService {
 
   // TODO: GET /api/product-variants/product/:productId
   getVariantsByProductId(productId: string): Observable<ApiResponse<ProductVariant[]>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       const variants = MOCK_PRODUCT_VARIANTS.filter((v) => v.productId === productId);
       return of({ success: true, message: 'OK', data: variants });
     }
-    return this.apiService.get<ApiResponse<ProductVariant[]>>(`/product-variants/product/${productId}`);
+    return this.apiService.get<ApiResponse<ProductVariant[]>>(API_ENDPOINTS.PRODUCT_VARIANTS.GET_BY_PRODUCT(productId));
   }
 
   getVariantByOptions(productId: string, sizeId: string | null, colorId: string | null): Observable<ApiResponse<ProductVariant | null>> {
@@ -54,7 +54,7 @@ export class ProductVariantService {
   // Currently resolves string color IDs from getAvailableColors() against MOCK_PRODUCT_COLORS.
   // In production mode, replace with a dedicated endpoint returning full ProductColor[] objects.
   getAvailableColorsWithDetails(productId: string): Observable<ApiResponse<ProductColor[]>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       return this.getAvailableColors(productId).pipe(
         map((res) => {
           const colors = (MOCK_PRODUCT_COLORS)
@@ -69,7 +69,7 @@ export class ProductVariantService {
 
   // TODO: GET /api/product-variants/sizes/:productId — Backend returns ProductSize[]
   getAvailableSizesWithDetails(productId: string): Observable<ApiResponse<ProductSize[]>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       return this.getAvailableSizes(productId).pipe(
         map((res) => {
           const sizes = (MOCK_PRODUCT_SIZES)

@@ -5,7 +5,7 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 @Component({
   selector: 'app-forgot-password',
   templateUrl: './forgot-password.component.html',
-  styleUrl: './forgot-password.component.scss',
+
   imports: [RouterLink, ReactiveFormsModule],
 })
 export class ForgotPasswordComponent {

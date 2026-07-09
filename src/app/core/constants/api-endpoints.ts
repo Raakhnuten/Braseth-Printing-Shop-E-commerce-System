@@ -66,6 +66,7 @@ export const API_ENDPOINTS = {
     UPDATE_STATUS: (id: string) => `/orders/${id}/status`,
     UPDATE_PAYMENT_STATUS: (id: string) => `/orders/${id}/payment-status`,
     CANCEL: (id: string) => `/orders/${id}/cancel`,
+    GET_ITEMS: (id: string) => `/orders/${id}/items`,
     TRACK: (id: string) => `/orders/${id}/track`,
     VALIDATE_BEFORE_CREATE: '/orders/validate',
   },
@@ -147,5 +148,83 @@ export const API_ENDPOINTS = {
     CREATE: '/payment-methods',
     UPDATE: (id: string) => `/payment-methods/${id}`,
     DELETE: (id: string) => `/payment-methods/${id}`,
+  },
+
+  // ============ DECORATION METHOD ENDPOINTS ============
+  DECORATION_METHODS: {
+    BASE: '/decoration-methods',
+    GET_ALL: '/decoration-methods',
+    GET_BY_PRODUCT: (productId: string) => `/product-decoration-methods/product/${productId}`,
+  },
+
+  // ============ INVOICE ENDPOINTS ============
+  INVOICES: {
+    BASE: '/invoices',
+    GET_ALL: '/invoices',
+    GET_BY_ID: (id: string) => `/invoices/${id}`,
+    GENERATE: (orderId: string) => `/orders/${orderId}/invoice`,
+    MARK_PAID: (id: string) => `/invoices/${id}/pay`,
+    DOWNLOAD: (id: string) => `/invoices/${id}/download`,
+  },
+
+  // ============ SHIPMENT ENDPOINTS ============
+  SHIPMENTS: {
+    BASE: '/shipments',
+    GET_ALL: '/shipments',
+    GET_BY_ID: (id: string) => `/shipments/${id}`,
+    CREATE: '/shipments',
+    UPDATE_STATUS: (id: string) => `/shipments/${id}/status`,
+    UPDATE_TRACKING: (id: string) => `/shipments/${id}/tracking`,
+    MARK_DELIVERED: (id: string) => `/shipments/${id}/deliver`,
+  },
+
+  // ============ SHIPPING METHOD ENDPOINTS ============
+  SHIPPING_METHODS: {
+    BASE: '/shipping-methods',
+    GET_ALL: '/shipping-methods',
+    GET_BY_ID: (id: string) => `/shipping-methods/${id}`,
+    CREATE: '/shipping-methods',
+    UPDATE: (id: string) => `/shipping-methods/${id}`,
+    DELETE: (id: string) => `/shipping-methods/${id}`,
+  },
+
+  // ============ SHIPPING ZONE ENDPOINTS ============
+  SHIPPING_ZONES: {
+    BASE: '/shipping-zones',
+    GET_ALL: '/shipping-zones',
+    GET_BY_ID: (id: string) => `/shipping-zones/${id}`,
+    CREATE: '/shipping-zones',
+    UPDATE: (id: string) => `/shipping-zones/${id}`,
+    DELETE: (id: string) => `/shipping-zones/${id}`,
+  },
+
+  // ============ PRODUCT PRINT POSITION ENDPOINTS ============
+  PRODUCT_PRINT_POSITIONS: {
+    BASE: '/product-print-positions',
+    GET_BY_PRODUCT: (productId: string) => `/product-print-positions/product/${productId}`,
+  },
+
+  // ============ PRODUCT PRICE BREAK ENDPOINTS ============
+  PRODUCT_PRICE_BREAKS: {
+    BASE: '/product-price-breaks',
+    GET_BY_PRODUCT: (productId: string) => `/product-price-breaks/product/${productId}`,
+  },
+
+  // ============ PRODUCT PRODUCTION TIME ENDPOINTS ============
+  PRODUCT_PRODUCTION_TIMES: {
+    BASE: '/product-production-times',
+    GET_BY_PRODUCT: (productId: string) => `/product-production-times/product/${productId}`,
+  },
+
+  // ============ PRODUCT CUSTOMIZATION FEE ENDPOINTS ============
+  PRODUCT_CUSTOMIZATION_FEES: {
+    BASE: '/product-customization-fees',
+    GET_BY_PRODUCT: (productId: string) => `/product-customization-fees/product/${productId}`,
+  },
+
+  // ============ PRODUCT PRINT COLOR ENDPOINTS ============
+  PRODUCT_PRINT_COLORS: {
+    BASE: '/product-print-colors',
+    GET_BY_PRODUCT: (productId: string) => `/product-print-colors/product/${productId}`,
   },
 } as const;

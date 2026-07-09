@@ -4,6 +4,7 @@ import { map } from 'rxjs/operators';
 import { Shipment, ShipmentStatus } from '../models/shipping.model';
 import { ApiResponse, PaginationParams } from '../models/api-response.model';
 import { APP_CONFIG } from '../constants/app-config';
+import { API_ENDPOINTS } from '../constants/api-endpoints';
 import { ApiService } from './api.service';
 import { MOCK_SHIPMENTS } from '../../mock-data/mock-shipments';
 
@@ -23,10 +24,10 @@ export class ShipmentService {
   constructor(private apiService: ApiService) {}
 
   getShipments(filters?: Partial<PaginationParams>): Observable<ApiResponse<Shipment[]>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       return of({ success: true, message: 'OK', data: MOCK_SHIPMENTS });
     }
-    return this.apiService.get<ApiResponse<Shipment[]>>('/shipments', filters);
+    return this.apiService.get<ApiResponse<Shipment[]>>(API_ENDPOINTS.SHIPMENTS.GET_ALL, filters);
   }
 
   getShipmentById(id: string): Observable<ApiResponse<Shipment | null>> {
@@ -48,7 +49,7 @@ export class ShipmentService {
   }
 
   createShipment(payload: CreateShipmentPayload): Observable<ApiResponse<Shipment | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       const now = new Date().toISOString();
       const shipmentNumber = 'SHP-2026-' + String(Math.floor(Math.random() * 9000 + 1000));
       const shipment: Shipment = {
@@ -72,11 +73,11 @@ export class ShipmentService {
       MOCK_SHIPMENTS.push(shipment);
       return of({ success: true, message: 'Created (mock)', data: shipment });
     }
-    return this.apiService.post<ApiResponse<Shipment>>('/shipments', payload);
+    return this.apiService.post<ApiResponse<Shipment>>(API_ENDPOINTS.SHIPMENTS.CREATE, payload);
   }
 
   updateShipmentStatus(id: string, status: ShipmentStatus): Observable<ApiResponse<Shipment | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       const idx = MOCK_SHIPMENTS.findIndex((s) => s.id === id);
       if (idx >= 0) {
         const now = new Date().toISOString();
@@ -87,11 +88,11 @@ export class ShipmentService {
       }
       return of({ success: true, message: `Status updated to ${status} (mock)`, data: MOCK_SHIPMENTS[idx] ?? null });
     }
-    return this.apiService.patch<ApiResponse<Shipment>>(`/shipments/${id}/status`, { status });
+    return this.apiService.patch<ApiResponse<Shipment>>(API_ENDPOINTS.SHIPMENTS.UPDATE_STATUS(id), { status });
   }
 
   updateTrackingNumber(id: string, trackingNumber: string): Observable<ApiResponse<Shipment | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       const idx = MOCK_SHIPMENTS.findIndex((s) => s.id === id);
       if (idx >= 0) {
         MOCK_SHIPMENTS[idx] = {
@@ -103,11 +104,11 @@ export class ShipmentService {
       }
       return of({ success: true, message: 'Tracking updated (mock)', data: MOCK_SHIPMENTS[idx] ?? null });
     }
-    return this.apiService.patch<ApiResponse<Shipment>>(`/shipments/${id}/tracking`, { trackingNumber });
+    return this.apiService.patch<ApiResponse<Shipment>>(API_ENDPOINTS.SHIPMENTS.UPDATE_TRACKING(id), { trackingNumber });
   }
 
   markAsDelivered(id: string): Observable<ApiResponse<Shipment | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       const idx = MOCK_SHIPMENTS.findIndex((s) => s.id === id);
       if (idx >= 0) {
         const now = new Date().toISOString();
@@ -120,6 +121,6 @@ export class ShipmentService {
       }
       return of({ success: true, message: 'Marked as delivered (mock)', data: MOCK_SHIPMENTS[idx] ?? null });
     }
-    return this.apiService.post<ApiResponse<Shipment>>(`/shipments/${id}/deliver`, {});
+    return this.apiService.post<ApiResponse<Shipment>>(API_ENDPOINTS.SHIPMENTS.MARK_DELIVERED(id), {});
   }
 }

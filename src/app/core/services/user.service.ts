@@ -16,14 +16,14 @@ export class UserService {
   }
 
   getUsers(): Observable<ApiResponse<User[]>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       return of(this.ok(MOCK_USERS));
     }
     return this.apiService.get<ApiResponse<User[]>>(API_ENDPOINTS.USERS.GET_ALL);
   }
 
   getUserById(id: string): Observable<ApiResponse<User | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       const user = MOCK_USERS.find((u) => u.id === id) ?? null;
       return of(this.ok(user));
     }
@@ -31,7 +31,7 @@ export class UserService {
   }
 
   updateUser(id: string, user: Partial<User>): Observable<ApiResponse<User | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       console.warn('[UserService] updateUser not supported in mock/fake data mode');
       return of(this.ok(null));
     }
@@ -39,7 +39,7 @@ export class UserService {
   }
 
   deleteUser(id: string): Observable<ApiResponse<void | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA ) {
       console.warn('[UserService] deleteUser not supported in mock/fake data mode');
       return of(this.ok(null));
     }

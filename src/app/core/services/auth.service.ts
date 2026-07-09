@@ -14,7 +14,6 @@ import { APP_CONFIG } from '../constants/app-config';
 import { API_ENDPOINTS } from '../constants/api-endpoints';
 import { ApiResponse } from '../models/api-response.model';
 import { MOCK_USERS } from '../../mock-data/mock-users';
-import { PlatziAuthService } from './platzi-auth.service';
 import { ApiService } from './api.service';
 import {
   getAuthToken,
@@ -34,10 +33,7 @@ export class AuthService {
   readonly isLoggedIn = computed(() => !!this.currentUserSubject());
   readonly isAdmin = computed(() => this.currentUserSubject()?.role === UserRole.ADMIN);
 
-  constructor(
-    private apiService: ApiService,
-    private platziAuth: PlatziAuthService,
-  ) {}
+  constructor(private apiService: ApiService) {}
 
   login(credentials: LoginRequest): Observable<AuthResponse> {
     const source$ = this.pickLoginSource(credentials);
@@ -60,7 +56,7 @@ export class AuthService {
   }
 
   logout(): void {
-    if (!APP_CONFIG.USE_MOCK_DATA && !APP_CONFIG.USE_FAKE_API) {
+    if (!APP_CONFIG.USE_MOCK_DATA) {
       this.apiService.post(API_ENDPOINTS.AUTH.LOGOUT, {}).subscribe({
         error: () => {},
       });
@@ -74,10 +70,7 @@ export class AuthService {
     if (!token) {
       return throwError(() => new Error('No refresh token available'));
     }
-    // TODO: In production, the backend MUST validate the refresh token and return
-    // a new access/refresh token pair. The current mock/fake implementation simply
-    // returns the same tokens, which provides no real security benefit.
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA) {
       const user = this.currentUserSubject();
       return of({
         user: user ?? { id: '', firstName: '', lastName: '', email: '', phone: '', role: '', enabled: false, token: '', refreshToken: '', expiresIn: 0 },
@@ -91,15 +84,10 @@ export class AuthService {
     );
   }
 
-  // TODO: When the backend supports a token validation endpoint, this method
-  // should delegate to it. Until then, it returns the current client-side state.
-  // Do NOT rely on this for server-side authorization — backend must enforce
-  // authorization on every protected API endpoint.
   validateSession(): Observable<ApiResponse<boolean>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA) {
       return of({ success: true, message: 'OK', data: this.isLoggedIn() });
     }
-    // GET /auth/me — lightweight token validation
     return this.apiService.get<ApiResponse<AuthUser>>(API_ENDPOINTS.AUTH.ME).pipe(
       map(() => ({ success: true, message: 'OK', data: true })),
       catchError(() => of({ success: true, message: 'Session invalid', data: false })),
@@ -107,10 +95,9 @@ export class AuthService {
   }
 
   validateAdminSession(): Observable<ApiResponse<boolean>> {
-    if (APP_CONFIG.USE_MOCK_DATA || APP_CONFIG.USE_FAKE_API) {
+    if (APP_CONFIG.USE_MOCK_DATA) {
       return of({ success: true, message: 'OK', data: this.isAdmin() });
     }
-    // GET /auth/me — lightweight token + role validation
     return this.apiService.get<ApiResponse<AuthUser>>(API_ENDPOINTS.AUTH.ME).pipe(
       map((res) => ({ success: true, message: 'OK', data: res.data?.role === UserRole.ADMIN })),
       catchError(() => of({ success: true, message: 'Not authorized', data: false })),
@@ -121,6 +108,10 @@ export class AuthService {
     return this.currentUserSubject();
   }
 
+  // >>> API CONNECTION: Auth endpoints
+  //     USE_MOCK_DATA=false → POST /api/auth/login
+  //     USE_MOCK_DATA=false → POST /api/auth/register
+  //     USE_MOCK_DATA=false → POST /api/auth/refresh <<<
   private pickLoginSource(credentials: LoginRequest): Observable<AuthResponse> {
     if (APP_CONFIG.USE_MOCK_DATA) {
       const mockUser = MOCK_USERS.find((u) => u.email === credentials.email);
@@ -138,9 +129,7 @@ export class AuthService {
       };
       return of({ user: authUser, token: 'mock-jwt-token', refreshToken: 'mock-refresh-token', expiresIn: 3600 });
     }
-    if (APP_CONFIG.USE_FAKE_API) {
-      return this.platziAuth.login(credentials);
-    }
+    // >>> API CONNECTION: POST /api/auth/login <<<
     return this.apiService.post<AuthResponse>(API_ENDPOINTS.AUTH.LOGIN, credentials);
   }
 
@@ -160,15 +149,10 @@ export class AuthService {
       };
       return of({ user: authUser, token: 'mock-jwt-token', refreshToken: 'mock-refresh-token', expiresIn: 3600 });
     }
-    if (APP_CONFIG.USE_FAKE_API) {
-      return this.platziAuth.register(data);
-    }
+    // >>> API CONNECTION: POST /api/auth/register <<<
     return this.apiService.post<AuthResponse>(API_ENDPOINTS.AUTH.REGISTER, data);
   }
 
-  // TODO: Migrate to HttpOnly, Secure, SameSite cookies for production.
-  // localStorage-based auth is vulnerable to XSS token theft and should be
-  // replaced once the backend supports cookie-based authentication.
   private saveUserToStorage(authResponse: AuthResponse): void {
     try {
       setAuthToken(authResponse.token);
