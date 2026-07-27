@@ -9,7 +9,6 @@ import {
   ProductColor,
   ProductSize,
   ProductFeatureControl,
-  ProductPrintPosition,
   ProductPriceBreak,
   ProductProductionTime,
   DecorationMethod,
@@ -32,6 +31,18 @@ import { normalizeImages, getSafeImageUrl, onImageError } from '../../../core/he
   imports: [RouterLink, FormsModule, NgClass, ProductCardComponent, LoadingSpinnerComponent],
 })
 export class ProductDetailComponent implements OnInit {
+  readonly ACCEPTED_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.pdf', '.ai', '.psd', '.svg'];
+  readonly ACCEPTED_MIME_TYPES = [
+    'image/png',
+    'image/jpeg',
+    'image/svg+xml',
+    'application/pdf',
+    'application/postscript',
+    'application/illustrator',
+    'application/photoshop',
+    'image/vnd.adobe.photoshop',
+  ];
+  readonly MAX_UPLOAD_SIZE_MB = 50;
   private route = inject(ActivatedRoute);
   private productService = inject(ProductService);
   private cartService = inject(CartService);
@@ -54,7 +65,6 @@ export class ProductDetailComponent implements OnInit {
   availableColors = signal<ProductColor[]>([]);
   availableSizes = signal<ProductSize[]>([]);
   availableDecorationMethods = signal<DecorationMethod[]>([]);
-  availablePrintPositions = signal<ProductPrintPosition[]>([]);
   availablePrintColors = signal<PrintColor[]>([]);
   priceBreaks = signal<ProductPriceBreak[]>([]);
   productionTime = signal<ProductProductionTime | null>(null);
@@ -63,12 +73,16 @@ export class ProductDetailComponent implements OnInit {
   selectedSizeId = signal<string | null>(null);
   selectedColorId = signal<string | null>(null);
   selectedDecorationMethodId = signal<string | null>(null);
-  selectedPrintPositionId = signal<string | null>(null);
   selectedPrintColorIds = signal<string[]>([]);
   multipleColors = signal(false);
   customQty = signal(24);
-  frontDesignFileName = signal<string>('');
-  backDesignFileName = signal<string>('');
+  artworkFileName = signal<string>('');
+  artworkFileSize = signal<number>(0);
+  artworkFileType = signal<string>('');
+  artworkPreviewUrl = signal<string>('');
+  artworkUploading = signal(false);
+  artworkError = signal<string>('');
+  isDragOver = signal(false);
   showPriceBreaks = signal(false);
   isCustomOrder = signal(false);
 
@@ -104,10 +118,6 @@ export class ProductDetailComponent implements OnInit {
 
     this.customizationService.getProductionTime(productId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res) => {
       this.productionTime.set(res.data);
-    });
-
-    this.customizationService.getPrintPositions(productId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res) => {
-      this.availablePrintPositions.set(res.data.filter((p) => p.isActive).sort((a, b) => a.sortOrder - b.sortOrder));
     });
 
     this.decorationService.getDecorationMethodsByProductId(productId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res) => {
@@ -211,10 +221,6 @@ export class ProductDetailComponent implements OnInit {
     return this.featureControl()?.enableDecorationMethod ?? false;
   }
 
-  get enablePrintPosition(): boolean {
-    return this.featureControl()?.enablePrintPosition ?? false;
-  }
-
   get enablePrintColor(): boolean {
     return this.featureControl()?.enablePrintColor ?? false;
   }
@@ -235,10 +241,6 @@ export class ProductDetailComponent implements OnInit {
     return this.featureControl()?.enableCustomizationFee ?? false;
   }
 
-  get maxUploadFiles(): number {
-    return this.featureControl()?.maxUploadFiles ?? 2;
-  }
-
   // ─── Selection handlers ────────────────────────────────
   selectSize(sizeId: string): void {
     this.selectedSizeId.set(sizeId);
@@ -253,11 +255,6 @@ export class ProductDetailComponent implements OnInit {
 
   selectDecoration(methodId: string): void {
     this.selectedDecorationMethodId.set(methodId);
-    this.clearValidation();
-  }
-
-  selectPrintPosition(positionId: string): void {
-    this.selectedPrintPositionId.set(positionId);
     this.clearValidation();
   }
 
@@ -298,26 +295,20 @@ export class ProductDetailComponent implements OnInit {
     return id ? this.availableDecorationMethods().find((m) => m.id === id) : undefined;
   }
 
-  get selectedPrintPosition(): ProductPrintPosition | undefined {
-    const id = this.selectedPrintPositionId();
-    return id ? this.availablePrintPositions().find((p) => p.id === id) : undefined;
-  }
-
   get customizationSummary(): CustomizationTotal | null {
     const p = this.product();
     if (!p) return null;
 
     const decorationFee = this.selectedDecorationMethod?.baseFee ?? 0;
-    const positionFee = this.selectedPrintPosition?.extraFee ?? 0;
 
     return this.customizationService.calculateCustomizationTotal({
       productId: p.id,
       quantity: this.customQty(),
       decorationMethodId: this.selectedDecorationMethodId(),
-      printPositionId: this.selectedPrintPositionId(),
+      printPositionId: null,
       printColorIds: this.selectedPrintColorIds(),
       isMultipleColors: this.multipleColors(),
-    }, this.basePrice, decorationFee, positionFee);
+    }, this.basePrice, decorationFee, 0);
   }
 
   get estimatedUnitPrice(): number {
@@ -378,11 +369,8 @@ export class ProductDetailComponent implements OnInit {
     }
 
     const designFiles: CartItemDesignUpload[] = [];
-    if (this.frontDesignFileName()) {
-      designFiles.push({ position: 'front', fileName: this.frontDesignFileName(), fileType: '', fileSize: 0 });
-    }
-    if (this.backDesignFileName()) {
-      designFiles.push({ position: 'back', fileName: this.backDesignFileName(), fileType: '', fileSize: 0 });
+    if (this.artworkFileName()) {
+      designFiles.push({ position: 'artwork', fileName: this.artworkFileName(), fileType: '', fileSize: 0 });
     }
 
     const selectedColor = this.selectedColorId() ? this.availableColors().find((c) => c.id === this.selectedColorId()) : null;
@@ -396,42 +384,117 @@ export class ProductDetailComponent implements OnInit {
       qty,
       selectedColor ? [selectedColor.name] : [],
       this.selectedDecorationMethod?.name ?? '',
-      this.frontDesignFileName(),
-      this.backDesignFileName(),
+      this.artworkFileName(),
       this.estimatedUnitPrice,
     );
 
     this.quantity = 1;
   }
 
-  onFrontDesignUpload(event: Event): void {
-    const f = (event.target as HTMLInputElement).files?.[0];
-    if (f) {
+  get artworkMaxSizeMb(): number {
+    return this.featureControl()?.maxFileSizeMb ?? this.MAX_UPLOAD_SIZE_MB;
+  }
+
+  get acceptedExtensionsString(): string {
+    return this.ACCEPTED_EXTENSIONS.join(', ');
+  }
+
+  formatFileSize(bytes: number): string {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / 1048576).toFixed(1) + ' MB';
+  }
+
+  private processArtworkFile(file: File): void {
+    this.artworkError.set('');
+    const ext = '.' + file.name.split('.').pop()?.toLowerCase();
+    const isExtensionValid = this.ACCEPTED_EXTENSIONS.includes(ext);
+    const isMimeValid = this.ACCEPTED_MIME_TYPES.includes(file.type);
+
+    if (!isExtensionValid && !isMimeValid) {
+      this.artworkError.set(`Unsupported file type. Accepted: ${this.acceptedExtensionsString}`);
+      return;
+    }
+
+    const maxBytes = this.artworkMaxSizeMb * 1024 * 1024;
+    if (file.size > maxBytes) {
+      this.artworkError.set(`File exceeds ${this.artworkMaxSizeMb}MB limit.`);
+      return;
+    }
+
+    this.artworkUploading.set(true);
+
+    // Simulate upload delay
+    setTimeout(() => {
       const p = this.product();
       if (p) {
-        const validation = this.customizationService.validateDesignUpload(f, p.id);
-        if (validation.valid) {
-          this.frontDesignFileName.set(f.name);
-        } else {
-          this.validationErrors.set([validation.message]);
+        const validation = this.customizationService.validateDesignUpload(file, p.id);
+        if (!validation.valid) {
+          this.artworkError.set(validation.message);
+          this.artworkUploading.set(false);
+          return;
         }
       }
+
+      this.artworkFileName.set(file.name);
+      this.artworkFileSize.set(file.size);
+      this.artworkFileType.set(file.type);
+      this.clearValidation();
+
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          this.artworkPreviewUrl.set(reader.result as string);
+          this.artworkUploading.set(false);
+        };
+        reader.onerror = () => {
+          this.artworkPreviewUrl.set('');
+          this.artworkUploading.set(false);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        this.artworkPreviewUrl.set('');
+        this.artworkUploading.set(false);
+      }
+    }, 800);
+  }
+
+  onArtworkUpload(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (file) {
+      this.processArtworkFile(file);
+    }
+    (event.target as HTMLInputElement).value = '';
+  }
+
+  onArtworkDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOver.set(true);
+  }
+
+  onArtworkDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOver.set(false);
+  }
+
+  onArtworkDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOver.set(false);
+    const file = event.dataTransfer?.files?.[0];
+    if (file) {
+      this.processArtworkFile(file);
     }
   }
 
-  onBackDesignUpload(event: Event): void {
-    const f = (event.target as HTMLInputElement).files?.[0];
-    if (f) {
-      const p = this.product();
-      if (p) {
-        const validation = this.customizationService.validateDesignUpload(f, p.id);
-        if (validation.valid) {
-          this.backDesignFileName.set(f.name);
-        } else {
-          this.validationErrors.set([validation.message]);
-        }
-      }
-    }
+  removeArtwork(): void {
+    this.artworkFileName.set('');
+    this.artworkFileSize.set(0);
+    this.artworkFileType.set('');
+    this.artworkPreviewUrl.set('');
+    this.artworkError.set('');
   }
 
   downloadTemplate(): void {

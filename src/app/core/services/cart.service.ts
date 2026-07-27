@@ -11,8 +11,7 @@ interface LegacyCartCustomization {
   selectedColors: string[];
   multipleColors: boolean;
   decorationMethod: string;
-  frontDesignFileName: string;
-  backDesignFileName: string;
+  artworkFileName: string;
   quantity: number;
   estimatedUnitPrice: number;
   estimatedTotal: number;
@@ -128,8 +127,7 @@ export class CartService {
         customization.quantity,
         customization.selectedColors,
         customization.decorationMethod,
-        customization.frontDesignFileName,
-        customization.backDesignFileName,
+        customization.frontDesignFileName || customization.backDesignFileName || '',
         customization.estimatedUnitPrice,
       );
       return;
@@ -142,16 +140,12 @@ export class CartService {
     quantity: number,
     selectedColors: string[],
     decorationMethod: string,
-    frontDesignFileName: string,
-    backDesignFileName: string,
+    artworkFileName: string,
     estimatedUnitPrice: number,
   ): void {
     const designFiles: CartItemDesignUpload[] = [];
-    if (frontDesignFileName) {
-      designFiles.push({ position: 'front', fileName: frontDesignFileName, fileType: '', fileSize: 0 });
-    }
-    if (backDesignFileName) {
-      designFiles.push({ position: 'back', fileName: backDesignFileName, fileType: '', fileSize: 0 });
+    if (artworkFileName) {
+      designFiles.push({ position: 'artwork', fileName: artworkFileName, fileType: '', fileSize: 0 });
     }
 
     const printColors: CartItemPrintColor[] = selectedColors.map((name) => ({
@@ -346,11 +340,8 @@ export class CartService {
     // Legacy format: migrate from old CartCustomization structure
     const customization = r['customization'] as LegacyCartCustomization | undefined;
     const designFiles: CartItemDesignUpload[] = [];
-    if (customization?.frontDesignFileName) {
-      designFiles.push({ position: 'front', fileName: customization.frontDesignFileName, fileType: '', fileSize: 0 });
-    }
-    if (customization?.backDesignFileName) {
-      designFiles.push({ position: 'back', fileName: customization.backDesignFileName, fileType: '', fileSize: 0 });
+    if (customization?.artworkFileName) {
+      designFiles.push({ position: 'artwork', fileName: customization.artworkFileName, fileType: '', fileSize: 0 });
     }
 
     const printColors: CartItemPrintColor[] = (customization?.selectedColors ?? []).map((name: string) => ({

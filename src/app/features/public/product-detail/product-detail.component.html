@@ -228,29 +228,6 @@
                 </div>
               }
 
-              <!-- Print Position -->
-              @if (enablePrintPosition) {
-                <div class="pd-custom__section">
-                  <div class="pd-custom__section-title">
-                    <span class="pd-custom__step-badge">P</span> Print Position
-                  </div>
-                  <div class="pd-custom__positions">
-                    @for (pos of availablePrintPositions(); track pos.id) {
-                      <button
-                        class="pd-custom__position"
-                        [class.pd-custom__position--sel]="selectedPrintPositionId() === pos.id"
-                        (click)="selectPrintPosition(pos.id)"
-                      >
-                        <span>{{ pos.name }}</span>
-                        @if (pos.extraFee > 0) {
-                          <span class="pd-custom__position-fee">+${{ pos.extraFee.toFixed(2) }}</span>
-                        }
-                      </button>
-                    }
-                  </div>
-                </div>
-              }
-
               <!-- Print Colors -->
               @if (enablePrintColor) {
                 <div class="pd-custom__section">
@@ -277,26 +254,90 @@
                 </div>
               }
 
-              <!-- Design Upload -->
+              <!-- Artwork Upload -->
               @if (enableDesignUpload) {
                 <div class="pd-custom__section">
                   <div class="pd-custom__section-title">
-                    <span class="pd-custom__step-badge">U</span> Upload Designs
+                    <span class="pd-custom__step-badge">A</span> Upload Artwork
                   </div>
-                  <div class="pd-custom__uploads">
-                    <label class="pd-custom__upload">
-                      <input type="file" accept="image/*,.pdf,.svg,.eps" (change)="onFrontDesignUpload($event)" />
-                      <i class="pi pi-cloud-upload"></i>
-                      <span>Front</span>
-                      @if (frontDesignFileName()) { <span class="pd-custom__upload-name">{{ frontDesignFileName() }}</span> }
-                    </label>
-                    <label class="pd-custom__upload">
-                      <input type="file" accept="image/*,.pdf,.svg,.eps" (change)="onBackDesignUpload($event)" />
-                      <i class="pi pi-cloud-upload"></i>
-                      <span>Back</span>
-                      @if (backDesignFileName()) { <span class="pd-custom__upload-name">{{ backDesignFileName() }}</span> }
-                    </label>
-                  </div>
+
+                  @if (artworkUploading()) {
+                    <div class="pd-artwork__uploading">
+                      <i class="pi pi-spin pi-spinner"></i>
+                      <span>Uploading artwork...</span>
+                    </div>
+                  } @else if (artworkFileName() && !artworkError()) {
+                    <div class="pd-artwork__preview">
+                      @if (artworkPreviewUrl()) {
+                        <img [src]="artworkPreviewUrl()" [alt]="artworkFileName()" class="pd-artwork__preview-thumb" />
+                      } @else {
+                        <div class="pd-artwork__preview-icon">
+                          <i class="pi pi-file-pdf"></i>
+                        </div>
+                      }
+                      <div class="pd-artwork__preview-info">
+                        <span class="pd-artwork__preview-name">{{ artworkFileName() }}</span>
+                        <span class="pd-artwork__preview-size">{{ formatFileSize(artworkFileSize()) }}</span>
+                      </div>
+                      <div class="pd-artwork__preview-status">
+                        <i class="pi pi-check-circle"></i>
+                      </div>
+                      <div class="pd-artwork__preview-actions">
+                        <button type="button" class="pd-artwork__action-btn pd-artwork__action-btn--replace" (click)="artworkTrigger.click()" aria-label="Replace artwork">
+                          <i class="pi pi-refresh"></i> Replace
+                        </button>
+                        <button type="button" class="pd-artwork__action-btn pd-artwork__action-btn--remove" (click)="removeArtwork()" aria-label="Remove artwork">
+                          <i class="pi pi-trash"></i> Remove
+                        </button>
+                      </div>
+                    </div>
+                  } @else {
+                    <div
+                      class="pd-artwork__dropzone"
+                      [class.pd-artwork__dropzone--drag-over]="isDragOver()"
+                      (dragover)="onArtworkDragOver($event)"
+                      (dragleave)="onArtworkDragLeave($event)"
+                      (drop)="onArtworkDrop($event)"
+                      (click)="artworkInput.click()"
+                      role="button"
+                      tabindex="0"
+                      (keydown.enter)="artworkInput.click()"
+                      (keydown.space)="artworkInput.click(); $event.preventDefault()"
+                      aria-label="Upload artwork. Drag and drop or click to browse."
+                    >
+                      <input
+                        #artworkInput
+                        type="file"
+                        [accept]="acceptedExtensionsString"
+                        (change)="onArtworkUpload($event)"
+                        class="pd-artwork__input"
+                        aria-hidden="true"
+                        tabindex="-1"
+                      />
+                      <i class="pi pi-cloud-upload pd-artwork__dropzone-icon"></i>
+                      <span class="pd-artwork__dropzone-title">Upload Artwork</span>
+                      <span class="pd-artwork__dropzone-subtitle">Drag &amp; Drop your artwork here or click to browse</span>
+                      <div class="pd-artwork__dropzone-formats">
+                        <span class="pd-artwork__format-badge">PNG</span>
+                        <span class="pd-artwork__format-badge">JPG</span>
+                        <span class="pd-artwork__format-badge">PDF</span>
+                        <span class="pd-artwork__format-badge">AI</span>
+                        <span class="pd-artwork__format-badge">PSD</span>
+                        <span class="pd-artwork__format-badge">SVG</span>
+                      </div>
+                      <span class="pd-artwork__dropzone-limit">Max {{ artworkMaxSizeMb }} MB</span>
+                    </div>
+                  }
+
+                  @if (artworkError()) {
+                    <div class="pd-artwork__error" role="alert">
+                      <i class="pi pi-exclamation-triangle"></i>
+                      <span>{{ artworkError() }}</span>
+                    </div>
+                  }
+
+                  <input #artworkTrigger type="file" [accept]="acceptedExtensionsString" (change)="onArtworkUpload($event)" class="pd-artwork__input-trigger" aria-hidden="true" tabindex="-1" />
+
                   <button class="pd-custom__template-btn" (click)="downloadTemplate()">
                     <i class="pi pi-download"></i> Download Template
                   </button>
@@ -362,14 +403,8 @@
                 @if (enableDecorationMethod && selectedDecorationMethodId()) {
                   <div class="pd-custom__summary-row"><span>Decoration</span><span>{{ selectedDecorationMethod?.name ?? '—' }}</span></div>
                 }
-                @if (enablePrintPosition && selectedPrintPositionId()) {
-                  <div class="pd-custom__summary-row"><span>Position</span><span>{{ selectedPrintPosition?.name ?? '—' }}</span></div>
-                }
-                @if (frontDesignFileName()) {
-                  <div class="pd-custom__summary-row"><span>Front Design</span><span>{{ frontDesignFileName() }}</span></div>
-                }
-                @if (backDesignFileName()) {
-                  <div class="pd-custom__summary-row"><span>Back Design</span><span>{{ backDesignFileName() }}</span></div>
+                @if (artworkFileName()) {
+                  <div class="pd-custom__summary-row"><span>Artwork</span><span>{{ artworkFileName() }}</span></div>
                 }
                 @if (enableProductionTime && productionDays > 0) {
                   <div class="pd-custom__summary-row"><span>Lead Time</span><span>{{ productionDays }} business days</span></div>

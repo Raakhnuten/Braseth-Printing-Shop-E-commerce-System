@@ -51,7 +51,7 @@
               @if (item.uploadedDesignFiles && item.uploadedDesignFiles.length > 0) {
                 <div class="cart-item__custom">
                   @for (file of item.uploadedDesignFiles; track file.position) {
-                    <span class="cart-item__custom-tag">{{ file.position }}: {{ file.fileName }}</span>
+                    <span class="cart-item__custom-tag">Artwork: {{ file.fileName }}</span>
                   }
                 </div>
               }

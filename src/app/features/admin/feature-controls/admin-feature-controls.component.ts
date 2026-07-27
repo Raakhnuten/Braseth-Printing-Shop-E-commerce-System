@@ -172,7 +172,7 @@ export class AdminFeatureControlsComponent implements OnInit {
     if (fc.enableSizeSelection) enabled.push('Size');
     if (fc.enableColorSelection) enabled.push('Color');
     if (fc.enableDecorationMethod) enabled.push('Decoration');
-    if (fc.enableDesignUpload) enabled.push('Upload');
+    if (fc.enableDesignUpload) enabled.push('Artwork');
     if (fc.enablePrintPosition) enabled.push('Position');
     if (fc.enablePrintColor) enabled.push('Print Color');
     if (fc.enablePriceBreak) enabled.push('Price Break');

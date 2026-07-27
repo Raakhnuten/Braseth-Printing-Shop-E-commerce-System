@@ -22,8 +22,11 @@ export interface CartCustomization {
   selectedColors: string[];
   multipleColors: boolean;
   decorationMethod: string;
+  /** @deprecated Use artworkFileName */
   frontDesignFileName: string;
+  /** @deprecated Use artworkFileName */
   backDesignFileName: string;
+  artworkFileName: string;
   quantity: number;
   estimatedUnitPrice: number;
   estimatedTotal: number;

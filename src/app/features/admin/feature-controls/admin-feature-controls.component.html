@@ -39,7 +39,7 @@
               <span class="meta-value">{{ fc.maxUploadFiles }}</span>
             </div>
             <div class="meta-item">
-              <span class="meta-label">Max File Size</span>
+              <span class="meta-label">Max Artwork Size</span>
               <span class="meta-value">{{ fc.maxFileSizeMb }}MB</span>
             </div>
           </div>
@@ -97,7 +97,7 @@
         <div class="toggle-grid">
           <label class="checkbox-label"><input type="checkbox" [formControl]="$any(form.controls['enableSizeSelection'])" /> Size Selection</label>
           <label class="checkbox-label"><input type="checkbox" [formControl]="$any(form.controls['enableColorSelection'])" /> Color Selection</label>
-          <label class="checkbox-label"><input type="checkbox" [formControl]="$any(form.controls['enableDesignUpload'])" /> Design Upload</label>
+          <label class="checkbox-label"><input type="checkbox" [formControl]="$any(form.controls['enableDesignUpload'])" /> Artwork Upload</label>
           <label class="checkbox-label"><input type="checkbox" [formControl]="$any(form.controls['enableDecorationMethod'])" /> Decoration Method</label>
           <label class="checkbox-label"><input type="checkbox" [formControl]="$any(form.controls['enablePrintPosition'])" /> Print Position</label>
           <label class="checkbox-label"><input type="checkbox" [formControl]="$any(form.controls['enablePrintColor'])" /> Print Color</label>
@@ -105,14 +105,14 @@
           <label class="checkbox-label"><input type="checkbox" [formControl]="$any(form.controls['enableProductionTime'])" /> Production Time</label>
           <label class="checkbox-label"><input type="checkbox" [formControl]="$any(form.controls['enableCustomizationFee'])" /> Customization Fee</label>
         </div>
-        <h4 class="form-section-title">Upload Settings</h4>
+        <h4 class="form-section-title">Artwork Upload Settings</h4>
         <div class="form-row">
           <div class="form-group">
-            <label for="fc-maxfiles">Max Upload Files</label>
+            <label for="fc-maxfiles">Max Artwork Files</label>
             <input id="fc-maxfiles" type="number" min="1" [formControl]="$any(form.controls['maxUploadFiles'])" />
           </div>
           <div class="form-group">
-            <label for="fc-maxsize">Max File Size (MB)</label>
+            <label for="fc-maxsize">Max Artwork Size (MB)</label>
             <input id="fc-maxsize" type="number" min="1" [formControl]="$any(form.controls['maxFileSizeMb'])" />
           </div>
         </div>

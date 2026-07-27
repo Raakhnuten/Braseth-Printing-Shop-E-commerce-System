@@ -1,411 +1,562 @@
-# API Integration Guide
+# API Integration Guide — Braseth Printing Shop
 
 ## Overview
 
-This application supports three data source modes controlled by environment configuration:
+This is an **Angular 21** frontend for a T-shirt printing shop e-commerce system. It consumes a REST API. This document defines the contract the frontend expects.
 
-| Mode | USE_MOCK_DATA | USE_FAKE_API | Data Source |
-|------|:---:|:---:|-------------|
-| **Mock** (development) | `true` | `false` | Local in-memory mock data |
-| **Platzi Fake API** (testing) | `false` | `true` | Platzi Fake Store REST API |
-| **Spring Boot** (production) | `false` | `false` | Your Spring Boot backend |
+**App**: `user-front`
+**Base path prefix**: `/api` (configurable per environment)
 
 ---
 
-## Switching Between Modes
+## Environments
 
-### Development (Mock)
+| Environment | Base URL | Mock Data |
+|---|---|---|
+| Development | `http://localhost:8080/api` | Disabled |
+| Production | `http://localhost:8080/api` | Disabled |
 
-Edit `src/environments/environment.ts`:
+The `apiBaseUrl` is set in `src/environments/environment.*.ts`. The backend team provides the actual URL.
+
+---
+
+## Authentication
+
+- **Method**: Bearer Token (JWT)
+- **Header**: `Authorization: Bearer <token>`
+- **Excluded endpoints** (no token required): `POST /auth/login`, `POST /auth/register`, `POST /auth/refresh`
+- **Token refresh**: On 401 response, the frontend automatically calls `POST /auth/refresh` and retries the original request. If refresh also fails, the user is logged out.
+
+### Auth Endpoints
+
+| Method | Endpoint | Body | Response |
+|---|---|---|---|
+| POST | `/auth/login` | `LoginRequest` | `AuthResponse` |
+| POST | `/auth/register` | `RegisterRequest` | `AuthResponse` |
+| POST | `/auth/logout` | — | — |
+| POST | `/auth/refresh` | — | `AuthResponse` |
+| POST | `/auth/forgot-password` | `{ email }` | — |
+| POST | `/auth/reset-password` | `{ token, password, confirmPassword }` | — |
+| GET | `/auth/me` | — | `AuthUser` |
 
 ```typescript
-export const environment = {
-  production: false,
-  apiBaseUrl: 'http://localhost:8080/api',
-  useMockData: true,
-  useFakeApi: false,
-};
-```
+interface LoginRequest {
+  email: string;
+  password: string;
+}
 
-### Platzi Fake API
+interface RegisterRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  password: string;
+  confirmPassword: string;
+}
 
-```typescript
-export const environment = {
-  production: false,
-  apiBaseUrl: 'http://localhost:8080/api',   // not used when fake API is active
-  useMockData: false,
-  useFakeApi: true,
-};
-```
+interface AuthResponse {
+  user: AuthUser;
+  token: string;
+  refreshToken: string;
+  expiresIn: number;
+}
 
-### Production (Spring Boot)
-
-```typescript
-export const environment = {
-  production: true,
-  apiBaseUrl: 'https://your-domain.com/api',
-  useMockData: false,
-  useFakeApi: false,
-};
-```
-
-The production values are in `src/environments/environment.production.ts` and are swapped at build time via `fileReplacements` in `angular.json`.
-
----
-
-## Endpoint Configuration
-
-All API endpoint paths are defined in `src/app/core/constants/api-endpoints.ts`.
-
-Paths are relative (e.g., `/products`, `/auth/login`). The base URL from the environment config is prepended automatically.
-
-**Example:** `environment.apiBaseUrl = 'http://localhost:8080/api'` + endpoint `/products` → full URL `http://localhost:8080/api/products`
-
-### Key endpoint groups:
-
-| Group | Path prefix | File reference |
-|-------|-------------|---------------|
-| Auth | `/auth/*` | `API_ENDPOINTS.AUTH` |
-| Products | `/products/*` | `API_ENDPOINTS.PRODUCTS` |
-| Categories | `/categories/*` | `API_ENDPOINTS.CATEGORIES` |
-| Cart | `/cart/*` | `API_ENDPOINTS.CART` |
-| Orders | `/orders/*` | `API_ENDPOINTS.ORDERS` |
-| Users | `/users/*` | `API_ENDPOINTS.USERS` |
-| Addresses | `/addresses/*` | `API_ENDPOINTS.ADDRESSES` |
-| Banners | `/banners/*` | `API_ENDPOINTS.BANNERS` |
-| Coupons | `/coupons/*` | `API_ENDPOINTS.COUPONS` |
-| Reviews | `/reviews/*` | `API_ENDPOINTS.REVIEWS` |
-| Payment Methods | `/payment-methods/*` | `API_ENDPOINTS.PAYMENT_METHODS` |
-
----
-
-## DTOs (Data Transfer Objects)
-
-Located in `src/app/core/models/dto/`.
-
-DTOs define the exact request/response shapes expected from the Spring Boot API. They are separate from the app domain models (`src/app/core/models/`) to allow the API and UI to evolve independently.
-
-| File | Contents |
-|------|----------|
-| `auth.dto.ts` | Login/Register requests, Auth response |
-| `product.dto.ts` | Product CRUD + paginated list response |
-| `category.dto.ts` | Category CRUD |
-| `cart.dto.ts` | Cart items + add/update requests |
-| `order.dto.ts` | Order CRUD + status update |
-| `user.dto.ts` | User CRUD + paginated list |
-| `address.dto.ts` | Address CRUD |
-| `banner.dto.ts` | Banner CRUD |
-| `coupon.dto.ts` | Coupon CRUD + apply/validate |
-| `review.dto.ts` | Review CRUD |
-| `payment-method.dto.ts` | Payment method CRUD |
-
----
-
-## Mappers
-
-Located in `src/app/core/mappers/spring/`.
-
-Mappers convert between DTOs (API shapes) and app domain models (UI shapes). Each entity has two mapper functions:
-
-- `mapXxxDtoToXxx(dto)` — converts API response DTO → app model
-- `mapCreateXxxToDto(model)` — converts create payload → API request DTO
-
-Mappers are pure functions (no class instances) for tree-shakeability.
-
-### Existing Platzi mappers
-
-Located in `src/app/core/mappers/`:
-
-- `platzi-product.mapper.ts`
-- `platzi-category.mapper.ts`
-- `platzi-auth.mapper.ts`
-- `platzi-user.mapper.ts`
-
-These handle Platzi API integration and remain untouched.
-
----
-
-## ApiService
-
-Located in `src/app/core/services/api.service.ts`.
-
-A centralized HTTP wrapper providing type-safe methods:
-
-```typescript
-// GET with optional query params
-apiService.get<Product[]>('/products', { categoryId: '1', page: 1 });
-
-// POST with body
-apiService.post<Product>('/products', newProductData);
-
-// PUT with body
-apiService.put<Product>('/products/123', updatedFields);
-
-// PATCH with body
-apiService.patch<Product>('/products/123', partialUpdate);
-
-// DELETE
-apiService.delete<void>('/products/123');
-```
-
-The `ApiService` automatically:
-- Prepends `API_BASE_URL` from the environment config
-- Strips empty/undefined query params
-- Uses Angular `HttpClient` with interceptor support
-
----
-
-## Auth Interceptor
-
-Located in `src/app/core/interceptors/auth.interceptor.ts`.
-
-**What it does:**
-- Reads JWT token from `localStorage` using `STORAGE_KEYS.AUTH_TOKEN`
-- Attaches `Authorization: Bearer <token>` header to all outgoing requests
-- On 401 response: logs the user out (future: attempt token refresh first)
-- Functional interceptor registered via `withInterceptors([authInterceptor])` in `app.config.ts`
-
-**Registration is active** — the interceptor is enabled for all HTTP requests when the app boots.
-
----
-
-## How to Update Services for Spring Boot API
-
-Each service uses a three-tier pattern:
-
-```typescript
-getProducts(): Observable<ApiResponse<Product[]>> {
-  if (APP_CONFIG.USE_MOCK_DATA) {
-    return of(this.ok(MOCK_PRODUCTS));
-  }
-  if (APP_CONFIG.USE_FAKE_API) {
-    return this.platziProduct.getProducts().pipe(
-      map(res => this.ok(res.data.map(mapPlatziProductToProduct))),
-    );
-  }
-  // REAL API — Spring Boot
-  return this.http.get<ApiResponse<Product[]>>(
-    `${APP_CONFIG.API_BASE_URL}${API_ENDPOINTS.PRODUCTS.GET_ALL}`,
-  );
+interface AuthUser {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  role: 'CUSTOMER' | 'ADMIN';
+  enabled: boolean;
+  token: string;
+  refreshToken: string;
+  expiresIn: number;
 }
 ```
 
-**To add a new service:**
-1. Add endpoint paths to `API_ENDPOINTS` in `api-endpoints.ts`
-2. Create DTOs in `src/app/core/models/dto/`
-3. Create mapper functions in `src/app/core/mappers/spring/`
-4. Follow the three-tier pattern in the service
-
 ---
 
-## Example: Product Endpoint Mapping
+## Standard Response Envelope
 
-### Spring Boot Response (expected)
+Every endpoint returns:
 
-```json
-{
-  "success": true,
-  "message": "OK",
-  "data": [
-    {
-      "id": "prod-1",
-      "name": "Wireless Headphones",
-      "slug": "wireless-headphones",
-      "description": "High-quality wireless headphones",
-      "price": 249.99,
-      "salePrice": 199.99,
-      "stockQuantity": 50,
-      "sku": "WH-001",
-      "thumbnailUrl": "https://example.com/image.jpg",
-      "images": ["https://example.com/image1.jpg"],
-      "featured": true,
-      "enabled": true,
-      "status": "ACTIVE",
-      "categoryId": "cat-1",
-      "categoryName": "Electronics",
-      "allowReview": true,
-      "allowCoupon": false,
-      "allowCart": true,
-      "allowCheckout": true,
-      "createdAt": "2024-01-01T00:00:00Z",
-      "updatedAt": "2024-01-01T00:00:00Z"
-    }
-  ],
-  "meta": {
-    "page": 0,
-    "pageSize": 12,
-    "totalItems": 1,
-    "totalPages": 1,
-    "hasNextPage": false,
-    "hasPreviousPage": false
-  }
+```typescript
+interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+  meta?: ApiMeta;
+  errors?: ApiError[];
+}
+
+interface ApiMeta {
+  page: number;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
+interface ApiError {
+  field: string;
+  message: string;
+  code: string;
 }
 ```
 
-### Mapping flow
+### Pagination Query Params
 
-```
-HTTP Response (JSON)
-    ↓
-ProductResponseDto (dto/product.dto.ts)
-    ↓
-mapProductDtoToProduct() (mappers/spring/product.mapper.ts)
-    ↓
-Product (models/product.model.ts) — used in UI
+List endpoints accept:
+
+```typescript
+interface PaginationParams {
+  page: number;
+  pageSize: number;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+  search?: string;
+}
 ```
 
 ---
 
-## Example: Auth Login Mapping
+## Complete Endpoint Reference
 
-### Login Request (to Spring Boot)
+### Products
 
-```
-POST /auth/login
-Content-Type: application/json
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/products` | List all products (admin) |
+| GET | `/products/{id}` | Get single product |
+| GET | `/products/featured` | Get featured products |
+| GET | `/products/category/{categoryId}` | Get products by category |
+| GET | `/products/search` | Search products (`?search=`) |
+| POST | `/products` | Create product (admin) |
+| PUT | `/products/{id}` | Update product (admin) |
+| DELETE | `/products/{id}` | Delete product (admin) |
 
-{
-  "email": "user@example.com",
-  "password": "securepassword"
-}
-```
+### Categories
 
-### Login Response (expected from Spring Boot)
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/categories` | List all categories |
+| GET | `/categories/{id}` | Get single category |
+| POST | `/categories` | Create category (admin) |
+| PUT | `/categories/{id}` | Update category (admin) |
+| DELETE | `/categories/{id}` | Delete category (admin) |
 
-```json
-{
-  "success": true,
-  "message": "Login successful",
-  "data": {
-    "user": {
-      "id": "user-1",
-      "firstName": "John",
-      "lastName": "Doe",
-      "email": "user@example.com",
-      "phone": "+1 555-0100",
-      "role": "CUSTOMER",
-      "enabled": true,
-      "token": "eyJhbGciOiJIUzI1NiIs...",
-      "refreshToken": "dGhpcyBpcyBhIHJlZnJl...",
-      "expiresIn": 3600
-    },
-    "token": "eyJhbGciOiJIUzI1NiIs...",
-    "refreshToken": "dGhpcyBpcyBhIHJlZnJl...",
-    "expiresIn": 3600
-  }
-}
-```
+### Cart
 
-### Mapping flow
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/cart` | Get current user's cart |
+| POST | `/cart/add` | Add item to cart |
+| PUT | `/cart/update` | Update cart item |
+| DELETE | `/cart/remove` | Remove item |
+| DELETE | `/cart/clear` | Clear cart |
+| POST | `/cart/sync` | Sync cart after login |
 
-```
-Login request from form
-    ↓
-mapLoginRequestToDto() → LoginRequestDto
-    ↓
-POST /auth/login with LoginRequestDto body
-    ↓
-HTTP response → AuthResponseDto
-    ↓
-mapAuthResponseDtoToAuthResponse() → AuthResponse (app model)
-    ↓
-AuthService stores user + token in localStorage
-```
+### Orders
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/orders` | List all orders (admin) |
+| GET | `/orders/my` | List current user's orders |
+| GET | `/orders/{id}` | Get single order |
+| POST | `/orders` | Create order |
+| PUT | `/orders/{id}/status` | Update order status (admin) |
+| PUT | `/orders/{id}/payment-status` | Update payment status (admin) |
+| POST | `/orders/{id}/cancel` | Cancel order |
+| GET | `/orders/{id}/items` | Get order items |
+| GET | `/orders/{id}/track` | Track order shipment |
+| POST | `/orders/validate` | Validate order before creation |
+
+### Invoices
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/invoices` | List invoices (admin) |
+| GET | `/invoices/{id}` | Get single invoice |
+| POST | `/orders/{orderId}/invoice` | Generate invoice for order |
+| POST | `/invoices/{id}/pay` | Mark invoice as paid (admin) |
+| GET | `/invoices/{id}/download` | Get invoice download URL |
+
+### Shipments
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/shipments` | List shipments (admin) |
+| GET | `/shipments/{id}` | Get single shipment |
+| POST | `/shipments` | Create shipment (admin) |
+| PATCH | `/shipments/{id}/status` | Update shipment status |
+| PATCH | `/shipments/{id}/tracking` | Update tracking number |
+| POST | `/shipments/{id}/deliver` | Mark as delivered |
+
+### Shipping Methods
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/shipping-methods` | List shipping methods |
+| GET | `/shipping-methods/{id}` | Get single method |
+| POST | `/shipping-methods` | Create method (admin) |
+| PUT | `/shipping-methods/{id}` | Update method (admin) |
+| DELETE | `/shipping-methods/{id}` | Delete method (admin) |
+
+### Shipping Zones
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/shipping-zones` | List shipping zones |
+| GET | `/shipping-zones/{id}` | Get single zone |
+| POST | `/shipping-zones` | Create zone (admin) |
+| PUT | `/shipping-zones/{id}` | Update zone (admin) |
+| DELETE | `/shipping-zones/{id}` | Delete zone (admin) |
+
+### Addresses
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/addresses` | List user's addresses |
+| GET | `/addresses/{id}` | Get single address |
+| POST | `/addresses` | Create address |
+| PUT | `/addresses/{id}` | Update address |
+| DELETE | `/addresses/{id}` | Delete address |
+| PUT | `/addresses/{id}/default` | Set as default address |
+
+### Users
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/users` | List users (admin) |
+| GET | `/users/{id}` | Get single user (admin) |
+| PUT | `/users/{id}` | Update user |
+| DELETE | `/users/{id}` | Delete user (admin) |
+| GET | `/users/profile` | Get current user's profile |
+
+### Banners
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/banners` | List banners |
+| GET | `/banners/{id}` | Get single banner |
+| POST | `/banners` | Create banner (admin) |
+| PUT | `/banners/{id}` | Update banner (admin) |
+| DELETE | `/banners/{id}` | Delete banner (admin) |
+
+### Coupons
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/coupons` | List coupons (admin) |
+| GET | `/coupons/{id}` | Get single coupon |
+| POST | `/coupons/apply` | Apply coupon to cart |
+| GET | `/coupons/validate/{code}` | Validate coupon code |
+| POST | `/coupons` | Create coupon (admin) |
+| PUT | `/coupons/{id}` | Update coupon (admin) |
+| DELETE | `/coupons/{id}` | Delete coupon (admin) |
+
+### Reviews
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/reviews` | List reviews (admin) |
+| GET | `/reviews/product/{productId}` | Get reviews for product |
+| POST | `/reviews` | Create review |
+| PUT | `/reviews/{id}` | Update review |
+| DELETE | `/reviews/{id}` | Delete review |
+
+### Payment Methods
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/payment-methods` | List payment methods |
+| GET | `/payment-methods/{id}` | Get single method |
+| POST | `/payment-methods` | Create method (admin) |
+| PUT | `/payment-methods/{id}` | Update method (admin) |
+| DELETE | `/payment-methods/{id}` | Delete method (admin) |
+
+### Product Variants
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/product-variants/product/{productId}` | Get variants for product |
+| GET | `/product-variants/colors/{productId}` | Get colors for product |
+| GET | `/product-variants/sizes/{productId}` | Get sizes for product |
+
+### Product Customization
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/product-feature-controls/product/{productId}` | Get feature controls |
+| POST | `/product-feature-controls` | Create feature controls (admin) |
+| PUT | `/product-feature-controls/{id}` | Update feature controls (admin) |
+| GET | `/product-print-positions/product/{productId}` | Get print positions |
+| GET | `/product-price-breaks/product/{productId}` | Get price breaks |
+| GET | `/product-production-times/product/{productId}` | Get production time |
+| GET | `/product-customization-fees/product/{productId}` | Get customization fees |
+| GET | `/product-print-colors/product/{productId}` | Get print colors |
+
+### Decoration Methods
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/decoration-methods` | List decoration methods |
+| GET | `/product-decoration-methods/product/{productId}` | Get methods for product |
 
 ---
 
-## Common Troubleshooting
+## Key Data Models
 
-### CORS Error
+### Product
 
-**Symptom:** Browser console shows `Access-Control-Allow-Origin` error.
-
-**Fix (Spring Boot):**
-```java
-@Configuration
-public class CorsConfig {
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/api/**")
-                    .allowedOrigins("http://localhost:4200")
-                    .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
-                    .allowedHeaders("*")
-                    .allowCredentials(true);
-            }
-        };
-    }
+```typescript
+interface Product {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  price: number;
+  salePrice: number | null;
+  stockQuantity: number;
+  sku: string;
+  thumbnailUrl: string;
+  images: string[];
+  featured: boolean;
+  enabled: boolean;
+  status: 'DRAFT' | 'ACTIVE' | 'INACTIVE' | 'OUT_OF_STOCK';
+  categoryId: string;
+  categoryName: string;
+  allowReview: boolean;
+  allowCoupon: boolean;
+  allowCart: boolean;
+  allowCheckout: boolean;
+  createdAt: string;
+  updatedAt: string;
+  rating?: number;
+  reviewCount?: number;
 }
 ```
 
-### 401 Unauthorized
+### Cart
 
-**Symptoms:** All API calls return 401; interceptor logs out immediately.
+```typescript
+interface Cart {
+  items: CartItem[];
+  subtotal: number;
+  customizationFeeTotal: number;
+  discount: number;
+  shippingFee: number;
+  total: number;
+  totalItems: number;
+}
 
-**Check:**
-1. Is the token stored in `localStorage` under key `seth_store_auth_token`?
-2. Is the token expired? (check `expiresIn`)
-3. Is the `Authorization` header being sent? (check browser DevTools → Network tab)
-4. Does the backend expect `Bearer ` prefix? The interceptor sends `Authorization: Bearer <token>`
+interface CartItem {
+  id: string;
+  productId: string;
+  productName: string;
+  productSlug: string;
+  productImage: string;
+  unitPrice: number;
+  quantity: number;
+  subtotal: number;
+  selectedSize: string | null;
+  selectedColor: string | null;
+  selectedDecorationMethod: string | null;
+  selectedPrintPosition: string | null;
+  uploadedDesignFiles: { position: string; fileName: string; fileType: string; fileSize: number }[];
+  selectedPrintColors: { colorId: string; colorName: string; colorHex: string }[];
+  customizationFee: number;
+  productionTime: number | null;
+  maxQuantity: number;
+  stockQuantity: number;
+  salePrice: number | null;
+}
+```
 
-**Fix:** Verify login flow completes successfully and stores the token.
+### Order
 
-### Endpoint 404
+```typescript
+interface Order {
+  id: string;
+  orderNumber: string;
+  userId: string;
+  customerName: string;
+  email: string;
+  phone: string;
+  telegramUsername: string;
+  address: string;
+  note: string;
+  items: OrderItem[];
+  subtotal: number;
+  discount: number;
+  deliveryFee: number;
+  customizationFeeTotal: number;
+  tax: number;
+  grandTotal: number;
+  totalItems: number;
+  status: 'PENDING' | 'CONFIRMED' | 'PROCESSING' | 'READY' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED' | 'REFUNDED';
+  paymentStatus: 'PENDING' | 'PAID' | 'FAILED' | 'REFUNDED';
+  shippingStatus: 'NOT_SHIPPED' | 'PREPARING' | 'SHIPPED' | 'IN_TRANSIT' | 'DELIVERED' | 'FAILED' | 'RETURNED' | 'CANCELLED';
+  paymentMethodId: string;
+  paymentMethodName: string;
+  paymentTransactionId: string | null;
+  paymentProofUrl: string | null;
+  shippingMethodId: string;
+  shippingMethodName: string;
+  shippingZoneId: string | null;
+  shippingZoneName: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+```
 
-**Symptom:** API returns 404 for known endpoints.
+### Order Create Request
 
-**Check:**
-1. Does the full URL look correct? (base URL + endpoint path)
-2. Does `apiBaseUrl` include `/api`? If so, endpoint paths should NOT start with `/api`
-3. Verify the endpoint path in `api-endpoints.ts` matches the Spring Boot `@RequestMapping`
+```typescript
+interface OrderCreateRequest {
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  telegramUsername: string;
+  shippingAddress: string;
+  note: string;
+  shippingMethodId: string;
+  shippingMethodName: string;
+  shippingZoneId: string | null;
+  shippingZoneName: string | null;
+  paymentMethodId: string;
+  paymentMethodName: string;
+  couponCode: string | null;
+  items: {
+    productId: string;
+    productName: string;
+    productSlug: string;
+    unitPrice: number;
+    quantity: number;
+    subtotal: number;
+    selectedSize: string | null;
+    selectedColor: string | null;
+    selectedDecorationMethod: string | null;
+    selectedPrintPosition: string | null;
+    uploadedDesignFiles: { position: string; fileName: string; fileType: string; fileSize: number }[];
+    selectedPrintColors: { colorId: string; colorName: string; colorHex: string }[];
+    customizationFee: number;
+    productionTime: number | null;
+  }[];
+  subtotal: number;
+  customizationFeeTotal: number;
+  discount: number;
+  deliveryFee: number;
+  tax: number;
+  grandTotal: number;
+  totalItems: number;
+}
+```
 
-### DTO Mismatch
+> **The backend must recalculate all prices** using its own catalog and pricing rules. Client values are for display only.
 
-**Symptom:** API returns data but UI shows nothing or throws errors.
+### Coupon Validation Result
 
-**Check:**
-1. Compare the actual API response JSON with the DTO interface
-2. Check for missing/renamed fields
-3. Check for type mismatches (string vs number vs null)
-4. Use browser DevTools → Network → Response to see the raw JSON
+```typescript
+interface CouponValidationResult {
+  valid: boolean;
+  code: string;
+  discountType: 'PERCENTAGE' | 'FIXED' | 'FREE_SHIPPING' | null;
+  discountValue: number;
+  message: string;
+  isExpired?: boolean;
+  minOrderNotMet?: boolean;
+  usageLimitReached?: boolean;
+  productRestriction?: boolean;
+  categoryRestriction?: boolean;
+}
+```
 
-**Fix:** Update the DTO interface and/or mapper function.
+### Invoice
 
-### Token Not Sent
+```typescript
+interface Invoice {
+  id: string;
+  invoiceNumber: string;
+  orderId: string;
+  customerName: string;
+  customerEmail: string;
+  billingAddress: string;
+  subtotal: number;
+  discount: number;
+  deliveryFee: number;
+  customizationFeeTotal: number;
+  tax: number;
+  grandTotal: number;
+  currency: string;
+  status: 'DRAFT' | 'ISSUED' | 'PAID' | 'CANCELLED' | 'REFUNDED';
+  issuedAt: string | null;
+  paidAt: string | null;
+  dueAt: string | null;
+  downloadUrl: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+```
 
-**Symptom:** Authenticated endpoints return 401 but login works.
+### Shipment
 
-**Check:**
-1. Is `authInterceptor` registered in `app.config.ts`? (should be: `withInterceptors([authInterceptor])`)
-2. Is the token in `localStorage` after login?
-3. Does the interceptor run? (set a breakpoint in `auth.interceptor.ts`)
+```typescript
+interface Shipment {
+  id: string;
+  orderId: string;
+  shipmentNumber: string;
+  shippingMethodId: string;
+  shippingMethodName: string;
+  shippingZoneId: string | null;
+  shippingZoneName: string | null;
+  carrierName: string | null;
+  trackingNumber: string | null;
+  trackingUrl: string | null;
+  status: 'PENDING' | 'PREPARING' | 'SHIPPED' | 'IN_TRANSIT' | 'DELIVERED' | 'FAILED' | 'RETURNED' | 'CANCELLED';
+  shippedAt: string | null;
+  deliveredAt: string | null;
+  note: string;
+  createdAt: string;
+  updatedAt: string;
+}
+```
 
-### Refresh Token
+### Remaining Models
 
-The interceptor currently logs out on 401. To implement refresh token logic:
-
-1. Add a refresh token endpoint call in the interceptor
-2. Store the new token on success
-3. Retry the original request with the new token
-4. Only logout if the refresh also fails
-
-See `API_ENDPOINTS.AUTH` for the `/auth/refresh` endpoint path.
+| Model | Key Fields |
+|---|---|
+| `Address` | `id, userId, firstName, lastName, streetAddress, city, state, zipCode, country, phone, isDefault` |
+| `User` | `id, firstName, lastName, email, phone, role: CUSTOMER\|ADMIN, enabled` |
+| `Category` | `id, name, slug, imageUrl, enabled, sortOrder, parentId, childIds` |
+| `Banner` | `id, title, subtitle, imageUrl, linkUrl, position: HERO\|SIDEBAR\|FOOTER\|PROMO, enabled, sortOrder, startsAt, endsAt` |
+| `Coupon` | `id, code, discountType: PERCENTAGE\|FIXED\|FREE_SHIPPING, discountValue, minOrderAmount, maxUses, usedCount, startDate, endDate, enabled` |
+| `Review` | `id, productId, userId, userName, rating, title, comment, images, verifiedPurchase, status: PENDING\|APPROVED\|REJECTED` |
+| `PaymentMethod` | `id, name, type: CARD\|PAYPAL\|STRIPE\|BANK_TRANSFER\|COD, enabled, sortOrder, config` |
+| `ShippingMethod` | `id, name, code, baseFee, isActive, estimatedDeliveryTime, sortOrder` |
+| `ShippingZone` | `id, name, code, fee, isActive, sortOrder` |
+| `ProductFeatureControl` | `productId, enableSizeSelection, enableColorSelection, enableDesignUpload, isCustomizable, maxUploadFiles, allowedFileTypes, maxFileSizeMb` |
+| `ProductVariant` | `productId, sku, sizeId, colorId, priceAdjustment, stockQuantity` |
+| `ProductColor` | `name, code, hexCode, isActive, sortOrder` |
+| `ProductSize` | `name, code, description, sortOrder` |
+| `DecorationMethod` | `name, code, baseFee, isActive` |
+| `ProductPrintPosition` | `name, code, extraFee, isActive` |
+| `ProductPriceBreak` | `minQuantity, maxQuantity, unitPrice, discountPercentage` |
+| `ProductProductionTime` | `minDays, maxDays, rushAvailable, rushFee` |
+| `ProductCustomizationFee` | `feeName, feeType: FIXED\|PERCENTAGE\|PER_UNIT, amount, isRequired` |
+| `PrintColor` | `name, hexCode, code` |
 
 ---
 
-## Quick Reference
+## Important Notes
 
-| File | Purpose |
-|------|---------|
-| `src/environments/environment.ts` | Development config |
-| `src/environments/environment.production.ts` | Production config |
-| `src/app/core/constants/app-config.ts` | Reads environment + adds app constants |
-| `src/app/core/constants/api-endpoints.ts` | All REST API endpoint paths |
-| `src/app/core/models/dto/*.ts` | Spring Boot DTO interfaces |
-| `src/app/core/mappers/spring/*.ts` | DTO ↔ App model converters |
-| `src/app/core/services/api.service.ts` | Centralized HTTP wrapper |
-| `src/app/core/interceptors/auth.interceptor.ts` | JWT auth header injection |
-| `src/app/app.config.ts` | App bootstrap + interceptor registration |
-| `src/app/core/services/*.service.ts` | Individual entity services (mock/fake/real pattern) |
+1. **All IDs are strings** (UUIDs)
+2. **All dates are ISO 8601** strings
+3. **Prices are decimal numbers** (not cents)
+4. **The backend must always recalculate order totals** — never trust client-submitted prices
+5. **Wishlist is client-side only** (localStorage) — no backend endpoint needed
+6. **Cart is server-side per user** — call `POST /cart/sync` after login to merge local cart
+7. **File uploads** should accept multipart uploads and return URLs
+8. **All list endpoints** should support pagination (`page`, `pageSize`, `sortBy`, `sortOrder`, `search`)
