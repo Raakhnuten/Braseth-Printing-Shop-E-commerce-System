@@ -1,0 +1,37 @@
+@if (state().isOpen) {
+  <div
+    class="confirm-dialog__overlay"
+    (click)="onOverlayClick($event)"
+    (keydown)="onKeydown($event)"
+  >
+    <div
+      #dialogPanel
+      class="confirm-dialog__panel"
+      role="dialog"
+      aria-modal="true"
+      [attr.aria-labelledby]="'confirm-dialog-title'"
+      (keydown)="onKeydown($event)"
+    >
+      <h2 class="confirm-dialog__title" id="confirm-dialog-title">
+        {{ state().title }}
+      </h2>
+      <p class="confirm-dialog__message">{{ state().message }}</p>
+      <div class="confirm-dialog__actions">
+        <button
+          class="confirm-dialog__btn confirm-dialog__btn--cancel"
+          (click)="onCancel()"
+          type="button"
+        >
+          {{ state().cancelLabel }}
+        </button>
+        <button
+          class="confirm-dialog__btn confirm-dialog__btn--confirm"
+          (click)="onConfirm()"
+          type="button"
+        >
+          {{ state().confirmLabel }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

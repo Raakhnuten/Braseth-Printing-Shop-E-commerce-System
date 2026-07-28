@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input } from '@angular/core';
 
 export type IconName =
   | 'facebook'
@@ -13,6 +13,7 @@ export type IconName =
   selector: 'app-icon',
   templateUrl: './icon.component.html',
   styleUrl: './icon.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IconComponent {
   name = input.required<IconName>();

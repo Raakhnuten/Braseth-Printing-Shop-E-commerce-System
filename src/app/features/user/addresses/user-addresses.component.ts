@@ -6,6 +6,7 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { Address } from '../../../core/models/address.model';
 import { AddressService } from '../../../core/services/address.service';
+import { ConfirmDialogService } from '../../../core/services/confirm-dialog.service';
 
 @Component({
   selector: 'app-user-addresses',
@@ -15,6 +16,7 @@ import { AddressService } from '../../../core/services/address.service';
 })
 export class UserAddressesComponent implements OnInit {
   private addressService = inject(AddressService);
+  private confirmService = inject(ConfirmDialogService);
   private destroyRef = inject(DestroyRef);
 
   loading = signal(true);
@@ -40,9 +42,12 @@ export class UserAddressesComponent implements OnInit {
   }
 
   onDelete(id: string): void {
-    if (!confirm('Delete this address?')) return;
-    this.addressService.deleteAddress(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: () => this.loadAddresses(),
-    });
+    this.confirmService.open({ title: 'Delete Address', message: 'Are you sure you want to delete this address?' })
+      .subscribe((confirmed) => {
+        if (!confirmed) return;
+        this.addressService.deleteAddress(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+          next: () => this.loadAddresses(),
+        });
+      });
   }
 }

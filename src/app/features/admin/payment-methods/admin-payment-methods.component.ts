@@ -6,6 +6,7 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { PaymentMethodService } from '../../../core/services/payment-method.service';
+import { ConfirmDialogService } from '../../../core/services/confirm-dialog.service';
 import { PaymentMethod, PaymentMethodType } from '../../../core/models/payment-method.model';
 
 @Component({
@@ -16,6 +17,7 @@ import { PaymentMethod, PaymentMethodType } from '../../../core/models/payment-m
 })
 export class AdminPaymentMethodsComponent implements OnInit {
   private paymentMethodService = inject(PaymentMethodService);
+  private confirmService = inject(ConfirmDialogService);
   private fb = inject(FormBuilder);
   private destroyRef = inject(DestroyRef);
 
@@ -141,16 +143,19 @@ export class AdminPaymentMethodsComponent implements OnInit {
   }
 
   deletePaymentMethod(id: string): void {
-    if (!confirm('Are you sure you want to delete this payment method?')) return;
-    this.paymentMethodService.deletePaymentMethod(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: () => {
-        this.successMessage.set('Payment method deleted successfully');
-        this.loadPaymentMethods();
-        setTimeout(() => this.successMessage.set(''), 3000);
-      },
-      error: () => {
-        this.formError.set('Failed to delete payment method');
-      },
-    });
+    this.confirmService.open({ title: 'Delete Payment Method', message: 'Are you sure you want to delete this payment method?' })
+      .subscribe((confirmed) => {
+        if (!confirmed) return;
+        this.paymentMethodService.deletePaymentMethod(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+          next: () => {
+            this.successMessage.set('Payment method deleted successfully');
+            this.loadPaymentMethods();
+            setTimeout(() => this.successMessage.set(''), 3000);
+          },
+          error: () => {
+            this.formError.set('Failed to delete payment method');
+          },
+        });
+      });
   }
 }

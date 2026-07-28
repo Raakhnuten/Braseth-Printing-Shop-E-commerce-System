@@ -14,6 +14,7 @@ import { Invoice, InvoiceStatus } from '../../../core/models/invoice.model';
 import { OrderService } from '../../../core/services/order.service';
 import { ShipmentService } from '../../../core/services/shipment.service';
 import { InvoiceService } from '../../../core/services/invoice.service';
+import { ConfirmDialogService } from '../../../core/services/confirm-dialog.service';
 
 @Component({
   selector: 'app-user-order-detail',
@@ -26,6 +27,7 @@ export class UserOrderDetailComponent implements OnInit {
   private orderService = inject(OrderService);
   private shipmentService = inject(ShipmentService);
   private invoiceService = inject(InvoiceService);
+  private confirmService = inject(ConfirmDialogService);
   private destroyRef = inject(DestroyRef);
 
   loading = signal(true);
@@ -94,26 +96,28 @@ export class UserOrderDetailComponent implements OnInit {
   }
 
   confirmCancel(): void {
-    const confirmed = window.confirm('Are you sure you want to cancel this order? This action cannot be undone.');
-    if (!confirmed) return;
+    this.confirmService.open({ title: 'Cancel Order', message: 'Are you sure you want to cancel this order? This action cannot be undone.' })
+      .subscribe((confirmed) => {
+        if (!confirmed) return;
 
-    const order = this.orderDetail();
-    if (!order) return;
+        const order = this.orderDetail();
+        if (!order) return;
 
-    this.cancelling.set(true);
-    this.cancelError.set('');
+        this.cancelling.set(true);
+        this.cancelError.set('');
 
-    this.orderService.cancelOrder(order.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (res) => {
-        if (res.data) {
-          this.orderDetail.set(res.data);
-        }
-        this.cancelling.set(false);
-      },
-      error: () => {
-        this.cancelError.set('Failed to cancel order. Please try again.');
-        this.cancelling.set(false);
-      },
-    });
+        this.orderService.cancelOrder(order.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+          next: (res) => {
+            if (res.data) {
+              this.orderDetail.set(res.data);
+            }
+            this.cancelling.set(false);
+          },
+          error: () => {
+            this.cancelError.set('Failed to cancel order. Please try again.');
+            this.cancelling.set(false);
+          },
+        });
+      });
   }
 }

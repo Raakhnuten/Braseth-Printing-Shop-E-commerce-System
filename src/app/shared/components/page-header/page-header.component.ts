@@ -1,11 +1,12 @@
-import { Component, Input } from '@angular/core';
-import { SafeUrlPipe } from '../../pipes/safe-url.pipe';
+import { Component, ChangeDetectionStrategy, Input } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-page-header',
   templateUrl: './page-header.component.html',
   styleUrl: './page-header.component.scss',
-  imports: [SafeUrlPipe],
+  imports: [RouterLink],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PageHeaderComponent {
   @Input() title: string = '';

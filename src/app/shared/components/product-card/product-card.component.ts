@@ -1,4 +1,4 @@
-import { Component, inject, Input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, Input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgClass } from '@angular/common';
 import { Product } from '../../../core/models/product.model';
@@ -11,6 +11,7 @@ import { getSafeImageUrl, onImageError } from '../../../core/helpers/image.helpe
   templateUrl: './product-card.component.html',
   styleUrl: './product-card.component.scss',
   imports: [RouterLink, NgClass],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductCardComponent {
   private cartService = inject(CartService);

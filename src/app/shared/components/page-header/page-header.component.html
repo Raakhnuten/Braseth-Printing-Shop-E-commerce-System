@@ -2,7 +2,7 @@
   <div class="page-header__breadcrumbs">
     @for (crumb of breadcrumbs; track crumb.url; let last = $last) {
       <span>
-        <a [href]="crumb.url | safeUrl" class="breadcrumb-link">{{ crumb.label }}</a>
+        <a [routerLink]="crumb.url" class="breadcrumb-link">{{ crumb.label }}</a>
         @if (!last) {
           <span class="breadcrumb-separator">/</span>
         }

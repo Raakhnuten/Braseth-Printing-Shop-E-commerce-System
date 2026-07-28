@@ -5,6 +5,7 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { BannerService } from '../../../core/services/banner.service';
+import { ConfirmDialogService } from '../../../core/services/confirm-dialog.service';
 import { Banner, BannerPosition } from '../../../core/models/banner.model';
 
 @Component({
@@ -15,6 +16,7 @@ import { Banner, BannerPosition } from '../../../core/models/banner.model';
 })
 export class AdminBannersComponent implements OnInit {
   private bannerService = inject(BannerService);
+  private confirmService = inject(ConfirmDialogService);
   private fb = inject(FormBuilder);
   private destroyRef = inject(DestroyRef);
 
@@ -141,16 +143,19 @@ export class AdminBannersComponent implements OnInit {
   }
 
   deleteBanner(id: string): void {
-    if (!confirm('Are you sure you want to delete this banner?')) return;
-    this.bannerService.deleteBanner(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: () => {
-        this.successMessage.set('Banner deleted successfully');
-        this.loadBanners();
-        setTimeout(() => this.successMessage.set(''), 3000);
-      },
-      error: () => {
-        this.formError.set('Failed to delete banner');
-      },
-    });
+    this.confirmService.open({ title: 'Delete Banner', message: 'Are you sure you want to delete this banner?' })
+      .subscribe((confirmed) => {
+        if (!confirmed) return;
+        this.bannerService.deleteBanner(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+          next: () => {
+            this.successMessage.set('Banner deleted successfully');
+            this.loadBanners();
+            setTimeout(() => this.successMessage.set(''), 3000);
+          },
+          error: () => {
+            this.formError.set('Failed to delete banner');
+          },
+        });
+      });
   }
 }

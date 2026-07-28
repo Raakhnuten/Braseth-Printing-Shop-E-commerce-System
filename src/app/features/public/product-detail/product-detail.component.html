@@ -14,24 +14,11 @@
         <!-- LEFT COLUMN -->
         <div class="pd-left">
           <!-- Gallery -->
-          <div class="pd-gallery" (mouseenter)="zoomed.set(true)" (mouseleave)="zoomed.set(false)">
-            <div class="pd-gallery__main" [class.pd-gallery__main--zoomed]="zoomed()">
-              <img [src]="validImages[selectedImageIndex]" [alt]="p.name" (error)="onImgError($event)" />
-            </div>
-            @if (validImages.length > 1) {
-              <div class="pd-gallery__thumbs">
-                @for (img of validImages; track $index) {
-                  <button
-                    class="pd-gallery__thumb"
-                    [class.pd-gallery__thumb--active]="$index === selectedImageIndex"
-                    (click)="selectImage($index)"
-                  >
-                    <img [src]="img" [alt]="'View ' + ($index + 1)" (error)="onImgError($event)" />
-                  </button>
-                }
-              </div>
-            }
-          </div>
+          <app-product-gallery
+            [images]="p.images"
+            [thumbnailUrl]="p.thumbnailUrl"
+            [productName]="p.name"
+          />
 
           <!-- Product Basic Info -->
           <div class="pd-basic-info">
@@ -167,253 +154,38 @@
                 </div>
               }
 
-              <!-- Size Selection -->
-              @if (enableSizeSelection) {
-                <div class="pd-custom__section">
-                  <div class="pd-custom__section-title">
-                    <span class="pd-custom__step-badge">1</span> Select Size
-                  </div>
-                  <div class="pd-custom__sizes">
-                    @for (size of availableSizes(); track size.id) {
-                      <button
-                        class="pd-custom__size"
-                        [class.pd-custom__size--sel]="selectedSizeId() === size.id"
-                        (click)="selectSize(size.id)"
-                      >{{ size.name }}</button>
-                    }
-                  </div>
-                </div>
-              }
-
-              <!-- Color Selection -->
-              @if (enableColorSelection) {
-                <div class="pd-custom__section">
-                  <div class="pd-custom__section-title">
-                    <span class="pd-custom__step-badge">{{ enableSizeSelection ? '2' : '1' }}</span> Choose Color
-                  </div>
-                  <div class="pd-custom__colors">
-                    @for (c of availableColors(); track c.id) {
-                      <button
-                        class="pd-custom__color"
-                        [class.pd-custom__color--sel]="selectedColorId() === c.id"
-                        (click)="selectColor(c.id)"
-                        [attr.aria-label]="c.name"
-                      >
-                        <span class="pd-custom__swatch" [style.background]="c.hexCode" [class.pd-custom__swatch--light]="c.hexCode === '#FFFFFF'"></span>
-                        <span>{{ c.name }}</span>
-                      </button>
-                    }
-                  </div>
-                </div>
-              }
-
-              <!-- Decoration Method -->
-              @if (enableDecorationMethod) {
-                <div class="pd-custom__section">
-                  <div class="pd-custom__section-title">
-                    <span class="pd-custom__step-badge">{{ (enableSizeSelection ? 1 : 0) + (enableColorSelection ? 1 : 0) + 1 }}</span> Decoration Method
-                  </div>
-                  <div class="pd-custom__methods">
-                    @for (m of availableDecorationMethods(); track m.id) {
-                      <button
-                        class="pd-custom__method"
-                        [class.pd-custom__method--sel]="selectedDecorationMethodId() === m.id"
-                        (click)="selectDecoration(m.id)"
-                      >{{ m.name }}</button>
-                    }
-                  </div>
-                  @if (selectedDecorationMethod) {
-                    <div class="pd-custom__info">{{ selectedDecorationMethod.description }}</div>
-                  }
-                </div>
-              }
-
-              <!-- Print Colors -->
-              @if (enablePrintColor) {
-                <div class="pd-custom__section">
-                  <div class="pd-custom__section-title">
-                    <span class="pd-custom__step-badge">C</span> Print Colors
-                  </div>
-                  <div class="pd-custom__print-colors">
-                    @for (pc of availablePrintColors(); track pc.id) {
-                      <button
-                        class="pd-custom__print-color"
-                        [class.pd-custom__print-color--sel]="selectedPrintColorIds().includes(pc.id)"
-                        (click)="togglePrintColor(pc.id)"
-                        [attr.aria-label]="pc.name"
-                      >
-                        <span class="pd-custom__swatch" [style.background]="pc.hexCode"></span>
-                        <span>{{ pc.name }}</span>
-                      </button>
-                    }
-                  </div>
-                  <label class="pd-custom__multi">
-                    <input type="checkbox" [checked]="multipleColors()" (change)="toggleMultipleColors()" />
-                    <span>Multiple colors</span>
-                  </label>
-                </div>
-              }
+              <!-- Customization (size/color/decoration/print colors) -->
+              <app-product-customization
+                [featureControl]="featureControl()"
+                [availableColors]="availableColors()"
+                [availableSizes]="availableSizes()"
+                [availableDecorationMethods]="availableDecorationMethods()"
+                [availablePrintColors]="availablePrintColors()"
+                (sizeSelected)="onSizeSelected($event)"
+                (colorSelected)="onColorSelected($event)"
+                (decorationSelected)="onDecorationSelected($event)"
+                (printColorsSelected)="onPrintColorsSelected($event)"
+                (multipleColorsChanged)="onMultipleColorsChanged($event)"
+              />
 
               <!-- Artwork Upload -->
               @if (enableDesignUpload) {
-                <div class="pd-custom__section">
-                  <div class="pd-custom__section-title">
-                    <span class="pd-custom__step-badge">A</span> Upload Artwork
-                  </div>
-
-                  @if (artworkUploading()) {
-                    <div class="pd-artwork__uploading">
-                      <i class="pi pi-spin pi-spinner"></i>
-                      <span>Uploading artwork...</span>
-                    </div>
-                  } @else if (artworkFileName() && !artworkError()) {
-                    <div class="pd-artwork__preview">
-                      @if (artworkPreviewUrl()) {
-                        <img [src]="artworkPreviewUrl()" [alt]="artworkFileName()" class="pd-artwork__preview-thumb" />
-                      } @else {
-                        <div class="pd-artwork__preview-icon">
-                          <i class="pi pi-file-pdf"></i>
-                        </div>
-                      }
-                      <div class="pd-artwork__preview-info">
-                        <span class="pd-artwork__preview-name">{{ artworkFileName() }}</span>
-                        <span class="pd-artwork__preview-size">{{ formatFileSize(artworkFileSize()) }}</span>
-                      </div>
-                      <div class="pd-artwork__preview-status">
-                        <i class="pi pi-check-circle"></i>
-                      </div>
-                      <div class="pd-artwork__preview-actions">
-                        <button type="button" class="pd-artwork__action-btn pd-artwork__action-btn--replace" (click)="artworkTrigger.click()" aria-label="Replace artwork">
-                          <i class="pi pi-refresh"></i> Replace
-                        </button>
-                        <button type="button" class="pd-artwork__action-btn pd-artwork__action-btn--remove" (click)="removeArtwork()" aria-label="Remove artwork">
-                          <i class="pi pi-trash"></i> Remove
-                        </button>
-                      </div>
-                    </div>
-                  } @else {
-                    <div
-                      class="pd-artwork__dropzone"
-                      [class.pd-artwork__dropzone--drag-over]="isDragOver()"
-                      (dragover)="onArtworkDragOver($event)"
-                      (dragleave)="onArtworkDragLeave($event)"
-                      (drop)="onArtworkDrop($event)"
-                      (click)="artworkInput.click()"
-                      role="button"
-                      tabindex="0"
-                      (keydown.enter)="artworkInput.click()"
-                      (keydown.space)="artworkInput.click(); $event.preventDefault()"
-                      aria-label="Upload artwork. Drag and drop or click to browse."
-                    >
-                      <input
-                        #artworkInput
-                        type="file"
-                        [accept]="acceptedExtensionsString"
-                        (change)="onArtworkUpload($event)"
-                        class="pd-artwork__input"
-                        aria-hidden="true"
-                        tabindex="-1"
-                      />
-                      <i class="pi pi-cloud-upload pd-artwork__dropzone-icon"></i>
-                      <span class="pd-artwork__dropzone-title">Upload Artwork</span>
-                      <span class="pd-artwork__dropzone-subtitle">Drag &amp; Drop your artwork here or click to browse</span>
-                      <div class="pd-artwork__dropzone-formats">
-                        <span class="pd-artwork__format-badge">PNG</span>
-                        <span class="pd-artwork__format-badge">JPG</span>
-                        <span class="pd-artwork__format-badge">PDF</span>
-                        <span class="pd-artwork__format-badge">AI</span>
-                        <span class="pd-artwork__format-badge">PSD</span>
-                        <span class="pd-artwork__format-badge">SVG</span>
-                      </div>
-                      <span class="pd-artwork__dropzone-limit">Max {{ artworkMaxSizeMb }} MB</span>
-                    </div>
-                  }
-
-                  @if (artworkError()) {
-                    <div class="pd-artwork__error" role="alert">
-                      <i class="pi pi-exclamation-triangle"></i>
-                      <span>{{ artworkError() }}</span>
-                    </div>
-                  }
-
-                  <input #artworkTrigger type="file" [accept]="acceptedExtensionsString" (change)="onArtworkUpload($event)" class="pd-artwork__input-trigger" aria-hidden="true" tabindex="-1" />
-
-                  <button class="pd-custom__template-btn" (click)="downloadTemplate()">
-                    <i class="pi pi-download"></i> Download Template
-                  </button>
-                </div>
+                <app-design-upload
+                  [maxSizeMb]="artworkMaxSizeMb"
+                  (fileUploaded)="onFileUploaded($event)"
+                  (fileRemoved)="onFileRemoved()"
+                />
               }
 
-              <!-- Quantity -->
-              <div class="pd-custom__section">
-                <div class="pd-custom__section-title">
-                  <span class="pd-custom__step-badge">Q</span> Quantity
-                </div>
-                <div class="pd-custom__qty-row">
-                  <div class="pd-custom__qty">
-                    <button (click)="adjustQty(-1)" [disabled]="customQty() <= minOrderQuantity">−</button>
-                    <input type="number" [ngModel]="customQty()" (ngModelChange)="setQty($event)" [min]="minOrderQuantity" />
-                    <button (click)="adjustQty(1)">+</button>
-                  </div>
-                  @if (enablePriceBreak && priceBreaks().length > 0) {
-                    <button class="pd-custom__breaks-btn" (click)="showPriceBreaks.set(!showPriceBreaks())">
-                      <i class="pi pi-chart-bar"></i> Breaks
-                      <i class="pi" [ngClass]="showPriceBreaks() ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
-                    </button>
-                  }
-                </div>
-                @if (customQty() < minOrderQuantity) {
-                  <p class="pd-custom__warn">Minimum quantity is {{ minOrderQuantity }}.</p>
-                }
-                @if (showPriceBreaks() && priceBreaks().length > 0) {
-                  <div class="pd-custom__breaks">
-                    @for (pb of priceBreaks(); track pb.id) {
-                      <div>
-                        <span>{{ pb.minQuantity }}@if (pb.maxQuantity) { –{{ pb.maxQuantity }} } @else { + }</span>
-                        <span>{{ pb.discountPercentage > 0 ? pb.discountPercentage + '% off' : 'No discount' }}</span>
-                      </div>
-                    }
-                  </div>
-                }
-              </div>
-
-              <!-- Production Time -->
-              @if (enableProductionTime && productionTime()) {
-                <div class="pd-custom__section">
-                  <div class="pd-custom__section-title">
-                    <span class="pd-custom__step-badge">T</span> Production Time
-                  </div>
-                  <div class="pd-custom__production">
-                    <span><i class="pi pi-clock"></i> {{ productionTime()!.minDays }}–{{ productionTime()!.maxDays }} business days</span>
-                    @if (productionTime()!.rushAvailable) {
-                      <span class="pd-custom__rush">Rush available (+${{ productionTime()!.rushFee.toFixed(2) }})</span>
-                    }
-                  </div>
-                </div>
-              }
-
-              <!-- Summary -->
-              <div class="pd-custom__summary">
-                @if (enableSizeSelection && selectedSizeId()) {
-                  <div class="pd-custom__summary-row"><span>Size</span><span>{{ availableSizes().find(s => s.id === selectedSizeId())?.name ?? '—' }}</span></div>
-                }
-                @if (enableColorSelection && selectedColorId()) {
-                  <div class="pd-custom__summary-row"><span>Color</span><span>{{ availableColors().find(c => c.id === selectedColorId())?.name ?? '—' }}</span></div>
-                }
-                @if (enableDecorationMethod && selectedDecorationMethodId()) {
-                  <div class="pd-custom__summary-row"><span>Decoration</span><span>{{ selectedDecorationMethod?.name ?? '—' }}</span></div>
-                }
-                @if (artworkFileName()) {
-                  <div class="pd-custom__summary-row"><span>Artwork</span><span>{{ artworkFileName() }}</span></div>
-                }
-                @if (enableProductionTime && productionDays > 0) {
-                  <div class="pd-custom__summary-row"><span>Lead Time</span><span>{{ productionDays }} business days</span></div>
-                }
-                <div class="pd-custom__summary-divider"></div>
-                <div class="pd-custom__summary-row"><span>Quantity</span><span>{{ customQty() }}</span></div>
-                <div class="pd-custom__summary-row"><span>Unit Price</span><span>${{ estimatedUnitPrice.toFixed(2) }}</span></div>
-                <div class="pd-custom__summary-row pd-custom__summary-row--total"><span>Estimated Total</span><span>${{ estimatedTotal.toFixed(2) }}</span></div>
-              </div>
+              <!-- Pricing (quantity, price breaks, production time, summary) -->
+              <app-product-pricing
+                [priceBreaks]="priceBreaks()"
+                [productionTime]="productionTime()"
+                [basePrice]="basePrice"
+                [featureControl]="featureControl()"
+                [customizationSummary]="customizationSummary"
+                (quantityChanged)="onQuantityChanged($event)"
+              />
 
               <div class="pd-custom__actions">
                 <button class="pd-custom__btn pd-custom__btn--cart" [disabled]="!inStock || !p.allowCart" (click)="addToCart()">

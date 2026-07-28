@@ -9,7 +9,7 @@
         @for (item of wishlistItems(); track item.id) {
           <div class="wishlist-item">
             <a [routerLink]="['/products', item.id]" class="wishlist-item__image-link">
-              <img [src]="item.thumbnailUrl" [alt]="item.name" class="wishlist-item__image" />
+              <img [src]="item.thumbnailUrl" [alt]="item.name" class="wishlist-item__image" loading="lazy" />
             </a>
             <div class="wishlist-item__info">
               <a [routerLink]="['/products', item.id]" class="wishlist-item__name">

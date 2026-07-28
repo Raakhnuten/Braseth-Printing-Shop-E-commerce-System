@@ -1,0 +1,44 @@
+{
+  "id": "FEAT-002",
+  "type": "refactor",
+  "description": "ProductDetailComponent decomposition into child components, Header sub-component extraction, CartService cleanup, auth signals migration, breadcrumb routerLink fix, OnPush change detection, duplicate getLineTotal removal, and barrel index files.",
+  "status": "completed",
+  "steps": [
+    "1. Create src/app/features/public/product-detail/components/product-gallery/ directory with product-gallery.component.ts, .html, .scss. Extract the image gallery section (zoom, thumbnails, main image) from ProductDetailComponent. Inputs: images (string[]), productName (string). Outputs: none (internal state for zoom/selectedIndex). Standalone, OnPush.",
+    "2. Create src/app/features/public/product-detail/components/product-customization/ directory with product-customization.component.ts, .html, .scss. Extract size/color/decoration method/print colors selection. Inputs: featureControl, availableColors, availableSizes, availableDecorationMethods, availablePrintColors. Outputs: sizeSelected (string), colorSelected (string), decorationSelected (string), printColorsSelected (string[]), multipleColorsChanged (boolean). Standalone, OnPush.",
+    "3. Create src/app/features/public/product-detail/components/design-upload/ directory with design-upload.component.ts, .html, .scss. Extract the artwork upload dropzone with drag-and-drop, preview, validation, template download. Inputs: maxSizeMb (number), acceptedExtensions (string[]). Outputs: fileUploaded ({fileName, fileSize, fileType, previewUrl}), fileRemoved (void). Standalone, OnPush.",
+    "4. Create src/app/features/public/product-detail/components/product-pricing/ directory with product-pricing.component.ts, .html, .scss. Extract price breaks display, quantity selector, estimated pricing summary, production time display. Inputs: priceBreaks, productionTime, basePrice, featureControl, customizationSummary. Outputs: quantityChanged (number). Standalone, OnPush.",
+    "5. Refactor src/app/features/public/product-detail/product-detail.component.ts: Keep as smart orchestrator. Import the 4 child components. Pass data down via inputs, handle outputs. Remove the extracted template/logic but keep the data loading, addToCart orchestration, and related products section. Update the HTML template accordingly.",
+    "6. Extract src/app/layout/header/components/search-bar/ with search-bar.component.ts, .html, .scss. Standalone, OnPush. Inputs: isOpen (boolean). Outputs: searched (string), cleared (void). Contains the search input, icon, clear button.",
+    "7. Extract src/app/layout/header/components/mobile-menu/ with mobile-menu.component.ts, .html, .scss. Standalone, OnPush. Inputs: isOpen (boolean), isLoggedIn (boolean), isAdmin (boolean), displayName (string), userEmail (string), userInitials (string), menuSections (MenuSection[]). Outputs: closed (void), menuAction (string). Add focus trap logic: when isOpen becomes true, trap focus within the menu element (Tab cycles through focusable elements inside).",
+    "8. Update src/app/layout/header/header.component.ts and .html to use SearchBarComponent and MobileMenuComponent child components instead of inline template.",
+    "9. Clean up CartService (src/app/core/services/cart.service.ts): Remove the LegacyCartItem and LegacyCartCustomization interfaces. Remove the entire legacy branch in normalizeCartItem (the 'else' block that handles items without 'id'). Keep normalizeCartItem but only handle the new format. The method addToCart should remain as is (it already delegates properly). The addProductWithCustomization stays. simplify the normalizeCartItem to only handle current format since legacy is no longer needed.",
+    "10. Update src/app/features/auth/login/login.component.ts: Convert 'loading' and 'error' from plain properties to signals: loading = signal(false), error = signal(''). Update the onSubmit method to use .set() instead of assignment. Update the template references accordingly.",
+    "11. Update src/app/features/auth/register/register.component.ts: Convert 'loading', 'error', 'success' to signals. Update the template.",
+    "12. Update src/app/shared/components/page-header/page-header.component.ts and .html: Replace <a [href]='crumb.url | safeUrl'> with <a [routerLink]='crumb.url'>. Import RouterLink instead of SafeUrlPipe. Remove SafeUrlPipe from imports array.",
+    "13. Add ChangeDetectionStrategy.OnPush to all shared components: page-header, loading-spinner, empty-state, product-card, icon, hero-slider, category-filter, sort-filter. Import ChangeDetectionStrategy from @angular/core and add changeDetection: ChangeDetectionStrategy.OnPush to their @Component decorators.",
+    "14. Remove the duplicate getLineTotal method from src/app/features/public/cart/cart.component.ts (keep getItemLineTotal, remove getLineTotal). Check the cart.component.html to ensure it uses getItemLineTotal.",
+    "15. Create barrel index.ts files: src/app/shared/components/index.ts that re-exports all shared components."
+  ],
+  "acceptance_criteria": [
+    "ProductDetailComponent uses 4 child components (ProductGalleryComponent, ProductCustomizationComponent, DesignUploadComponent, ProductPricingComponent)",
+    "Each child component is standalone with OnPush change detection",
+    "Header uses SearchBarComponent and MobileMenuComponent sub-components",
+    "MobileMenuComponent has focus trap logic when open",
+    "CartService no longer has LegacyCartItem/LegacyCartCustomization interfaces",
+    "LoginComponent and RegisterComponent use signals for loading/error/success",
+    "PageHeaderComponent uses routerLink instead of href with SafeUrlPipe",
+    "All shared components have ChangeDetectionStrategy.OnPush",
+    "No duplicate getLineTotal in cart.component.ts",
+    "src/app/shared/components/index.ts barrel file exists"
+  ],
+  "verification": [
+    "Read all new component files to verify they follow Angular 21 standalone patterns with OnPush",
+    "Read the refactored product-detail.component.ts to verify it imports and uses child components",
+    "Read cart.service.ts to confirm legacy interfaces are removed",
+    "Read login.component.ts and register.component.ts to confirm signals usage",
+    "Read page-header.component.ts to confirm RouterLink import and no SafeUrlPipe"
+  ],
+  "blocked_reason": null,
+  "findings": "TypeScript compilation passes (tsc --noEmit --project tsconfig.json). Build/test commands cannot run via npx due to network restrictions and empty Angular CLI module, but structural correctness verified. The tsconfig.spec.json fails on vitest/globals type (pre-existing, unrelated to changes)."
+}

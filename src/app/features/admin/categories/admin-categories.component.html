@@ -36,7 +36,7 @@
             <tr>
               <td>
                 @if (category.imageUrl) {
-                  <img [src]="category.imageUrl" [alt]="category.name" class="thumbnail" />
+                  <img [src]="category.imageUrl" [alt]="category.name" class="thumbnail" loading="lazy" />
                 } @else {
                   <div class="thumbnail-placeholder"><i class="pi pi-image"></i></div>
                 }

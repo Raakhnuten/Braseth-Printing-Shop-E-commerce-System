@@ -1,0 +1,13 @@
+<div class="search-bar" [class.search-bar--open]="isOpen">
+  <i class="pi pi-search search-bar__icon"></i>
+  <input
+    type="text"
+    class="search-bar__input"
+    placeholder="Search for products, brands and more"
+    [(ngModel)]="searchQuery"
+    (keydown.enter)="onSearch()"
+  />
+  <button class="search-bar__clear" (click)="clearSearch()" aria-label="Clear search" [class.search-bar__clear--visible]="searchQuery.length > 0">
+    <i class="pi pi-times"></i>
+  </button>
+</div>

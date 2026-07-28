@@ -275,6 +275,34 @@ export const routes: Routes = [
         ],
       },
       {
+        path: 'help',
+        loadComponent: () =>
+          import('./features/public/help/help.component').then(
+            (m) => m.HelpComponent,
+          ),
+      },
+      {
+        path: 'contact',
+        loadComponent: () =>
+          import('./features/public/contact/contact.component').then(
+            (m) => m.ContactComponent,
+          ),
+      },
+      {
+        path: 'faq',
+        loadComponent: () =>
+          import('./features/public/faq/faq.component').then(
+            (m) => m.FaqComponent,
+          ),
+      },
+      {
+        path: 'refund-policy',
+        loadComponent: () =>
+          import('./features/public/refund-policy/refund-policy.component').then(
+            (m) => m.RefundPolicyComponent,
+          ),
+      },
+      {
         path: 'privacy-policy',
         loadComponent: () =>
           import('./features/public/privacy-policy/privacy-policy.component').then(

@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
@@ -22,8 +22,8 @@ export class LoginComponent {
     remember: [false],
   });
 
-  loading = false;
-  error = '';
+  loading = signal(false);
+  error = signal('');
 
   onSubmit(): void {
     if (this.form.invalid) {
@@ -31,13 +31,13 @@ export class LoginComponent {
       return;
     }
 
-    this.loading = true;
-    this.error = '';
+    this.loading.set(true);
+    this.error.set('');
     const { email, password } = this.form.getRawValue();
 
     this.authService.login({ email, password }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
-        this.loading = false;
+        this.loading.set(false);
         const isAdmin = res.user?.role === 'ADMIN';
         if (isAdmin) {
           this.router.navigate(['/admin/dashboard']);
@@ -46,8 +46,8 @@ export class LoginComponent {
         }
       },
       error: () => {
-        this.loading = false;
-        this.error = 'Invalid email or password. Please try again.';
+        this.loading.set(false);
+        this.error.set('Invalid email or password. Please try again.');
       },
     });
   }

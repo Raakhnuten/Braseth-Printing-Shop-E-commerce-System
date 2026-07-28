@@ -1,0 +1,86 @@
+<div class="pd-custom__section">
+  <div class="pd-custom__section-title">
+    <span class="pd-custom__step-badge">A</span> Upload Artwork
+  </div>
+
+  @if (artworkUploading()) {
+    <div class="pd-artwork__uploading">
+      <i class="pi pi-spin pi-spinner"></i>
+      <span>Uploading artwork...</span>
+    </div>
+  } @else if (artworkFileName() && !artworkError()) {
+    <div class="pd-artwork__preview">
+      @if (artworkPreviewUrl()) {
+        <img [src]="artworkPreviewUrl()" [alt]="artworkFileName()" class="pd-artwork__preview-thumb" />
+      } @else {
+        <div class="pd-artwork__preview-icon">
+          <i class="pi pi-file-pdf"></i>
+        </div>
+      }
+      <div class="pd-artwork__preview-info">
+        <span class="pd-artwork__preview-name">{{ artworkFileName() }}</span>
+        <span class="pd-artwork__preview-size">{{ formatFileSize(artworkFileSize()) }}</span>
+      </div>
+      <div class="pd-artwork__preview-status">
+        <i class="pi pi-check-circle"></i>
+      </div>
+      <div class="pd-artwork__preview-actions">
+        <button type="button" class="pd-artwork__action-btn pd-artwork__action-btn--replace" (click)="artworkTrigger.click()" aria-label="Replace artwork">
+          <i class="pi pi-refresh"></i> Replace
+        </button>
+        <button type="button" class="pd-artwork__action-btn pd-artwork__action-btn--remove" (click)="removeArtwork()" aria-label="Remove artwork">
+          <i class="pi pi-trash"></i> Remove
+        </button>
+      </div>
+    </div>
+  } @else {
+    <div
+      class="pd-artwork__dropzone"
+      [class.pd-artwork__dropzone--drag-over]="isDragOver()"
+      (dragover)="onArtworkDragOver($event)"
+      (dragleave)="onArtworkDragLeave($event)"
+      (drop)="onArtworkDrop($event)"
+      (click)="artworkInput.click()"
+      role="button"
+      tabindex="0"
+      (keydown.enter)="artworkInput.click()"
+      (keydown.space)="artworkInput.click(); $event.preventDefault()"
+      aria-label="Upload artwork. Drag and drop or click to browse."
+    >
+      <input
+        #artworkInput
+        type="file"
+        [accept]="acceptedExtensionsString"
+        (change)="onArtworkUpload($event)"
+        class="pd-artwork__input"
+        aria-hidden="true"
+        tabindex="-1"
+      />
+      <i class="pi pi-cloud-upload pd-artwork__dropzone-icon"></i>
+      <span class="pd-artwork__dropzone-title">Upload Artwork</span>
+      <span class="pd-artwork__dropzone-subtitle">Drag &amp; Drop your artwork here or click to browse</span>
+      <div class="pd-artwork__dropzone-formats">
+        <span class="pd-artwork__format-badge">PNG</span>
+        <span class="pd-artwork__format-badge">JPG</span>
+        <span class="pd-artwork__format-badge">PDF</span>
+        <span class="pd-artwork__format-badge">AI</span>
+        <span class="pd-artwork__format-badge">PSD</span>
+        <span class="pd-artwork__format-badge">SVG</span>
+      </div>
+      <span class="pd-artwork__dropzone-limit">Max {{ maxSizeMb }} MB</span>
+    </div>
+  }
+
+  @if (artworkError()) {
+    <div class="pd-artwork__error" role="alert">
+      <i class="pi pi-exclamation-triangle"></i>
+      <span>{{ artworkError() }}</span>
+    </div>
+  }
+
+  <input #artworkTrigger type="file" [accept]="acceptedExtensionsString" (change)="onArtworkUpload($event)" class="pd-artwork__input-trigger" aria-hidden="true" tabindex="-1" />
+
+  <button class="pd-custom__template-btn" (click)="downloadTemplate()">
+    <i class="pi pi-download"></i> Download Template
+  </button>
+</div>

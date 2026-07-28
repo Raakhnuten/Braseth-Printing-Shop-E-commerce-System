@@ -1,4 +1,4 @@
-import { Component, inject, Input, output, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, Input, output, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 
 export type SortOption = 'price-asc' | 'price-desc' | 'newest' | 'popular' | 'rating';
@@ -34,6 +34,7 @@ const SORT_OPTIONS: SortOptionItem[] = [
   templateUrl: './sort-filter.component.html',
   styleUrl: './sort-filter.component.scss',
   imports: [ReactiveFormsModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SortFilterComponent {
   private fb = inject(FormBuilder);

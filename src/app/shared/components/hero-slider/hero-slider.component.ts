@@ -1,4 +1,4 @@
-import { Component, Input, signal, effect, HostListener, DestroyRef, inject } from '@angular/core';
+import { Component, Input, signal, effect, HostListener, DestroyRef, inject, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Banner } from '../../../core/models/banner.model';
 
@@ -7,6 +7,7 @@ import { Banner } from '../../../core/models/banner.model';
   templateUrl: './hero-slider.component.html',
   styleUrl: './hero-slider.component.scss',
   imports: [RouterLink],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HeroSliderComponent {
   private destroyRef = inject(DestroyRef);

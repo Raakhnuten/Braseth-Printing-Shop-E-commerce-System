@@ -5,6 +5,7 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ShippingService } from '../../../core/services/shipping.service';
+import { ConfirmDialogService } from '../../../core/services/confirm-dialog.service';
 import { ShippingMethod } from '../../../core/models/shipping.model';
 
 @Component({
@@ -15,6 +16,7 @@ import { ShippingMethod } from '../../../core/models/shipping.model';
 })
 export class AdminShippingMethodsComponent implements OnInit {
   private shippingService = inject(ShippingService);
+  private confirmService = inject(ConfirmDialogService);
   private fb = inject(FormBuilder);
   private destroyRef = inject(DestroyRef);
 
@@ -154,16 +156,19 @@ export class AdminShippingMethodsComponent implements OnInit {
   }
 
   deleteShippingMethod(id: string): void {
-    if (!confirm('Are you sure you want to delete this shipping method?')) return;
-    this.shippingService.deleteShippingMethod(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: () => {
-        this.successMessage.set('Shipping method deleted successfully');
-        this.loadShippingMethods();
-        setTimeout(() => this.successMessage.set(''), 3000);
-      },
-      error: () => {
-        this.formError.set('Failed to delete shipping method');
-      },
-    });
+    this.confirmService.open({ title: 'Delete Shipping Method', message: 'Are you sure you want to delete this shipping method?' })
+      .subscribe((confirmed) => {
+        if (!confirmed) return;
+        this.shippingService.deleteShippingMethod(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+          next: () => {
+            this.successMessage.set('Shipping method deleted successfully');
+            this.loadShippingMethods();
+            setTimeout(() => this.successMessage.set(''), 3000);
+          },
+          error: () => {
+            this.formError.set('Failed to delete shipping method');
+          },
+        });
+      });
   }
 }

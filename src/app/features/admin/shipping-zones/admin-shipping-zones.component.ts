@@ -5,6 +5,7 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ShippingService } from '../../../core/services/shipping.service';
+import { ConfirmDialogService } from '../../../core/services/confirm-dialog.service';
 import { ShippingZone } from '../../../core/models/shipping.model';
 
 @Component({
@@ -15,6 +16,7 @@ import { ShippingZone } from '../../../core/models/shipping.model';
 })
 export class AdminShippingZonesComponent implements OnInit {
   private shippingService = inject(ShippingService);
+  private confirmService = inject(ConfirmDialogService);
   private fb = inject(FormBuilder);
   private destroyRef = inject(DestroyRef);
 
@@ -151,16 +153,19 @@ export class AdminShippingZonesComponent implements OnInit {
   }
 
   deleteShippingZone(id: string): void {
-    if (!confirm('Are you sure you want to delete this shipping zone?')) return;
-    this.shippingService.deleteShippingZone(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: () => {
-        this.successMessage.set('Shipping zone deleted successfully');
-        this.loadShippingZones();
-        setTimeout(() => this.successMessage.set(''), 3000);
-      },
-      error: () => {
-        this.formError.set('Failed to delete shipping zone');
-      },
-    });
+    this.confirmService.open({ title: 'Delete Shipping Zone', message: 'Are you sure you want to delete this shipping zone?' })
+      .subscribe((confirmed) => {
+        if (!confirmed) return;
+        this.shippingService.deleteShippingZone(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+          next: () => {
+            this.successMessage.set('Shipping zone deleted successfully');
+            this.loadShippingZones();
+            setTimeout(() => this.successMessage.set(''), 3000);
+          },
+          error: () => {
+            this.formError.set('Failed to delete shipping zone');
+          },
+        });
+      });
   }
 }

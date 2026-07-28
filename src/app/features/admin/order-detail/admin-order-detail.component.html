@@ -93,7 +93,7 @@
                 <tr>
                   <td>
                     @if (item.productImage) {
-                      <img [src]="item.productImage" [alt]="item.productName" class="item-thumbnail" />
+                      <img [src]="item.productImage" [alt]="item.productName" class="item-thumbnail" loading="lazy" />
                     } @else {
                       <div class="thumbnail-placeholder"><i class="pi pi-image"></i></div>
                     }
