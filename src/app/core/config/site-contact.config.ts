@@ -10,6 +10,6 @@ export const SITE_CONTACT_INFO = new InjectionToken<SiteContactInfo>(
 );
 
 export const siteContactInfoValue: SiteContactInfo = {
-  email: 'shiryuprem@gmail.com',
+  email: 'basethprinting@gmail.com',
   location: 'Cambodia, Phnom Penh',
 };
