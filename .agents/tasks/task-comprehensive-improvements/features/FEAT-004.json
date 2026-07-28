@@ -2,7 +2,7 @@
   "id": "FEAT-004",
   "type": "feat",
   "description": "Add unit tests for CartService, AuthService, and ProductService. Tests use Vitest with @angular/core/testing TestBed pattern as seen in existing checkout.service.spec.ts and storage.util.spec.ts.",
-  "status": "pending",
+  "status": "in_progress",
   "steps": [
     "1. Create src/app/core/services/cart.service.spec.ts. Test CartService using TestBed. Mock ApiService. Test: addProductToCart adds item and updates signal, addProductToCart with existing product increments quantity, updateQuantity changes quantity correctly, updateQuantity with 0 removes item, removeItem removes by id, removeItem removes by productId, clearCart empties all items, getCartItemCount returns correct sum, isInCart returns true/false correctly, calculateCartTotals computes correct subtotal/total/shippingFee, saveGuestCartToLocalStorage persists to localStorage, loadGuestCartFromLocalStorage restores items. Use beforeEach to reset localStorage. Follow the same pattern as checkout.service.spec.ts.",
     "2. Create src/app/core/services/auth.service.spec.ts. Test AuthService using TestBed. Mock ApiService. Provide mock localStorage. Test: login sets currentUser signal and stores in localStorage, login with mock data returns correct AuthUser, logout clears currentUser and removes auth data from storage, isLoggedIn computed returns true when user exists, isLoggedIn computed returns false when no user, isAdmin computed returns true for ADMIN role, isAdmin computed returns false for CUSTOMER role, refreshToken returns current user data in mock mode, getCurrentUser returns the signal value. Mock MOCK_USERS or test with mock mode.",
