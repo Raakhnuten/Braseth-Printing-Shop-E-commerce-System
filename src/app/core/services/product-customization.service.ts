@@ -131,7 +131,8 @@ export class ProductCustomizationService {
     return { unitPrice: basePrice * (1 - discount / 100), discountPercentage: discount };
   }
 
-  validateDesignUpload(file: File, productId: string): { valid: boolean; message: string } {
+  // TODO: _productId is reserved for future API-driven per-product upload limits
+  validateDesignUpload(file: File, _productId: string): { valid: boolean; message: string } {
     const maxFileSizeMb = 50;
     const allowedFileTypes = ['image/png', 'image/jpeg', 'image/svg+xml', 'application/pdf'];
 

@@ -30,22 +30,6 @@ export class ProductCustomizationComponent {
   selectedPrintColorIds = signal<string[]>([]);
   multipleColors = signal(false);
 
-  get enableSizeSelection(): boolean {
-    return true;
-  }
-
-  get enableColorSelection(): boolean {
-    return true;
-  }
-
-  get enableDecorationMethod(): boolean {
-    return true;
-  }
-
-  get enablePrintColor(): boolean {
-    return true;
-  }
-
   get selectedDecorationMethod(): DecorationMethod | undefined {
     const id = this.selectedDecorationMethodId();
     return id ? this.availableDecorationMethods.find((m) => m.id === id) : undefined;

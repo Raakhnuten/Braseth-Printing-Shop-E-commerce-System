@@ -180,14 +180,6 @@ export class ProductDetailComponent implements OnInit {
     return true;
   }
 
-  get enableDesignUpload(): boolean {
-    return true;
-  }
-
-  get enablePriceBreak(): boolean {
-    return true;
-  }
-
   get artworkMaxSizeMb(): number {
     return 50;
   }
