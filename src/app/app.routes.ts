@@ -275,6 +275,27 @@ export const routes: Routes = [
         ],
       },
       {
+        path: 'privacy-policy',
+        loadComponent: () =>
+          import('./features/public/privacy-policy/privacy-policy.component').then(
+            (m) => m.PrivacyPolicyComponent,
+          ),
+      },
+      {
+        path: 'terms-of-service',
+        loadComponent: () =>
+          import('./features/public/terms-of-service/terms-of-service.component').then(
+            (m) => m.TermsOfServiceComponent,
+          ),
+      },
+      {
+        path: 'cookies',
+        loadComponent: () =>
+          import('./features/public/cookies/cookies.component').then(
+            (m) => m.CookiesComponent,
+          ),
+      },
+      {
         path: '**',
         loadComponent: () =>
           import('./features/public/page-not-found/not-found.component').then(
