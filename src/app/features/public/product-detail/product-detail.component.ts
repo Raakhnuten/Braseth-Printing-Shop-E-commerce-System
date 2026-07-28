@@ -1,7 +1,6 @@
-import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { FormsModule } from '@angular/forms';
 import { NgClass } from '@angular/common';
 import { Product } from '../../../core/models/product.model';
 import { CartItemDesignUpload } from '../../../core/models/cart.model';
@@ -22,27 +21,27 @@ import { ProductCustomizationService, CustomizationTotal } from '../../../core/s
 import { DecorationMethodService } from '../../../core/services/decoration-method.service';
 import { ProductCardComponent } from '../../../shared/components/product-card/product-card.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
-import { normalizeImages, getSafeImageUrl, onImageError } from '../../../core/helpers/image.helper';
+import { ProductGalleryComponent } from './components/product-gallery/product-gallery.component';
+import { ProductCustomizationComponent } from './components/product-customization/product-customization.component';
+import { DesignUploadComponent, DesignFileUpload } from './components/design-upload/design-upload.component';
+import { ProductPricingComponent } from './components/product-pricing/product-pricing.component';
 
 @Component({
   selector: 'app-product-detail',
   templateUrl: './product-detail.component.html',
   styleUrl: './product-detail.component.scss',
-  imports: [RouterLink, FormsModule, NgClass, ProductCardComponent, LoadingSpinnerComponent],
+  imports: [
+    RouterLink,
+    NgClass,
+    ProductCardComponent,
+    LoadingSpinnerComponent,
+    ProductGalleryComponent,
+    ProductCustomizationComponent,
+    DesignUploadComponent,
+    ProductPricingComponent,
+  ],
 })
 export class ProductDetailComponent implements OnInit {
-  readonly ACCEPTED_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.pdf', '.ai', '.psd', '.svg'];
-  readonly ACCEPTED_MIME_TYPES = [
-    'image/png',
-    'image/jpeg',
-    'image/svg+xml',
-    'application/pdf',
-    'application/postscript',
-    'application/illustrator',
-    'application/photoshop',
-    'image/vnd.adobe.photoshop',
-  ];
-  readonly MAX_UPLOAD_SIZE_MB = 50;
   private route = inject(ActivatedRoute);
   private productService = inject(ProductService);
   private cartService = inject(CartService);
@@ -56,9 +55,7 @@ export class ProductDetailComponent implements OnInit {
   relatedProducts = signal<Product[]>([]);
   loading = signal(true);
   quantity = 1;
-  selectedImageIndex = 0;
   activeTab = signal<string>('description');
-  zoomed = signal(false);
 
   // Service-driven customization data
   featureControl = signal<ProductFeatureControl | null>(null);
@@ -69,7 +66,7 @@ export class ProductDetailComponent implements OnInit {
   priceBreaks = signal<ProductPriceBreak[]>([]);
   productionTime = signal<ProductProductionTime | null>(null);
 
-  // User selections
+  // User selections (updated by child components)
   selectedSizeId = signal<string | null>(null);
   selectedColorId = signal<string | null>(null);
   selectedDecorationMethodId = signal<string | null>(null);
@@ -77,14 +74,6 @@ export class ProductDetailComponent implements OnInit {
   multipleColors = signal(false);
   customQty = signal(24);
   artworkFileName = signal<string>('');
-  artworkFileSize = signal<number>(0);
-  artworkFileType = signal<string>('');
-  artworkPreviewUrl = signal<string>('');
-  artworkUploading = signal(false);
-  artworkError = signal<string>('');
-  isDragOver = signal(false);
-  showPriceBreaks = signal(false);
-  isCustomOrder = signal(false);
 
   // Validation
   validationErrors = signal<string[]>([]);
@@ -143,18 +132,6 @@ export class ProductDetailComponent implements OnInit {
     });
   }
 
-  // ─── Image gallery ─────────────────────────────────────
-  get validImages(): string[] {
-    const p = this.product();
-    if (!p) return [];
-    const cleaned = normalizeImages(p.images);
-    const all = [getSafeImageUrl(p.thumbnailUrl), ...cleaned];
-    return [...new Set(all)];
-  }
-
-  onImgError(event: Event): void { onImageError(event); }
-  selectImage(index: number): void { this.selectedImageIndex = index; }
-
   // ─── Product info ──────────────────────────────────────
   get inStock(): boolean {
     return this.product()?.stockQuantity ? this.product()!.stockQuantity > 0 : false;
@@ -209,22 +186,6 @@ export class ProductDetailComponent implements OnInit {
     return this.featureControl()?.isCustomizable ?? false;
   }
 
-  get enableSizeSelection(): boolean {
-    return this.featureControl()?.enableSizeSelection ?? false;
-  }
-
-  get enableColorSelection(): boolean {
-    return this.featureControl()?.enableColorSelection ?? false;
-  }
-
-  get enableDecorationMethod(): boolean {
-    return this.featureControl()?.enableDecorationMethod ?? false;
-  }
-
-  get enablePrintColor(): boolean {
-    return this.featureControl()?.enablePrintColor ?? false;
-  }
-
   get enableDesignUpload(): boolean {
     return this.featureControl()?.enableDesignUpload ?? false;
   }
@@ -233,55 +194,46 @@ export class ProductDetailComponent implements OnInit {
     return this.featureControl()?.enablePriceBreak ?? false;
   }
 
-  get enableProductionTime(): boolean {
-    return this.featureControl()?.enableProductionTime ?? false;
+  get artworkMaxSizeMb(): number {
+    return this.featureControl()?.maxFileSizeMb ?? 50;
   }
 
-  get enableCustomizationFee(): boolean {
-    return this.featureControl()?.enableCustomizationFee ?? false;
-  }
-
-  // ─── Selection handlers ────────────────────────────────
-  selectSize(sizeId: string): void {
+  // ─── Child component event handlers ────────────────────
+  onSizeSelected(sizeId: string): void {
     this.selectedSizeId.set(sizeId);
     this.clearValidation();
   }
 
-  selectColor(colorId: string): void {
-    const cur = this.selectedColorId();
-    this.selectedColorId.set(cur === colorId ? null : colorId);
+  onColorSelected(colorId: string): void {
+    this.selectedColorId.set(colorId || null);
     this.clearValidation();
   }
 
-  selectDecoration(methodId: string): void {
+  onDecorationSelected(methodId: string): void {
     this.selectedDecorationMethodId.set(methodId);
     this.clearValidation();
   }
 
-  togglePrintColor(colorId: string): void {
-    const cur = this.selectedPrintColorIds();
-    if (cur.includes(colorId)) {
-      this.selectedPrintColorIds.set(cur.filter((c) => c !== colorId));
-    } else {
-      this.selectedPrintColorIds.set([...cur, colorId]);
-    }
+  onPrintColorsSelected(colorIds: string[]): void {
+    this.selectedPrintColorIds.set(colorIds);
     this.clearValidation();
   }
 
-  toggleMultipleColors(): void {
-    this.multipleColors.set(!this.multipleColors());
+  onMultipleColorsChanged(val: boolean): void {
+    this.multipleColors.set(val);
   }
 
-  adjustQty(delta: number): void {
-    const fc = this.featureControl();
-    const minQty = this.enablePriceBreak && this.priceBreaks().length > 0 ? this.priceBreaks()[0].minQuantity : 1;
-    const n = this.customQty() + delta;
-    if (n >= minQty) this.customQty.set(n);
+  onQuantityChanged(qty: number): void {
+    this.customQty.set(qty);
   }
 
-  setQty(value: number): void {
-    const minQty = this.enablePriceBreak && this.priceBreaks().length > 0 ? this.priceBreaks()[0].minQuantity : 1;
-    this.customQty.set(value < minQty ? minQty : value);
+  onFileUploaded(file: DesignFileUpload): void {
+    this.artworkFileName.set(file.fileName);
+    this.clearValidation();
+  }
+
+  onFileRemoved(): void {
+    this.artworkFileName.set('');
   }
 
   // ─── Price calculation ─────────────────────────────────
@@ -315,21 +267,6 @@ export class ProductDetailComponent implements OnInit {
     return this.customizationSummary?.unitPrice ?? this.basePrice;
   }
 
-  get estimatedTotal(): number {
-    return this.customizationSummary?.totalPrice ?? this.basePrice * this.customQty();
-  }
-
-  get productionDays(): number {
-    return this.customizationSummary?.productionDays ?? this.productionTime()?.maxDays ?? 0;
-  }
-
-  get minOrderQuantity(): number {
-    if (this.enablePriceBreak && this.priceBreaks().length > 0) {
-      return this.priceBreaks()[0].minQuantity;
-    }
-    return 1;
-  }
-
   // ─── Validation ────────────────────────────────────────
   validateCustomization(): string[] {
     const errors: string[] = [];
@@ -345,8 +282,9 @@ export class ProductDetailComponent implements OnInit {
     if (fc.enableDecorationMethod && !this.selectedDecorationMethodId()) {
       errors.push('Please select a decoration method.');
     }
-    if (this.customQty() < this.minOrderQuantity) {
-      errors.push(`Minimum order quantity is ${this.minOrderQuantity}.`);
+    const minQty = this.enablePriceBreak && this.priceBreaks().length > 0 ? this.priceBreaks()[0].minQuantity : 1;
+    if (this.customQty() < minQty) {
+      errors.push(`Minimum order quantity is ${minQty}.`);
     }
     return errors;
   }
@@ -368,15 +306,7 @@ export class ProductDetailComponent implements OnInit {
       }
     }
 
-    const designFiles: CartItemDesignUpload[] = [];
-    if (this.artworkFileName()) {
-      designFiles.push({ position: 'artwork', fileName: this.artworkFileName(), fileType: '', fileSize: 0 });
-    }
-
     const selectedColor = this.selectedColorId() ? this.availableColors().find((c) => c.id === this.selectedColorId()) : null;
-    const selectedSize = this.selectedSizeId() ? this.availableSizes().find((s) => s.id === this.selectedSizeId()) : null;
-
-    const customizationFee = this.customizationSummary ? (this.customizationSummary.decorationFee + this.customizationSummary.positionFee + this.customizationSummary.multiColorFee + this.customizationSummary.customizationFees) : 0;
     const qty = this.isCustomizable ? this.customQty() : this.quantity;
 
     this.cartService.addProductWithCustomization(
@@ -389,133 +319,5 @@ export class ProductDetailComponent implements OnInit {
     );
 
     this.quantity = 1;
-  }
-
-  get artworkMaxSizeMb(): number {
-    return this.featureControl()?.maxFileSizeMb ?? this.MAX_UPLOAD_SIZE_MB;
-  }
-
-  get acceptedExtensionsString(): string {
-    return this.ACCEPTED_EXTENSIONS.join(', ');
-  }
-
-  formatFileSize(bytes: number): string {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / 1048576).toFixed(1) + ' MB';
-  }
-
-  private processArtworkFile(file: File): void {
-    this.artworkError.set('');
-    const ext = '.' + file.name.split('.').pop()?.toLowerCase();
-    const isExtensionValid = this.ACCEPTED_EXTENSIONS.includes(ext);
-    const isMimeValid = this.ACCEPTED_MIME_TYPES.includes(file.type);
-
-    if (!isExtensionValid && !isMimeValid) {
-      this.artworkError.set(`Unsupported file type. Accepted: ${this.acceptedExtensionsString}`);
-      return;
-    }
-
-    const maxBytes = this.artworkMaxSizeMb * 1024 * 1024;
-    if (file.size > maxBytes) {
-      this.artworkError.set(`File exceeds ${this.artworkMaxSizeMb}MB limit.`);
-      return;
-    }
-
-    this.artworkUploading.set(true);
-
-    // Simulate upload delay
-    setTimeout(() => {
-      const p = this.product();
-      if (p) {
-        const validation = this.customizationService.validateDesignUpload(file, p.id);
-        if (!validation.valid) {
-          this.artworkError.set(validation.message);
-          this.artworkUploading.set(false);
-          return;
-        }
-      }
-
-      this.artworkFileName.set(file.name);
-      this.artworkFileSize.set(file.size);
-      this.artworkFileType.set(file.type);
-      this.clearValidation();
-
-      if (file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = () => {
-          this.artworkPreviewUrl.set(reader.result as string);
-          this.artworkUploading.set(false);
-        };
-        reader.onerror = () => {
-          this.artworkPreviewUrl.set('');
-          this.artworkUploading.set(false);
-        };
-        reader.readAsDataURL(file);
-      } else {
-        this.artworkPreviewUrl.set('');
-        this.artworkUploading.set(false);
-      }
-    }, 800);
-  }
-
-  onArtworkUpload(event: Event): void {
-    const file = (event.target as HTMLInputElement).files?.[0];
-    if (file) {
-      this.processArtworkFile(file);
-    }
-    (event.target as HTMLInputElement).value = '';
-  }
-
-  onArtworkDragOver(event: DragEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-    this.isDragOver.set(true);
-  }
-
-  onArtworkDragLeave(event: DragEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-    this.isDragOver.set(false);
-  }
-
-  onArtworkDrop(event: DragEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-    this.isDragOver.set(false);
-    const file = event.dataTransfer?.files?.[0];
-    if (file) {
-      this.processArtworkFile(file);
-    }
-  }
-
-  removeArtwork(): void {
-    this.artworkFileName.set('');
-    this.artworkFileSize.set(0);
-    this.artworkFileType.set('');
-    this.artworkPreviewUrl.set('');
-    this.artworkError.set('');
-  }
-
-  downloadTemplate(): void {
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">
-  <rect width="600" height="600" fill="#f8f9fa"/>
-  <rect x="50" y="50" width="500" height="500" rx="20" fill="#fff" stroke="#d1d5db" stroke-width="2" stroke-dasharray="8,4"/>
-  <text x="300" y="280" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" fill="#9ca3af">Design Area</text>
-  <text x="300" y="310" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#9ca3af">600 x 600 px</text>
-  <line x1="50" y1="200" x2="550" y2="200" stroke="#e5e7eb" stroke-width="1"/>
-  <line x1="50" y1="400" x2="550" y2="400" stroke="#e5e7eb" stroke-width="1"/>
-  <line x1="200" y1="50" x2="200" y2="550" stroke="#e5e7eb" stroke-width="1"/>
-  <line x1="400" y1="50" x2="400" y2="550" stroke="#e5e7eb" stroke-width="1"/>
-  <circle cx="300" cy="300" r="120" fill="none" stroke="#e5e7eb" stroke-width="1"/>
-  <text x="300" y="580" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#d1d5db">Center alignment guide</text>
-</svg>`;
-    const blob = new Blob([svg], { type: 'image/svg+xml' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'design-template.svg';
-    a.click();
-    URL.revokeObjectURL(url);
   }
 }

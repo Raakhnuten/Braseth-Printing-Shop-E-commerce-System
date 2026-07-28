@@ -1,0 +1,48 @@
+@if (isOpen) {
+  <div class="mobile-menu" (click)="$event.stopPropagation()">
+    @if (isLoggedIn) {
+      <div class="menu-profile">
+        <div class="menu-profile__avatar">{{ userInitials }}</div>
+        <div class="menu-profile__info">
+          <div class="menu-profile__name">{{ displayName }}</div>
+          <div class="menu-profile__email">{{ userEmail }}</div>
+          <span class="menu-profile__badge">Member</span>
+        </div>
+      </div>
+    } @else {
+      <div class="menu-auth">
+        <a routerLink="/auth/login" class="menu-auth__btn menu-auth__btn--primary" (click)="onClose()">Login</a>
+        <a routerLink="/auth/register" class="menu-auth__btn menu-auth__btn--outline" (click)="onClose()">Register</a>
+      </div>
+    }
+
+    @for (section of menuSections; track $index) {
+      @if (section.label) {
+        <div class="menu-section-label">{{ section.label }}</div>
+      }
+      <div class="menu-items">
+        @for (item of section.items; track $index) {
+          @if (item.route && !item.action) {
+            <a
+              [routerLink]="item.route"
+              class="menu-link"
+              [class.menu-link--danger]="item.danger"
+              (click)="onClose()"
+            >
+              <i class="pi {{ item.icon }}"></i>
+              <span>{{ item.label }}</span>
+            </a>
+          } @else if (item.action === 'logout') {
+            <button
+              class="menu-link menu-link--danger"
+              (click)="onMenuAction('logout')"
+            >
+              <i class="pi {{ item.icon }}"></i>
+              <span>{{ item.label }}</span>
+            </button>
+          }
+        }
+      </div>
+    }
+  </div>
+}

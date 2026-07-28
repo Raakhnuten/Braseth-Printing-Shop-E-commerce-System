@@ -1,0 +1,86 @@
+<!-- Size Selection -->
+@if (enableSizeSelection) {
+  <div class="pd-custom__section">
+    <div class="pd-custom__section-title">
+      <span class="pd-custom__step-badge">1</span> Select Size
+    </div>
+    <div class="pd-custom__sizes">
+      @for (size of availableSizes; track size.id) {
+        <button
+          class="pd-custom__size"
+          [class.pd-custom__size--sel]="selectedSizeId() === size.id"
+          (click)="selectSize(size.id)"
+        >{{ size.name }}</button>
+      }
+    </div>
+  </div>
+}
+
+<!-- Color Selection -->
+@if (enableColorSelection) {
+  <div class="pd-custom__section">
+    <div class="pd-custom__section-title">
+      <span class="pd-custom__step-badge">{{ enableSizeSelection ? '2' : '1' }}</span> Choose Color
+    </div>
+    <div class="pd-custom__colors">
+      @for (c of availableColors; track c.id) {
+        <button
+          class="pd-custom__color"
+          [class.pd-custom__color--sel]="selectedColorId() === c.id"
+          (click)="selectColor(c.id)"
+          [attr.aria-label]="c.name"
+        >
+          <span class="pd-custom__swatch" [style.background]="c.hexCode" [class.pd-custom__swatch--light]="c.hexCode === '#FFFFFF'"></span>
+          <span>{{ c.name }}</span>
+        </button>
+      }
+    </div>
+  </div>
+}
+
+<!-- Decoration Method -->
+@if (enableDecorationMethod) {
+  <div class="pd-custom__section">
+    <div class="pd-custom__section-title">
+      <span class="pd-custom__step-badge">{{ (enableSizeSelection ? 1 : 0) + (enableColorSelection ? 1 : 0) + 1 }}</span> Decoration Method
+    </div>
+    <div class="pd-custom__methods">
+      @for (m of availableDecorationMethods; track m.id) {
+        <button
+          class="pd-custom__method"
+          [class.pd-custom__method--sel]="selectedDecorationMethodId() === m.id"
+          (click)="selectDecoration(m.id)"
+        >{{ m.name }}</button>
+      }
+    </div>
+    @if (selectedDecorationMethod) {
+      <div class="pd-custom__info">{{ selectedDecorationMethod.description }}</div>
+    }
+  </div>
+}
+
+<!-- Print Colors -->
+@if (enablePrintColor) {
+  <div class="pd-custom__section">
+    <div class="pd-custom__section-title">
+      <span class="pd-custom__step-badge">C</span> Print Colors
+    </div>
+    <div class="pd-custom__print-colors">
+      @for (pc of availablePrintColors; track pc.id) {
+        <button
+          class="pd-custom__print-color"
+          [class.pd-custom__print-color--sel]="selectedPrintColorIds().includes(pc.id)"
+          (click)="togglePrintColor(pc.id)"
+          [attr.aria-label]="pc.name"
+        >
+          <span class="pd-custom__swatch" [style.background]="pc.hexCode"></span>
+          <span>{{ pc.name }}</span>
+        </button>
+      }
+    </div>
+    <label class="pd-custom__multi">
+      <input type="checkbox" [checked]="multipleColors()" (change)="toggleMultipleColors()" />
+      <span>Multiple colors</span>
+    </label>
+  </div>
+}

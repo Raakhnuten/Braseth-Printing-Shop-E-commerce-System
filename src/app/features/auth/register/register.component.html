@@ -9,15 +9,15 @@
       <p class="auth-card__subtitle">Join BRASETH today</p>
     </div>
 
-    @if (success) {
+    @if (success()) {
       <div class="auth-form__success">
         Account created successfully! Redirecting...
       </div>
     }
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="auth-form">
-      @if (error) {
-        <div class="auth-form__error">{{ error }}</div>
+      @if (error()) {
+        <div class="auth-form__error">{{ error() }}</div>
       }
 
       <div class="auth-form__row">
@@ -122,9 +122,9 @@
       <button
         type="submit"
         class="btn btn-primary btn-lg btn-block auth-form__submit"
-        [disabled]="loading"
+        [disabled]="loading()"
       >
-        @if (loading) {
+        @if (loading()) {
           <span class="auth-form__spinner"></span>
           Creating account...
         } @else {

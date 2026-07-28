@@ -30,8 +30,4 @@ export class CartComponent {
   getItemLineTotal(item: CartItem): number {
     return item.unitPrice * item.quantity;
   }
-
-  getLineTotal(item: CartItem): number {
-    return item.unitPrice * item.quantity;
-  }
 }

@@ -7,29 +7,6 @@ import { APP_CONFIG } from '../constants/app-config';
 import { API_ENDPOINTS } from '../constants/api-endpoints';
 import { ApiService } from './api.service';
 
-interface LegacyCartCustomization {
-  selectedColors: string[];
-  multipleColors: boolean;
-  decorationMethod: string;
-  artworkFileName: string;
-  quantity: number;
-  estimatedUnitPrice: number;
-  estimatedTotal: number;
-}
-
-interface LegacyCartItem {
-  productId: string;
-  name: string;
-  slug: string;
-  price: number;
-  salePrice: number | null;
-  quantity: number;
-  thumbnailUrl: string;
-  stockQuantity: number;
-  maxQuantity: number;
-  customization?: LegacyCartCustomization;
-}
-
 @Injectable({
   providedIn: 'root',
 })
@@ -312,64 +289,23 @@ export class CartService {
   private normalizeCartItem(raw: unknown): CartItem {
     const r = raw as Record<string, unknown>;
 
-    // New format: already has `id`
-    if (r['id']) {
-      return {
-        id: String(r['id']),
-        productId: String(r['productId'] ?? ''),
-        productName: String(r['productName'] ?? r['name'] ?? ''),
-        productSlug: String(r['productSlug'] ?? r['slug'] ?? ''),
-        productImage: String(r['productImage'] ?? r['thumbnailUrl'] ?? ''),
-        unitPrice: Number(r['unitPrice'] ?? r['price'] ?? 0),
-        quantity: Number(r['quantity'] ?? 1),
-        subtotal: Number(r['subtotal'] ?? 0),
-        selectedSize: (r['selectedSize'] as string) ?? null,
-        selectedColor: (r['selectedColor'] as string) ?? null,
-        selectedDecorationMethod: (r['selectedDecorationMethod'] as string) ?? null,
-        selectedPrintPosition: (r['selectedPrintPosition'] as string) ?? null,
-        uploadedDesignFiles: Array.isArray(r['uploadedDesignFiles']) ? (r['uploadedDesignFiles'] as CartItemDesignUpload[]) : [],
-        selectedPrintColors: Array.isArray(r['selectedPrintColors']) ? (r['selectedPrintColors'] as CartItemPrintColor[]) : [],
-        customizationFee: Number(r['customizationFee'] ?? 0),
-        productionTime: (r['productionTime'] as number) ?? null,
-        maxQuantity: Number(r['maxQuantity'] ?? 999),
-        stockQuantity: Number(r['stockQuantity'] ?? 0),
-        salePrice: (r['salePrice'] as number) ?? null,
-      };
-    }
-
-    // Legacy format: migrate from old CartCustomization structure
-    const customization = r['customization'] as LegacyCartCustomization | undefined;
-    const designFiles: CartItemDesignUpload[] = [];
-    if (customization?.artworkFileName) {
-      designFiles.push({ position: 'artwork', fileName: customization.artworkFileName, fileType: '', fileSize: 0 });
-    }
-
-    const printColors: CartItemPrintColor[] = (customization?.selectedColors ?? []).map((name: string) => ({
-      colorId: name.toLowerCase(),
-      colorName: name,
-      colorHex: '#000000',
-    }));
-
-    const price = Number(r['price'] ?? 0);
-    const qty = Number(r['quantity'] ?? 1);
-
     return {
-      id: this.generateItemId(),
+      id: String(r['id'] ?? this.generateItemId()),
       productId: String(r['productId'] ?? ''),
-      productName: String(r['name'] ?? ''),
-      productSlug: String(r['slug'] ?? ''),
-      productImage: String(r['thumbnailUrl'] ?? ''),
-      unitPrice: customization?.estimatedUnitPrice ?? price,
-      quantity: qty,
-      subtotal: customization?.estimatedTotal ?? price * qty,
-      selectedSize: null,
-      selectedColor: customization?.selectedColors?.join(', ') ?? null,
-      selectedDecorationMethod: customization?.decorationMethod ?? null,
-      selectedPrintPosition: null,
-      uploadedDesignFiles: designFiles,
-      selectedPrintColors: printColors,
-      customizationFee: customization ? customization.estimatedUnitPrice - price : 0,
-      productionTime: null,
+      productName: String(r['productName'] ?? r['name'] ?? ''),
+      productSlug: String(r['productSlug'] ?? r['slug'] ?? ''),
+      productImage: String(r['productImage'] ?? r['thumbnailUrl'] ?? ''),
+      unitPrice: Number(r['unitPrice'] ?? r['price'] ?? 0),
+      quantity: Number(r['quantity'] ?? 1),
+      subtotal: Number(r['subtotal'] ?? 0),
+      selectedSize: (r['selectedSize'] as string) ?? null,
+      selectedColor: (r['selectedColor'] as string) ?? null,
+      selectedDecorationMethod: (r['selectedDecorationMethod'] as string) ?? null,
+      selectedPrintPosition: (r['selectedPrintPosition'] as string) ?? null,
+      uploadedDesignFiles: Array.isArray(r['uploadedDesignFiles']) ? (r['uploadedDesignFiles'] as CartItemDesignUpload[]) : [],
+      selectedPrintColors: Array.isArray(r['selectedPrintColors']) ? (r['selectedPrintColors'] as CartItemPrintColor[]) : [],
+      customizationFee: Number(r['customizationFee'] ?? 0),
+      productionTime: (r['productionTime'] as number) ?? null,
       maxQuantity: Number(r['maxQuantity'] ?? 999),
       stockQuantity: Number(r['stockQuantity'] ?? 0),
       salePrice: (r['salePrice'] as number) ?? null,

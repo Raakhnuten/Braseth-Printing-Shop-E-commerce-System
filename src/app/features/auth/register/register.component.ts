@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
@@ -36,9 +36,9 @@ export class RegisterComponent {
     { validators: passwordMatchValidator },
   );
 
-  loading = false;
-  error = '';
-  success = false;
+  loading = signal(false);
+  error = signal('');
+  success = signal(false);
 
   onSubmit(): void {
     if (this.form.invalid) {
@@ -46,21 +46,21 @@ export class RegisterComponent {
       return;
     }
 
-    this.loading = true;
-    this.error = '';
+    this.loading.set(true);
+    this.error.set('');
     const { firstName, lastName, email, phone, password } = this.form.getRawValue();
 
     this.authService
       .register({ firstName, lastName, email, phone, password, confirmPassword: password })
       .pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
-          this.loading = false;
-          this.success = true;
+          this.loading.set(false);
+          this.success.set(true);
           setTimeout(() => this.router.navigate(['/user/dashboard']), 1500);
         },
         error: () => {
-          this.loading = false;
-          this.error = 'Registration failed. Please try again.';
+          this.loading.set(false);
+          this.error.set('Registration failed. Please try again.');
         },
       });
   }

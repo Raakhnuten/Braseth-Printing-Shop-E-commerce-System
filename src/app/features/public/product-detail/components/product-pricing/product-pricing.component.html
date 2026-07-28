@@ -1,0 +1,58 @@
+<!-- Quantity -->
+<div class="pd-custom__section">
+  <div class="pd-custom__section-title">
+    <span class="pd-custom__step-badge">Q</span> Quantity
+  </div>
+  <div class="pd-custom__qty-row">
+    <div class="pd-custom__qty">
+      <button (click)="adjustQty(-1)" [disabled]="customQty() <= minOrderQuantity">&#8722;</button>
+      <input type="number" [ngModel]="customQty()" (ngModelChange)="setQty($event)" [min]="minOrderQuantity" />
+      <button (click)="adjustQty(1)">+</button>
+    </div>
+    @if (enablePriceBreak && priceBreaks.length > 0) {
+      <button class="pd-custom__breaks-btn" (click)="showPriceBreaks.set(!showPriceBreaks())">
+        <i class="pi pi-chart-bar"></i> Breaks
+        <i class="pi" [ngClass]="showPriceBreaks() ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+      </button>
+    }
+  </div>
+  @if (customQty() < minOrderQuantity) {
+    <p class="pd-custom__warn">Minimum quantity is {{ minOrderQuantity }}.</p>
+  }
+  @if (showPriceBreaks() && priceBreaks.length > 0) {
+    <div class="pd-custom__breaks">
+      @for (pb of priceBreaks; track pb.id) {
+        <div>
+          <span>{{ pb.minQuantity }}@if (pb.maxQuantity) { &ndash;{{ pb.maxQuantity }} } @else { + }</span>
+          <span>{{ pb.discountPercentage > 0 ? pb.discountPercentage + '% off' : 'No discount' }}</span>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- Production Time -->
+@if (enableProductionTime && productionTime) {
+  <div class="pd-custom__section">
+    <div class="pd-custom__section-title">
+      <span class="pd-custom__step-badge">T</span> Production Time
+    </div>
+    <div class="pd-custom__production">
+      <span><i class="pi pi-clock"></i> {{ productionTime.minDays }}&ndash;{{ productionTime.maxDays }} business days</span>
+      @if (productionTime.rushAvailable) {
+        <span class="pd-custom__rush">Rush available (+${{ productionTime.rushFee.toFixed(2) }})</span>
+      }
+    </div>
+  </div>
+}
+
+<!-- Summary -->
+<div class="pd-custom__summary">
+  @if (enableProductionTime && productionDays > 0) {
+    <div class="pd-custom__summary-row"><span>Lead Time</span><span>{{ productionDays }} business days</span></div>
+  }
+  <div class="pd-custom__summary-divider"></div>
+  <div class="pd-custom__summary-row"><span>Quantity</span><span>{{ customQty() }}</span></div>
+  <div class="pd-custom__summary-row"><span>Unit Price</span><span>${{ estimatedUnitPrice.toFixed(2) }}</span></div>
+  <div class="pd-custom__summary-row pd-custom__summary-row--total"><span>Estimated Total</span><span>${{ estimatedTotal.toFixed(2) }}</span></div>
+</div>

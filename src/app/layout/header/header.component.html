@@ -17,19 +17,11 @@
       </a>
     </div>
 
-    <div class="header__search" [class.header__search--open]="searchMobileOpen">
-      <i class="pi pi-search header__search-icon"></i>
-      <input
-        type="text"
-        class="header__search-input"
-        placeholder="Search for products, brands and more"
-        [(ngModel)]="searchQuery"
-        (keydown.enter)="onSearch()"
-      />
-      <button class="header__search-clear" (click)="searchQuery = ''" aria-label="Clear search" [class.header__search-clear--visible]="searchQuery.length > 0">
-        <i class="pi pi-times"></i>
-      </button>
-    </div>
+    <app-search-bar
+      [isOpen]="searchMobileOpen"
+      (searched)="onSearched($event)"
+      (cleared)="onSearchCleared()"
+    />
 
     <div class="header__right">
       <button class="header__icon-btn header__search-mobile-btn" (click)="toggleSearch()" aria-label="Search">
@@ -131,54 +123,15 @@
   </div>
 
   <!-- MOBILE MENU DROPDOWN -->
-  @if (mobileMenuOpen) {
-    <div class="header__menu-dropdown" id="mobile-menu-dropdown" (click)="$event.stopPropagation()">
-
-      @if (isLoggedIn) {
-        <div class="menu-profile">
-          <div class="menu-profile__avatar">{{ userInitials }}</div>
-          <div class="menu-profile__info">
-            <div class="menu-profile__name">{{ displayName }}</div>
-            <div class="menu-profile__email">{{ userEmail }}</div>
-            <span class="menu-profile__badge">Member</span>
-          </div>
-        </div>
-      } @else {
-        <div class="menu-auth">
-          <a routerLink="/auth/login" class="menu-auth__btn menu-auth__btn--primary" (click)="closeMobileMenu()">Login</a>
-          <a routerLink="/auth/register" class="menu-auth__btn menu-auth__btn--outline" (click)="closeMobileMenu()">Register</a>
-        </div>
-      }
-
-      @for (section of menuSections; track $index) {
-        @if (section.label) {
-          <div class="menu-section-label">{{ section.label }}</div>
-        }
-        <div class="menu-items">
-          @for (item of section.items; track $index) {
-            @if (item.route && !item.action) {
-              <a
-                [routerLink]="item.route"
-                class="menu-link"
-                [class.menu-link--danger]="item.danger"
-                (click)="closeMobileMenu()"
-              >
-                <i class="pi {{ item.icon }}"></i>
-                <span>{{ item.label }}</span>
-              </a>
-            } @else if (item.action === 'logout') {
-              <button
-                class="menu-link menu-link--danger"
-                (click)="handleMenuAction('logout')"
-              >
-                <i class="pi {{ item.icon }}"></i>
-                <span>{{ item.label }}</span>
-              </button>
-            }
-          }
-        </div>
-      }
-
-    </div>
-  }
+  <app-mobile-menu
+    [isOpen]="mobileMenuOpen"
+    [isLoggedIn]="isLoggedIn"
+    [isAdmin]="isAdmin"
+    [displayName]="displayName"
+    [userEmail]="userEmail"
+    [userInitials]="userInitials"
+    [menuSections]="menuSections"
+    (closed)="closeMobileMenu()"
+    (menuAction)="handleMenuAction($event)"
+  />
 </header>

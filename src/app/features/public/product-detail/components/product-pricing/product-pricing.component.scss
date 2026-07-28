@@ -1,0 +1,131 @@
+.pd-custom__section {
+  padding: .875rem 1.25rem;
+  border-bottom: 1px solid var(--color-border-light);
+  &:last-of-type { border-bottom: none; }
+}
+
+.pd-custom__section-title {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: .625rem;
+}
+
+.pd-custom__step-badge {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: .65rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pd-custom__qty-row { display: flex; align-items: center; gap: .5rem; }
+
+.pd-custom__qty {
+  display: flex;
+  align-items: center;
+
+  button {
+    width: 34px; height: 34px;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-alt);
+    font-size: 1rem;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-secondary);
+    font-family: inherit;
+    transition: background var(--transition-fast);
+    cursor: pointer;
+
+    &:first-child { border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+    &:last-child { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+    &:hover:not(:disabled) { background: var(--color-surface-elevated); }
+    &:disabled { opacity: .4; cursor: not-allowed; }
+  }
+
+  input {
+    width: 64px; height: 34px;
+    text-align: center;
+    border: 1px solid var(--color-border);
+    border-left: none; border-right: none;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    font-family: inherit;
+    background: transparent;
+    &:focus { outline: none; }
+    &::-webkit-inner-spin-button, &::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  }
+}
+
+.pd-custom__breaks-btn {
+  display: flex;
+  align-items: center;
+  gap: .25rem;
+  padding: .3rem .625rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-alt);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-family: inherit;
+  transition: background var(--transition-fast);
+  &:hover { background: var(--color-surface-elevated); }
+  i:first-child { color: var(--color-primary); }
+}
+
+.pd-custom__warn { font-size: var(--font-size-xs); color: var(--color-danger); font-weight: var(--font-weight-medium); margin-top: .375rem; }
+
+.pd-custom__breaks {
+  margin-top: .5rem;
+  background: var(--color-bg-alt);
+  border-radius: var(--radius-sm);
+  padding: .375rem .75rem;
+  div {
+    display: flex;
+    justify-content: space-between;
+    padding: .2rem 0;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    span:last-child { font-weight: var(--font-weight-semibold); color: var(--color-success); }
+  }
+}
+
+.pd-custom__production { display: flex; flex-direction: column; gap: .5rem; }
+
+.pd-custom__rush {
+  font-size: var(--font-size-xs);
+  color: var(--color-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.pd-custom__summary { padding: .875rem 1.25rem; background: var(--color-bg-alt); }
+
+.pd-custom__summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: .3rem 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  span:first-child { color: var(--color-text-muted); }
+  span:last-child { font-weight: var(--font-weight-medium); color: var(--color-text-primary); text-align: right; }
+  &--total { padding: .5rem 0 0; font-size: var(--font-size-sm); }
+  &--total span:first-child { color: var(--color-text-primary); font-weight: var(--font-weight-semibold); }
+  &--total span:last-child { font-size: var(--font-size-lg); font-weight: 800; color: var(--color-text-primary); }
+}
+
+.pd-custom__summary-divider { height: 1px; background: var(--color-border); margin: .3rem 0; }
+
+@media(max-width:575px) {
+  .pd-custom__section { padding: .75rem 1rem; }
+  .pd-custom__summary { padding: .75rem 1rem; }
+}

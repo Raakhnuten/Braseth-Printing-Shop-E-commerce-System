@@ -1,6 +1,5 @@
 import { Component, inject, signal, HostListener } from '@angular/core';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
 import { NgClass } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
@@ -8,6 +7,8 @@ import { AuthService } from '../../core/services/auth.service';
 import { CartService } from '../../core/services/cart.service';
 import { CategoryService } from '../../core/services/category.service';
 import { Category } from '../../core/models/category.model';
+import { SearchBarComponent } from './components/search-bar/search-bar.component';
+import { MobileMenuComponent } from './components/mobile-menu/mobile-menu.component';
 
 export interface NavSubcategory {
   name: string;
@@ -77,7 +78,7 @@ const LOGGED_OUT_SECTIONS: MenuSection[] = [
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
-  imports: [RouterLink, RouterLinkActive, FormsModule, NgClass],
+  imports: [RouterLink, RouterLinkActive, NgClass, SearchBarComponent, MobileMenuComponent],
 })
 export class HeaderComponent {
   private router = inject(Router);
@@ -130,7 +131,6 @@ export class HeaderComponent {
 
   mobileMenuOpen = false;
   searchMobileOpen = false;
-  searchQuery = '';
 
   activeDropdown = signal<string | null>(null);
   expandedMobileCategory = signal<string | null>(null);
@@ -184,13 +184,13 @@ export class HeaderComponent {
     }
   }
 
-  onSearch(): void {
-    const q = this.searchQuery.trim();
-    if (q) {
-      this.router.navigate(['/search'], { queryParams: { q } });
-      this.searchQuery = '';
-      this.searchMobileOpen = false;
-    }
+  onSearched(query: string): void {
+    this.router.navigate(['/search'], { queryParams: { q: query } });
+    this.searchMobileOpen = false;
+  }
+
+  onSearchCleared(): void {
+    // No-op; child handles clearing its own state
   }
 
   toggleMobileMenu(): void {

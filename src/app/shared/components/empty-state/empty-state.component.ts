@@ -1,9 +1,10 @@
-import { Component, Input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, Input } from '@angular/core';
 
 @Component({
   selector: 'app-empty-state',
   templateUrl: './empty-state.component.html',
   styleUrl: './empty-state.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmptyStateComponent {
   @Input() title: string = 'No Data';
