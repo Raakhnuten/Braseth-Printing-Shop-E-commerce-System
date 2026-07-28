@@ -1,0 +1,25 @@
+{
+  "project_type": "Angular 21 standalone components SPA (no NgModules)",
+  "language": "TypeScript",
+  "build_system": "Angular CLI via npm scripts; node_modules present but ng CLI binary not in node_modules/.bin. Use NODE_OPTIONS=\"\" tsc for TypeScript validation.",
+  "test_framework": "Vitest with jsdom (devDependency)",
+  "build_command": "NODE_OPTIONS=\"\" tsc --noEmit -p tsconfig.app.json",
+  "test_command": "N/A (no tests for static pages; npm registry blocked so vitest may not run)",
+  "verification_instructions": "1. Ensure all new .ts files pass TypeScript compilation. 2. Verify routes are registered correctly. 3. Confirm footer links use routerLink instead of href='#'.",
+  "snapshot_or_generated_files": null,
+  "setup_instructions": "node_modules already present. npm install is blocked (403). Use existing dependencies only.",
+  "environment_constraints": "npm registry is BLOCKED (403). Cannot run npm install. Node.js preload module issue requires NODE_OPTIONS=\"\" prefix for tsc/npx. Angular CLI binary not available. Use NODE_OPTIONS=\"\" tsc --noEmit for TypeScript validation.",
+  "contribution_requirements": "Frontend-only changes. No backend code. Follow existing standalone component patterns.",
+  "key_patterns": "Standalone components with @Component({ selector, templateUrl, styleUrl, imports }). Uses styleUrl (singular, Angular 21). BEM naming in SCSS. Design tokens via CSS custom properties. PageHeaderComponent with title/subtitle/breadcrumbs inputs. Routes use lazy-loading with loadComponent. Wildcard '**' route must remain LAST in public children.",
+  "relevant_files": [
+    "src/app/app.routes.ts",
+    "src/app/layout/footer/footer.component.html",
+    "src/app/layout/footer/footer.component.ts",
+    "src/app/shared/components/page-header/page-header.component.ts",
+    "src/app/shared/components/page-header/page-header.component.html",
+    "src/app/features/public/categories/categories.component.ts",
+    "src/app/features/public/page-not-found/not-found.component.ts",
+    "src/app/styles/_design-tokens.scss"
+  ],
+  "directory_structure": "src/app/features/public/{page-name}/ for public pages. Each has .component.ts, .html, .scss. Shared components in src/app/shared/components/. Layout in src/app/layout/. Design tokens in src/app/styles/_design-tokens.scss."
+}

@@ -1,0 +1,32 @@
+{
+  "id": "FEAT-001",
+  "type": "feat",
+  "description": "Create Privacy Policy, Terms of Service, and Cookies static pages as Angular standalone components, register routes, and update footer links",
+  "status": "in_progress",
+  "steps": [
+    "Create src/app/features/public/privacy-policy/ directory with privacy-policy.component.ts, .html, .scss. Component class: PrivacyPolicyComponent, selector: app-privacy-policy. Import PageHeaderComponent from shared. Template contains professional privacy policy content with sections: Information we collect, How we use collected information, Data protection and security, Third-party services, User rights, Contact information. Include 'Last updated' date.",
+    "Create src/app/features/public/terms-of-service/ directory with terms-of-service.component.ts, .html, .scss. Component class: TermsOfServiceComponent, selector: app-terms-of-service. Import PageHeaderComponent. Template contains: Website usage rules, Orders and payments, Custom product/design upload responsibility, Intellectual property responsibility, Refund and cancellation policy, Account responsibility. Include 'Last updated' date.",
+    "Create src/app/features/public/cookies/ directory with cookies.component.ts, .html, .scss. Component class: CookiesComponent, selector: app-cookies. Import PageHeaderComponent. Template contains: What cookies are, Why we use cookies, Types of cookies (Essential, Analytics, Preference), How users can manage cookies. Include 'Last updated' date.",
+    "All three components should share a consistent SCSS styling approach using BEM naming (.legal-page, .legal-page__section, .legal-page__heading, etc.) and design tokens (--color-text-primary, --color-text-secondary, --color-surface, --space-*, --font-size-*, --radius-*, --font-weight-*). Make pages responsive with max-width container.",
+    "Register three new routes in src/app/app.routes.ts inside the public children array (BEFORE the wildcard '**' route): 'privacy-policy' -> PrivacyPolicyComponent, 'terms-of-service' -> TermsOfServiceComponent, 'cookies' -> CookiesComponent. Use lazy-loading pattern: loadComponent: () => import(...).then(m => m.ComponentName).",
+    "Update src/app/layout/footer/footer.component.html: Replace the three <a href='#'> links in the footer__legal-links section with routerLink directives: routerLink='/privacy-policy', routerLink='/terms-of-service', routerLink='/cookies'.",
+    "Verify TypeScript compilation passes with: NODE_OPTIONS=\"\" tsc --noEmit -p tsconfig.app.json (run from project root)."
+  ],
+  "acceptance_criteria": [
+    "Three new component directories exist under src/app/features/public/ with correct file structure",
+    "All components are standalone (no NgModule) and use styleUrl (singular)",
+    "Each component uses PageHeaderComponent with appropriate title, subtitle, and breadcrumbs",
+    "SCSS uses BEM naming and design tokens from _design-tokens.scss",
+    "Pages are responsive (work on mobile and desktop)",
+    "Routes are registered in app.routes.ts before the '**' wildcard",
+    "Footer href='#' links are replaced with routerLink directives",
+    "TypeScript compilation passes without errors"
+  ],
+  "verification": [
+    "Run: NODE_OPTIONS=\"\" tsc --noEmit -p tsconfig.app.json from the project root and confirm zero errors",
+    "Confirm footer.component.html contains routerLink='/privacy-policy', routerLink='/terms-of-service', routerLink='/cookies' and no href='#' in legal-links",
+    "Confirm the '**' wildcard route is still the last child route in public routes"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}
