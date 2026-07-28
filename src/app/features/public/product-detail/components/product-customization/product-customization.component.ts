@@ -2,7 +2,6 @@ import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter, signal
 import {
   ProductColor,
   ProductSize,
-  ProductFeatureControl,
   DecorationMethod,
   PrintColor,
 } from '../../../../../core/models/customization.model';
@@ -14,7 +13,6 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductCustomizationComponent {
-  @Input() featureControl: ProductFeatureControl | null = null;
   @Input() availableColors: ProductColor[] = [];
   @Input() availableSizes: ProductSize[] = [];
   @Input() availableDecorationMethods: DecorationMethod[] = [];
@@ -31,22 +29,6 @@ export class ProductCustomizationComponent {
   selectedDecorationMethodId = signal<string | null>(null);
   selectedPrintColorIds = signal<string[]>([]);
   multipleColors = signal(false);
-
-  get enableSizeSelection(): boolean {
-    return this.featureControl?.enableSizeSelection ?? false;
-  }
-
-  get enableColorSelection(): boolean {
-    return this.featureControl?.enableColorSelection ?? false;
-  }
-
-  get enableDecorationMethod(): boolean {
-    return this.featureControl?.enableDecorationMethod ?? false;
-  }
-
-  get enablePrintColor(): boolean {
-    return this.featureControl?.enablePrintColor ?? false;
-  }
 
   get selectedDecorationMethod(): DecorationMethod | undefined {
     const id = this.selectedDecorationMethodId();

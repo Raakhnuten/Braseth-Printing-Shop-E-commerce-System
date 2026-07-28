@@ -2,7 +2,6 @@ import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter, signal
 import { FormsModule } from '@angular/forms';
 import { NgClass } from '@angular/common';
 import {
-  ProductFeatureControl,
   ProductPriceBreak,
   ProductProductionTime,
 } from '../../../../../core/models/customization.model';
@@ -19,7 +18,6 @@ export class ProductPricingComponent {
   @Input() priceBreaks: ProductPriceBreak[] = [];
   @Input() productionTime: ProductProductionTime | null = null;
   @Input() basePrice: number = 0;
-  @Input() featureControl: ProductFeatureControl | null = null;
   @Input() customizationSummary: CustomizationTotal | null = null;
 
   @Output() quantityChanged = new EventEmitter<number>();
@@ -28,11 +26,11 @@ export class ProductPricingComponent {
   showPriceBreaks = signal(false);
 
   get enablePriceBreak(): boolean {
-    return this.featureControl?.enablePriceBreak ?? false;
+    return true;
   }
 
   get enableProductionTime(): boolean {
-    return this.featureControl?.enableProductionTime ?? false;
+    return true;
   }
 
   get minOrderQuantity(): number {

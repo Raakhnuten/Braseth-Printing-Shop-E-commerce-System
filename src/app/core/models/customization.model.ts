@@ -29,24 +29,6 @@ export interface ProductSize {
   isActive: boolean;
 }
 
-export interface ProductFeatureControl {
-  id: string;
-  productId: string;
-  enableSizeSelection: boolean;
-  enableColorSelection: boolean;
-  enableDesignUpload: boolean;
-  enableDecorationMethod: boolean;
-  enablePrintPosition: boolean;
-  enablePrintColor: boolean;
-  enablePriceBreak: boolean;
-  enableProductionTime: boolean;
-  enableCustomizationFee: boolean;
-  isCustomizable: boolean;
-  maxUploadFiles: number;
-  allowedFileTypes: string[];
-  maxFileSizeMb: number;
-}
-
 export interface DecorationMethod {
   id: string;
   name: string;

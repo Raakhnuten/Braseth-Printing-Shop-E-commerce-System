@@ -7,7 +7,6 @@ import { CartItemDesignUpload } from '../../../core/models/cart.model';
 import {
   ProductColor,
   ProductSize,
-  ProductFeatureControl,
   ProductPriceBreak,
   ProductProductionTime,
   DecorationMethod,
@@ -58,7 +57,6 @@ export class ProductDetailComponent implements OnInit {
   activeTab = signal<string>('description');
 
   // Service-driven customization data
-  featureControl = signal<ProductFeatureControl | null>(null);
   availableColors = signal<ProductColor[]>([]);
   availableSizes = signal<ProductSize[]>([]);
   availableDecorationMethods = signal<DecorationMethod[]>([]);
@@ -97,10 +95,6 @@ export class ProductDetailComponent implements OnInit {
   }
 
   private loadCustomizationData(productId: string): void {
-    this.customizationService.getFeatureControl(productId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res) => {
-      this.featureControl.set(res.data);
-    });
-
     this.customizationService.getPriceBreaks(productId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res) => {
       this.priceBreaks.set(res.data.filter((b) => b.isActive).sort((a, b) => a.minQuantity - b.minQuantity));
     });
@@ -181,21 +175,13 @@ export class ProductDetailComponent implements OnInit {
     return Array.from({ length: 5 - Math.ceil(r) }, (_, i) => i);
   }
 
-  // ─── Feature control helpers ───────────────────────────
+  // ─── Customization helpers ──────────────────────────────
   get isCustomizable(): boolean {
-    return this.featureControl()?.isCustomizable ?? false;
-  }
-
-  get enableDesignUpload(): boolean {
-    return this.featureControl()?.enableDesignUpload ?? false;
-  }
-
-  get enablePriceBreak(): boolean {
-    return this.featureControl()?.enablePriceBreak ?? false;
+    return true;
   }
 
   get artworkMaxSizeMb(): number {
-    return this.featureControl()?.maxFileSizeMb ?? 50;
+    return 50;
   }
 
   // ─── Child component event handlers ────────────────────
@@ -270,19 +256,17 @@ export class ProductDetailComponent implements OnInit {
   // ─── Validation ────────────────────────────────────────
   validateCustomization(): string[] {
     const errors: string[] = [];
-    const fc = this.featureControl();
-    if (!fc || !fc.isCustomizable) return errors;
 
-    if (fc.enableSizeSelection && !this.selectedSizeId()) {
+    if (this.availableSizes().length > 0 && !this.selectedSizeId()) {
       errors.push('Please select a size.');
     }
-    if (fc.enableColorSelection && !this.selectedColorId()) {
+    if (this.availableColors().length > 0 && !this.selectedColorId()) {
       errors.push('Please select a color.');
     }
-    if (fc.enableDecorationMethod && !this.selectedDecorationMethodId()) {
+    if (this.availableDecorationMethods().length > 0 && !this.selectedDecorationMethodId()) {
       errors.push('Please select a decoration method.');
     }
-    const minQty = this.enablePriceBreak && this.priceBreaks().length > 0 ? this.priceBreaks()[0].minQuantity : 1;
+    const minQty = this.priceBreaks().length > 0 ? this.priceBreaks()[0].minQuantity : 1;
     if (this.customQty() < minQty) {
       errors.push(`Minimum order quantity is ${minQty}.`);
     }

@@ -132,14 +132,6 @@ export const API_ENDPOINTS = {
     SIZES_BY_PRODUCT: (productId: string) => `/product-variants/sizes/${productId}`,
   },
 
-  // ============ FEATURE CONTROL ENDPOINTS ============
-  FEATURE_CONTROLS: {
-    BASE: '/product-feature-controls',
-    GET_BY_PRODUCT: (productId: string) => `/product-feature-controls/product/${productId}`,
-    CREATE: '/product-feature-controls',
-    UPDATE: (id: string) => `/product-feature-controls/${id}`,
-  },
-
   // ============ PAYMENT METHOD ENDPOINTS ============
   PAYMENT_METHODS: {
     BASE: '/payment-methods',

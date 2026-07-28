@@ -142,7 +142,7 @@
             <div class="pd-custom">
               <div class="pd-custom__head">
                 <i class="pi pi-sliders-h"></i>
-                <span>{{ isCustomizable ? 'Customize Your Order' : 'Order Options' }}</span>
+                <span>Customize Your Order</span>
               </div>
 
               <!-- Validation errors -->
@@ -156,7 +156,6 @@
 
               <!-- Customization (size/color/decoration/print colors) -->
               <app-product-customization
-                [featureControl]="featureControl()"
                 [availableColors]="availableColors()"
                 [availableSizes]="availableSizes()"
                 [availableDecorationMethods]="availableDecorationMethods()"
@@ -169,20 +168,17 @@
               />
 
               <!-- Artwork Upload -->
-              @if (enableDesignUpload) {
-                <app-design-upload
-                  [maxSizeMb]="artworkMaxSizeMb"
-                  (fileUploaded)="onFileUploaded($event)"
-                  (fileRemoved)="onFileRemoved()"
-                />
-              }
+              <app-design-upload
+                [maxSizeMb]="artworkMaxSizeMb"
+                (fileUploaded)="onFileUploaded($event)"
+                (fileRemoved)="onFileRemoved()"
+              />
 
               <!-- Pricing (quantity, price breaks, production time, summary) -->
               <app-product-pricing
                 [priceBreaks]="priceBreaks()"
                 [productionTime]="productionTime()"
                 [basePrice]="basePrice"
-                [featureControl]="featureControl()"
                 [customizationSummary]="customizationSummary"
                 (quantityChanged)="onQuantityChanged($event)"
               />
