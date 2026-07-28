@@ -24,6 +24,9 @@ import { ProductGalleryComponent } from './components/product-gallery/product-ga
 import { ProductCustomizationComponent } from './components/product-customization/product-customization.component';
 import { DesignUploadComponent, DesignFileUpload } from './components/design-upload/design-upload.component';
 import { ProductPricingComponent } from './components/product-pricing/product-pricing.component';
+import { MOCK_PRODUCT_COLORS } from '../../../mock-data/mock-product-colors';
+import { MOCK_PRODUCT_SIZES } from '../../../mock-data/mock-product-sizes';
+import { MOCK_DECORATION_METHODS } from '../../../mock-data/mock-decoration-methods';
 
 @Component({
   selector: 'app-product-detail',
@@ -104,15 +107,18 @@ export class ProductDetailComponent implements OnInit {
     });
 
     this.decorationService.getDecorationMethodsByProductId(productId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res) => {
-      this.availableDecorationMethods.set(res.data.sort((a, b) => a.sortOrder - b.sortOrder));
+      const data = res.data.length > 0 ? res.data : MOCK_DECORATION_METHODS.filter((m) => m.isActive).sort((a, b) => a.sortOrder - b.sortOrder);
+      this.availableDecorationMethods.set(data);
     });
 
     this.variantService.getAvailableColorsWithDetails(productId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res) => {
-      this.availableColors.set(res.data);
+      const data = res.data.length > 0 ? res.data : MOCK_PRODUCT_COLORS.filter((c) => c.isActive).sort((a, b) => a.sortOrder - b.sortOrder);
+      this.availableColors.set(data);
     });
 
     this.variantService.getAvailableSizesWithDetails(productId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res) => {
-      this.availableSizes.set(res.data);
+      const data = res.data.length > 0 ? res.data : MOCK_PRODUCT_SIZES.filter((s) => s.isActive).sort((a, b) => a.sortOrder - b.sortOrder);
+      this.availableSizes.set(data);
     });
 
     this.customizationService.getPrintColors(productId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((res) => {
