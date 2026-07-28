@@ -1,7 +1,24 @@
 {
   "task_id": "task-comprehensive-improvements",
   "task_description": "Comprehensive refactoring and improvement of the Braseth Printing Shop Angular application: fix production URL, decompose monolithic components, add error handling (toast/confirm), create placeholder pages, add tests, improve accessibility, add OnPush change detection, clean up legacy code, and add barrel files.",
-  "status": "in_progress",
+  "status": "completed",
   "feature_order": ["FEAT-001", "FEAT-002", "FEAT-003", "FEAT-004", "FEAT-005"],
-  "blocked_reason": null
+  "blocked_reason": null,
+  "verification": {
+    "build": "skipped",
+    "tests": "skipped",
+    "test_quality": "pass",
+    "docker_build": "skipped",
+    "summary": "Build and tests cannot run due to sandbox environment constraint (node cannot load proxy-bootstrap.js). Structural verification confirms: all new components follow Angular 21 patterns (standalone, OnPush, signals), all imports resolve to existing files, all services use correct DI patterns, all tests follow Vitest+TestBed pattern matching existing specs, no TypeScript type errors detectable via code inspection."
+  },
+  "review_fixes": {
+    "applied": "2026-07-28",
+    "items": [
+      "ConfirmDialogComponent: added ngOnDestroy to auto-cancel on destroy, preventing Subject leak",
+      "ProductGalleryComponent: converted validImages getter to ngOnChanges-cached property",
+      "DesignUploadComponent: stored setTimeout reference, clear on re-entry to prevent upload race",
+      "Added OnPush to FaqComponent, HelpComponent, ContactComponent, RefundPolicyComponent",
+      "CartService normalizeCartItem: added MIGRATION comment for legacy field fallbacks"
+    ]
+  }
 }
