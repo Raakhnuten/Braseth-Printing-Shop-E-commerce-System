@@ -1,0 +1,42 @@
+<div class="legal-page">
+  <app-page-header
+    [title]="title"
+    [subtitle]="subtitle"
+    [breadcrumbs]="breadcrumbs"
+  />
+
+  <div class="legal-page__content">
+    @for (section of sections; track section.title; let si = $index) {
+      <section class="legal-page__section">
+        <h2 class="legal-page__heading">{{ section.title }}</h2>
+
+        @for (item of section.items; track item.question; let ii = $index) {
+          <div class="faq-item">
+            <button
+              class="faq-item__question"
+              [class.faq-item__question--open]="isOpen(si, ii)"
+              (click)="toggleItem(si, ii)"
+              [attr.aria-expanded]="isOpen(si, ii)"
+              [attr.aria-controls]="'faq-answer-' + si + '-' + ii"
+            >
+              {{ item.question }}
+              <i
+                class="pi pi-chevron-down faq-item__icon"
+                [class.faq-item__icon--open]="isOpen(si, ii)"
+              ></i>
+            </button>
+            @if (isOpen(si, ii)) {
+              <div
+                class="faq-item__answer"
+                [id]="'faq-answer-' + si + '-' + ii"
+                role="region"
+              >
+                {{ item.answer }}
+              </div>
+            }
+          </div>
+        }
+      </section>
+    }
+  </div>
+</div>

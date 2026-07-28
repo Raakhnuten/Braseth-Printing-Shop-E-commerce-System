@@ -5,6 +5,7 @@ import { PageHeaderComponent } from '../../../shared/components/page-header/page
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { CategoryService } from '../../../core/services/category.service';
+import { ConfirmDialogService } from '../../../core/services/confirm-dialog.service';
 import { Category } from '../../../core/models/category.model';
 
 @Component({
@@ -15,6 +16,7 @@ import { Category } from '../../../core/models/category.model';
 })
 export class AdminCategoriesComponent implements OnInit {
   private categoryService = inject(CategoryService);
+  private confirmService = inject(ConfirmDialogService);
   private fb = inject(FormBuilder);
   private destroyRef = inject(DestroyRef);
 
@@ -132,16 +134,19 @@ export class AdminCategoriesComponent implements OnInit {
   }
 
   deleteCategory(id: string): void {
-    if (!confirm('Are you sure you want to delete this category?')) return;
-    this.categoryService.deleteCategory(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: () => {
-        this.successMessage.set('Category deleted successfully');
-        this.loadCategories();
-        setTimeout(() => this.successMessage.set(''), 3000);
-      },
-      error: () => {
-        this.formError.set('Failed to delete category');
-      },
-    });
+    this.confirmService.open({ title: 'Delete Category', message: 'Are you sure you want to delete this category?' })
+      .subscribe((confirmed) => {
+        if (!confirmed) return;
+        this.categoryService.deleteCategory(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+          next: () => {
+            this.successMessage.set('Category deleted successfully');
+            this.loadCategories();
+            setTimeout(() => this.successMessage.set(''), 3000);
+          },
+          error: () => {
+            this.formError.set('Failed to delete category');
+          },
+        });
+      });
   }
 }

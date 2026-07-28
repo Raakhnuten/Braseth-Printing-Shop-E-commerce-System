@@ -21,7 +21,7 @@
         @for (item of items(); track item.id) {
           <div class="cart-item">
             <a [routerLink]="['/products', item.productId]" class="cart-item__image">
-              <img [src]="item.productImage" [alt]="item.productName" />
+              <img [src]="item.productImage" [alt]="item.productName" loading="lazy" />
             </a>
             <div class="cart-item__info">
               <a [routerLink]="['/products', item.productId]" class="cart-item__name">{{ item.productName }}</a>

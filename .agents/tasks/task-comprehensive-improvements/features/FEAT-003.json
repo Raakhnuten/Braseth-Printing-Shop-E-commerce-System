@@ -2,7 +2,7 @@
   "id": "FEAT-003",
   "type": "feat",
   "description": "Add placeholder pages for /help, /contact, /faq, /refund-policy routes. Replace native confirm() with ConfirmDialogService in admin components. Add image lazy loading where missing.",
-  "status": "pending",
+  "status": "in_progress",
   "steps": [
     "1. Create src/app/features/public/help/ with help.component.ts, help.component.html, help.component.scss. Follow the privacy-policy pattern: standalone component importing PageHeaderComponent, using .legal-page BEM structure. Static content about getting help, FAQs link, contact info. Use same SCSS pattern as privacy-policy.",
     "2. Create src/app/features/public/contact/ with contact.component.ts, contact.component.html, contact.component.scss. Similar to privacy-policy. Static content with email, address, social media links, business hours. Use same SCSS pattern.",

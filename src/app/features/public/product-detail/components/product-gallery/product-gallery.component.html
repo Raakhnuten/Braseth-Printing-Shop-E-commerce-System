@@ -1,6 +1,6 @@
 <div class="pd-gallery" (mouseenter)="zoomed.set(true)" (mouseleave)="zoomed.set(false)">
   <div class="pd-gallery__main" [class.pd-gallery__main--zoomed]="zoomed()">
-    <img [src]="validImages[selectedImageIndex]" [alt]="productName" (error)="onImgError($event)" />
+    <img [src]="validImages[selectedImageIndex]" [alt]="productName" loading="lazy" (error)="onImgError($event)" />
   </div>
   @if (validImages.length > 1) {
     <div class="pd-gallery__thumbs">
@@ -10,7 +10,7 @@
           [class.pd-gallery__thumb--active]="$index === selectedImageIndex"
           (click)="selectImage($index)"
         >
-          <img [src]="img" [alt]="'View ' + ($index + 1)" (error)="onImgError($event)" />
+          <img [src]="img" [alt]="'View ' + ($index + 1)" loading="lazy" (error)="onImgError($event)" />
         </button>
       }
     </div>

@@ -7,6 +7,7 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { ProductService } from '../../../core/services/product.service';
 import { CategoryService } from '../../../core/services/category.service';
+import { ConfirmDialogService } from '../../../core/services/confirm-dialog.service';
 import { Product, ProductStatus } from '../../../core/models/product.model';
 import { Category } from '../../../core/models/category.model';
 
@@ -25,6 +26,7 @@ import { Category } from '../../../core/models/category.model';
 export class AdminProductsComponent implements OnInit {
   private productService = inject(ProductService);
   private categoryService = inject(CategoryService);
+  private confirmService = inject(ConfirmDialogService);
   private destroyRef = inject(DestroyRef);
 
   protected readonly ProductStatus = ProductStatus;
@@ -94,10 +96,13 @@ export class AdminProductsComponent implements OnInit {
   }
 
   deleteProduct(id: string): void {
-    if (!confirm('Are you sure you want to delete this product?')) return;
-    this.productService.deleteProduct(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: () => this.loadProducts(),
-      error: () => this.error.set('Failed to delete product.'),
-    });
+    this.confirmService.open({ title: 'Delete Product', message: 'Are you sure you want to delete this product?' })
+      .subscribe((confirmed) => {
+        if (!confirmed) return;
+        this.productService.deleteProduct(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+          next: () => this.loadProducts(),
+          error: () => this.error.set('Failed to delete product.'),
+        });
+      });
   }
 }

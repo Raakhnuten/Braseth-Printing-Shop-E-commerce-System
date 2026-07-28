@@ -10,6 +10,7 @@ import { isSafeUrl } from '../../../shared/utils/url.util';
 import { OrderService } from '../../../core/services/order.service';
 import { ShipmentService, CreateShipmentPayload } from '../../../core/services/shipment.service';
 import { InvoiceService } from '../../../core/services/invoice.service';
+import { ConfirmDialogService } from '../../../core/services/confirm-dialog.service';
 import { Order, OrderStatus, PaymentStatus, ShippingStatus } from '../../../core/models/order.model';
 import { Shipment, ShipmentStatus } from '../../../core/models/shipping.model';
 import { Invoice, InvoiceStatus } from '../../../core/models/invoice.model';
@@ -35,6 +36,7 @@ export class AdminOrderDetailComponent implements OnInit {
   private orderService = inject(OrderService);
   private shipmentService = inject(ShipmentService);
   private invoiceService = inject(InvoiceService);
+  private confirmService = inject(ConfirmDialogService);
   private destroyRef = inject(DestroyRef);
 
   loading = signal(false);
@@ -140,16 +142,19 @@ export class AdminOrderDetailComponent implements OnInit {
   cancelOrder(): void {
     const current = this.order();
     if (!current) return;
-    if (!confirm('Are you sure you want to cancel this order?')) return;
-    this.orderService.cancelOrder(current.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: () => {
-        this.statusUpdateMessage.set('Order cancelled successfully');
-        this.loadOrder(current.id);
-      },
-      error: () => {
-        this.statusUpdateMessage.set('Failed to cancel order');
-      },
-    });
+    this.confirmService.open({ title: 'Cancel Order', message: 'Are you sure you want to cancel this order?' })
+      .subscribe((confirmed) => {
+        if (!confirmed) return;
+        this.orderService.cancelOrder(current.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+          next: () => {
+            this.statusUpdateMessage.set('Order cancelled successfully');
+            this.loadOrder(current.id);
+          },
+          error: () => {
+            this.statusUpdateMessage.set('Failed to cancel order');
+          },
+        });
+      });
   }
 
   canCancel(): boolean {

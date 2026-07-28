@@ -40,7 +40,7 @@
           <h3><i class="pi pi-shopping-bag"></i> Items ({{ order.items.length }})</h3>
           @for (item of order.items; track item.id) {
             <div class="order-item">
-              <img [src]="item.productImage" [alt]="item.productName" class="item-image" (error)="(item.productImage='assets/images/placeholder.png')" />
+              <img [src]="item.productImage" [alt]="item.productName" class="item-image" loading="lazy" (error)="(item.productImage='assets/images/placeholder.png')" />
               <div class="item-info">
                 <h4>{{ item.productName }}</h4>
                 <p class="item-price">{{ item.quantity }} &times; {{ item.unitPrice | currency }} = {{ item.subtotal | currency }}</p>

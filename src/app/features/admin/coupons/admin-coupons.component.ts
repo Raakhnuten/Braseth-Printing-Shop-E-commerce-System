@@ -6,6 +6,7 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { DatePipe } from '@angular/common';
 import { CouponService } from '../../../core/services/coupon.service';
+import { ConfirmDialogService } from '../../../core/services/confirm-dialog.service';
 import { Coupon, CouponDiscountType } from '../../../core/models/coupon.model';
 
 @Component({
@@ -16,6 +17,7 @@ import { Coupon, CouponDiscountType } from '../../../core/models/coupon.model';
 })
 export class AdminCouponsComponent implements OnInit {
   private couponService = inject(CouponService);
+  private confirmService = inject(ConfirmDialogService);
   private fb = inject(FormBuilder);
   private destroyRef = inject(DestroyRef);
 
@@ -140,17 +142,20 @@ export class AdminCouponsComponent implements OnInit {
   }
 
   deleteCoupon(id: string): void {
-    if (!confirm('Are you sure you want to delete this coupon?')) return;
-    this.couponService.deleteCoupon(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: () => {
-        this.successMessage.set('Coupon deleted successfully');
-        this.loadCoupons();
-        setTimeout(() => this.successMessage.set(''), 3000);
-      },
-      error: () => {
-        this.formError.set('Failed to delete coupon');
-      },
-    });
+    this.confirmService.open({ title: 'Delete Coupon', message: 'Are you sure you want to delete this coupon?' })
+      .subscribe((confirmed) => {
+        if (!confirmed) return;
+        this.couponService.deleteCoupon(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+          next: () => {
+            this.successMessage.set('Coupon deleted successfully');
+            this.loadCoupons();
+            setTimeout(() => this.successMessage.set(''), 3000);
+          },
+          error: () => {
+            this.formError.set('Failed to delete coupon');
+          },
+        });
+      });
   }
 
   getDiscountLabel(coupon: Coupon): string {
