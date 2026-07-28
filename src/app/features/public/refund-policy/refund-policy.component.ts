@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 
 @Component({
   selector: 'app-refund-policy',
   templateUrl: './refund-policy.component.html',
   styleUrl: './refund-policy.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [PageHeaderComponent],
 })
 export class RefundPolicyComponent {

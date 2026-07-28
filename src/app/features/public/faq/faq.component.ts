@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 
 interface FaqItem {
@@ -15,6 +15,7 @@ interface FaqSection {
   selector: 'app-faq',
   templateUrl: './faq.component.html',
   styleUrl: './faq.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [PageHeaderComponent],
 })
 export class FaqComponent {

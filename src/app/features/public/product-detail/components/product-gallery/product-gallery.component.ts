@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, Input, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, Input, OnChanges, signal } from '@angular/core';
 import { normalizeImages, getSafeImageUrl, onImageError } from '../../../../../core/helpers/image.helper';
 
 @Component({
@@ -7,7 +7,7 @@ import { normalizeImages, getSafeImageUrl, onImageError } from '../../../../../c
   styleUrl: './product-gallery.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProductGalleryComponent {
+export class ProductGalleryComponent implements OnChanges {
   @Input() images: string[] = [];
   @Input() thumbnailUrl: string = '';
   @Input() productName: string = '';
@@ -15,10 +15,16 @@ export class ProductGalleryComponent {
   selectedImageIndex = 0;
   zoomed = signal(false);
 
+  private _validImages: string[] = [];
+
   get validImages(): string[] {
+    return this._validImages;
+  }
+
+  ngOnChanges(): void {
     const cleaned = normalizeImages(this.images);
     const all = [getSafeImageUrl(this.thumbnailUrl), ...cleaned];
-    return [...new Set(all)];
+    this._validImages = [...new Set(all)];
   }
 
   onImgError(event: Event): void {

@@ -1,6 +1,7 @@
 import {
   Component,
   ChangeDetectionStrategy,
+  OnDestroy,
   inject,
   ElementRef,
   viewChild,
@@ -15,7 +16,7 @@ import { ConfirmDialogService } from '../../../core/services/confirm-dialog.serv
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [],
 })
-export class ConfirmDialogComponent {
+export class ConfirmDialogComponent implements OnDestroy {
   private readonly dialogService = inject(ConfirmDialogService);
 
   readonly state = this.dialogService.state;
@@ -37,6 +38,14 @@ export class ConfirmDialogComponent {
         this.previouslyFocusedElement = null;
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    // Auto-cancel if the component is destroyed while dialog is open
+    // to prevent the ConfirmDialogService Subject from leaking
+    if (this.state().isOpen) {
+      this.dialogService.cancel();
+    }
   }
 
   onConfirm(): void {

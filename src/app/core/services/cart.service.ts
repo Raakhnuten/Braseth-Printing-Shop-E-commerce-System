@@ -289,6 +289,9 @@ export class CartService {
   private normalizeCartItem(raw: unknown): CartItem {
     const r = raw as Record<string, unknown>;
 
+    // MIGRATION: remove legacy field fallbacks after 2025-Q4
+    // The fallbacks for r['name'], r['slug'], r['thumbnailUrl'], r['price'] support
+    // users with old-format cart data in localStorage from before the CartItem schema update.
     return {
       id: String(r['id'] ?? this.generateItemId()),
       productId: String(r['productId'] ?? ''),

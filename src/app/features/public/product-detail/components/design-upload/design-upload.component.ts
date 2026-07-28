@@ -40,6 +40,8 @@ export class DesignUploadComponent {
   artworkError = signal<string>('');
   isDragOver = signal(false);
 
+  private uploadTimeout: ReturnType<typeof setTimeout> | null = null;
+
   get acceptedExtensionsString(): string {
     return this.ACCEPTED_EXTENSIONS.join(', ');
   }
@@ -128,9 +130,15 @@ export class DesignUploadComponent {
       return;
     }
 
+    // Clear any pending upload timeout to prevent race conditions on rapid re-uploads
+    if (this.uploadTimeout) {
+      clearTimeout(this.uploadTimeout);
+      this.uploadTimeout = null;
+    }
+
     this.artworkUploading.set(true);
 
-    setTimeout(() => {
+    this.uploadTimeout = setTimeout(() => {
       this.artworkFileName.set(file.name);
       this.artworkFileSize.set(file.size);
       this.artworkFileType.set(file.type);
