@@ -2,7 +2,7 @@
   "id": "FEAT-002",
   "type": "refactor",
   "description": "ProductDetailComponent decomposition into child components, Header sub-component extraction, CartService cleanup, auth signals migration, breadcrumb routerLink fix, OnPush change detection, duplicate getLineTotal removal, and barrel index files.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "1. Create src/app/features/public/product-detail/components/product-gallery/ directory with product-gallery.component.ts, .html, .scss. Extract the image gallery section (zoom, thumbnails, main image) from ProductDetailComponent. Inputs: images (string[]), productName (string). Outputs: none (internal state for zoom/selectedIndex). Standalone, OnPush.",
     "2. Create src/app/features/public/product-detail/components/product-customization/ directory with product-customization.component.ts, .html, .scss. Extract size/color/decoration method/print colors selection. Inputs: featureControl, availableColors, availableSizes, availableDecorationMethods, availablePrintColors. Outputs: sizeSelected (string), colorSelected (string), decorationSelected (string), printColorsSelected (string[]), multipleColorsChanged (boolean). Standalone, OnPush.",
@@ -40,5 +40,5 @@
     "Read page-header.component.ts to confirm RouterLink import and no SafeUrlPipe"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "TypeScript compilation passes (tsc --noEmit --project tsconfig.json). Build/test commands cannot run via npx due to network restrictions and empty Angular CLI module, but structural correctness verified. The tsconfig.spec.json fails on vitest/globals type (pre-existing, unrelated to changes)."
 }
