@@ -1,0 +1,43 @@
+{
+  "id": "FEAT-001",
+  "type": "refactor",
+  "description": "Remove the entire ProductFeatureControl layer from the Angular frontend. Delete admin feature-controls page, mock data file, remove the interface from the model, remove related API endpoints, update the product-customization service, update product-detail component and template, update product-customization child component, and update product-pricing child component. All customization sections become always-visible.",
+  "status": "in_progress",
+  "steps": [
+    "DELETE the entire directory src/app/features/admin/feature-controls/ (admin-feature-controls.component.ts, .html, .scss)",
+    "DELETE the file src/app/mock-data/mock-product-feature-controls.ts",
+    "In src/app/core/models/customization.model.ts: Remove the ProductFeatureControl interface (lines 32-46 approximately)",
+    "In src/app/core/constants/api-endpoints.ts: Remove the FEATURE_CONTROLS section (the block with BASE, GET_BY_PRODUCT, CREATE, UPDATE)",
+    "In src/app/app.routes.ts: Remove the admin/feature-controls route object (the path: 'feature-controls' block with its loadComponent)",
+    "In src/app/core/services/product-customization.service.ts: (a) Remove the import of ProductFeatureControl from the model import list, (b) Remove the import of MOCK_PRODUCT_FEATURE_CONTROLS, (c) Remove the getFeatureControl() method entirely, (d) Remove the createFeatureControl() method entirely, (e) Remove the updateFeatureControl() method entirely, (f) Update validateDesignUpload() to use hardcoded 50MB max size and standard allowed file types ['image/png','image/jpeg','image/svg+xml','application/pdf'] instead of reading from MOCK_PRODUCT_FEATURE_CONTROLS",
+    "In src/app/features/public/product-detail/product-detail.component.ts: (a) Remove ProductFeatureControl from the import statement, (b) Remove the featureControl signal declaration, (c) In loadCustomizationData() remove the getFeatureControl() subscription, (d) Change get isCustomizable to always return true, (e) Change get enableDesignUpload to always return true, (f) Change get enablePriceBreak to always return true, (g) Change get artworkMaxSizeMb to return constant 50, (h) Update validateCustomization() to not check feature control flags - validate that if sizes are available and none selected show error, if colors available and none selected show error, if decoration methods available and none selected show error, validate minimum quantity",
+    "In src/app/features/public/product-detail/product-detail.component.html: (a) Remove [featureControl]='featureControl()' from app-product-customization element, (b) Remove the @if (enableDesignUpload) conditional around app-design-upload (keep the component), (c) Remove [featureControl]='featureControl()' from app-product-pricing element, (d) Change the header span from conditional '{{ isCustomizable ? \"Customize Your Order\" : \"Order Options\" }}' to always show 'Customize Your Order'",
+    "In src/app/features/public/product-detail/components/product-customization/product-customization.component.ts: (a) Remove ProductFeatureControl from the import, (b) Remove the @Input() featureControl property, (c) Change get enableSizeSelection to always return true, (d) Change get enableColorSelection to always return true, (e) Change get enableDecorationMethod to always return true, (f) Change get enablePrintColor to always return true",
+    "In src/app/features/public/product-detail/components/product-customization/product-customization.component.html: Remove all @if (enableSizeSelection), @if (enableColorSelection), @if (enableDecorationMethod), @if (enablePrintColor) conditionals - keep the inner content of each section but remove the conditional wrappers. Also simplify the step badge numbering since all sections are always shown: Size=1, Color=2, Decoration=3, PrintColors=C",
+    "In src/app/features/public/product-detail/components/product-pricing/product-pricing.component.ts: (a) Remove ProductFeatureControl from the import, (b) Remove the @Input() featureControl property, (c) Change get enablePriceBreak to always return true, (d) Change get enableProductionTime to always return true"
+  ],
+  "acceptance_criteria": [
+    "The ProductFeatureControl interface no longer exists in customization.model.ts",
+    "No file in the codebase imports ProductFeatureControl or MOCK_PRODUCT_FEATURE_CONTROLS",
+    "The admin feature-controls directory is deleted",
+    "The mock-product-feature-controls.ts file is deleted",
+    "FEATURE_CONTROLS section is removed from api-endpoints.ts",
+    "The feature-controls route is removed from app.routes.ts",
+    "product-customization.service.ts no longer has getFeatureControl, createFeatureControl, or updateFeatureControl methods",
+    "validateDesignUpload uses hardcoded 50MB and standard file types",
+    "All customization sections (size, color, decoration, print colors, design upload, pricing, production time) are always visible",
+    "No TypeScript type errors from removed references (no dangling references to deleted interfaces, imports, or properties)",
+    "product-detail.component.html no longer passes [featureControl] to any child component",
+    "The @if (enableDesignUpload) guard is removed from the template"
+  ],
+  "verification": [
+    "Run grep -r 'ProductFeatureControl' src/ to confirm zero matches",
+    "Run grep -r 'MOCK_PRODUCT_FEATURE_CONTROLS' src/ to confirm zero matches",
+    "Run grep -r 'getFeatureControl\\|createFeatureControl\\|updateFeatureControl' src/ to confirm zero matches in service usage",
+    "Confirm src/app/features/admin/feature-controls/ directory does not exist",
+    "Confirm src/app/mock-data/mock-product-feature-controls.ts does not exist",
+    "Review all modified TypeScript files for correct imports and no reference errors"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

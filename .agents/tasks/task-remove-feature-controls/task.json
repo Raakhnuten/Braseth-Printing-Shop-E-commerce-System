@@ -1,0 +1,7 @@
+{
+  "task_id": "task-remove-feature-controls",
+  "task_description": "Remove the Product Feature Control layer completely from the Angular frontend. All customization sections become always-visible. Delete admin feature-controls page, mock data, interface, endpoints, and update all components that referenced feature control flags.",
+  "status": "in_progress",
+  "feature_order": ["FEAT-001"],
+  "blocked_reason": null
+}

@@ -1,8 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
 import {
-  ProductFeatureControl,
   ProductPrintPosition,
   ProductPriceBreak,
   ProductProductionTime,
@@ -13,7 +11,6 @@ import { ApiResponse } from '../models/api-response.model';
 import { APP_CONFIG } from '../constants/app-config';
 import { API_ENDPOINTS } from '../constants/api-endpoints';
 import { ApiService } from './api.service';
-import { MOCK_PRODUCT_FEATURE_CONTROLS } from '../../mock-data/mock-product-feature-controls';
 import { MOCK_PRODUCT_PRINT_POSITIONS } from '../../mock-data/mock-product-print-positions';
 import { MOCK_PRODUCT_PRICE_BREAKS } from '../../mock-data/mock-product-price-breaks';
 import { MOCK_PRODUCT_PRODUCTION_TIMES } from '../../mock-data/mock-product-production-times';
@@ -45,16 +42,6 @@ export interface CustomizationTotal {
 @Injectable({ providedIn: 'root' })
 export class ProductCustomizationService {
   constructor(private apiService: ApiService) {}
-
-  // TODO: GET /api/product-feature-controls/product/:productId
-  getFeatureControl(productId: string): Observable<ApiResponse<ProductFeatureControl | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA ) {
-      const control = MOCK_PRODUCT_FEATURE_CONTROLS.find((c) => c.productId === productId) ??
-        MOCK_PRODUCT_FEATURE_CONTROLS.find((c) => c.productId === 'default') ?? null;
-      return of({ success: true, message: 'OK', data: control });
-    }
-    return this.apiService.get<ApiResponse<ProductFeatureControl>>(API_ENDPOINTS.FEATURE_CONTROLS.GET_BY_PRODUCT(productId));
-  }
 
   // TODO: GET /api/product-print-positions/product/:productId
   getPrintPositions(productId: string): Observable<ApiResponse<ProductPrintPosition[]>> {
@@ -93,30 +80,6 @@ export class ProductCustomizationService {
   }
 
   // TODO: GET /api/product-print-colors/product/:productId
-  // TODO: POST /api/product-feature-controls
-  createFeatureControl(control: ProductFeatureControl): Observable<ApiResponse<ProductFeatureControl | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA ) {
-      console.warn('[ProductCustomizationService] createFeatureControl not supported in mock/fake data mode');
-      return of({ success: true, message: 'OK', data: null });
-    }
-    return this.apiService.post<ApiResponse<ProductFeatureControl>>(
-      API_ENDPOINTS.FEATURE_CONTROLS.CREATE,
-      control,
-    );
-  }
-
-  // TODO: PUT /api/product-feature-controls/:id
-  updateFeatureControl(id: string, control: Partial<ProductFeatureControl>): Observable<ApiResponse<ProductFeatureControl | null>> {
-    if (APP_CONFIG.USE_MOCK_DATA ) {
-      console.warn('[ProductCustomizationService] updateFeatureControl not supported in mock/fake data mode');
-      return of({ success: true, message: 'OK', data: null });
-    }
-    return this.apiService.put<ApiResponse<ProductFeatureControl>>(
-      API_ENDPOINTS.FEATURE_CONTROLS.UPDATE(id),
-      control,
-    );
-  }
-
   getPrintColors(productId: string): Observable<ApiResponse<PrintColor[]>> {
     if (APP_CONFIG.USE_MOCK_DATA ) {
       return of({ success: true, message: 'OK', data: MOCK_PRINT_COLORS });
@@ -169,18 +132,16 @@ export class ProductCustomizationService {
   }
 
   validateDesignUpload(file: File, productId: string): { valid: boolean; message: string } {
-    const control = MOCK_PRODUCT_FEATURE_CONTROLS.find((c) => c.productId === productId) ??
-      MOCK_PRODUCT_FEATURE_CONTROLS.find((c) => c.productId === 'default');
+    const maxFileSizeMb = 50;
+    const allowedFileTypes = ['image/png', 'image/jpeg', 'image/svg+xml', 'application/pdf'];
 
-    if (!control) return { valid: true, message: 'OK' };
-
-    const maxSizeBytes = control.maxFileSizeMb * 1024 * 1024;
+    const maxSizeBytes = maxFileSizeMb * 1024 * 1024;
     if (file.size > maxSizeBytes) {
-      return { valid: false, message: `File size exceeds ${control.maxFileSizeMb}MB limit.` };
+      return { valid: false, message: `File size exceeds ${maxFileSizeMb}MB limit.` };
     }
 
-    if (control.allowedFileTypes.length > 0 && !control.allowedFileTypes.includes(file.type)) {
-      return { valid: false, message: `File type not allowed. Allowed: ${control.allowedFileTypes.join(', ')}` };
+    if (!allowedFileTypes.includes(file.type)) {
+      return { valid: false, message: `File type not allowed. Allowed: ${allowedFileTypes.join(', ')}` };
     }
 
     return { valid: true, message: 'OK' };

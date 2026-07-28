@@ -185,13 +185,7 @@ export const routes: Routes = [
             (m) => m.AdminInvoicesComponent,
           ),
       },
-      {
-        path: 'feature-controls',
-        loadComponent: () =>
-          import('./features/admin/feature-controls/admin-feature-controls.component').then(
-            (m) => m.AdminFeatureControlsComponent,
-          ),
-      },
+
       {
         path: 'settings',
         loadComponent: () =>

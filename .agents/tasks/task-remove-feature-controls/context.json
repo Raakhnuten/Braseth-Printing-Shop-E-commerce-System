@@ -1,0 +1,32 @@
+{
+  "project_type": "Angular 21 standalone components SPA (e-commerce printing shop)",
+  "language": "TypeScript",
+  "build_system": "Angular CLI with npm. npm registry is BLOCKED (403) so npm install cannot run.",
+  "test_framework": "Vitest (configured via devDependencies), no existing tests for affected components",
+  "build_command": "npx ng build (cannot run due to npm install being blocked)",
+  "test_command": "npx ng test (cannot run due to npm install being blocked)",
+  "verification_instructions": "Since npm registry is blocked, verify structural TypeScript correctness by reviewing code for: correct imports, no dangling references to removed interfaces/files, consistent type signatures, and template bindings matching component properties.",
+  "snapshot_or_generated_files": null,
+  "setup_instructions": "npm install (blocked in this environment)",
+  "environment_constraints": "npm registry BLOCKED (403). Cannot run npm install, ng build, or ng test. Must verify correctness through structural TypeScript analysis only. No Docker daemon available.",
+  "contribution_requirements": "No CONTRIBUTING.md found. Standard Angular patterns apply.",
+  "key_patterns": "Standalone components with lazy-loaded routes. Services use APP_CONFIG.USE_MOCK_DATA to switch between mock and real API calls. Models defined in core/models/. Mock data in mock-data/ directory. Components use Angular signals for state. Child components communicate via @Input/@Output pattern. Templates use Angular @if/@for control flow syntax.",
+  "relevant_files": [
+    "src/app/core/models/customization.model.ts",
+    "src/app/core/constants/api-endpoints.ts",
+    "src/app/core/services/product-customization.service.ts",
+    "src/app/app.routes.ts",
+    "src/app/features/public/product-detail/product-detail.component.ts",
+    "src/app/features/public/product-detail/product-detail.component.html",
+    "src/app/features/public/product-detail/components/product-customization/product-customization.component.ts",
+    "src/app/features/public/product-detail/components/product-customization/product-customization.component.html",
+    "src/app/features/public/product-detail/components/product-pricing/product-pricing.component.ts",
+    "src/app/features/public/product-detail/components/product-pricing/product-pricing.component.html",
+    "src/app/mock-data/mock-product-feature-controls.ts",
+    "src/app/features/admin/feature-controls/admin-feature-controls.component.ts",
+    "src/app/features/admin/feature-controls/admin-feature-controls.component.html",
+    "src/app/features/admin/feature-controls/admin-feature-controls.component.scss",
+    "src/app/layout/admin-layout/admin-layout.component.html"
+  ],
+  "directory_structure": "src/app/core/ (models, services, constants, guards), src/app/features/ (admin/, public/, user/, auth/), src/app/layout/ (admin-layout, public-layout, user-layout), src/app/shared/ (reusable components), src/app/mock-data/ (mock data files)"
+}
