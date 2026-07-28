@@ -43,7 +43,7 @@
       <a routerLink="/cart" class="header__icon-btn header__cart" (click)="closeMobileMenu()" aria-label="Cart">
         <i class="pi pi-shopping-cart"></i>
         @if (cartCount > 0) {
-          <span class="header__cart-badge">{{ cartCount > 99 ? '99+' : cartCount }}</span>
+          <span class="header__cart-badge" aria-live="polite">{{ cartCount > 99 ? '99+' : cartCount }}</span>
         }
       </a>
 

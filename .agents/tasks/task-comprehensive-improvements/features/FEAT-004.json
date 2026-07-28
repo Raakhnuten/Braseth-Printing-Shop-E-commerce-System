@@ -1,0 +1,26 @@
+{
+  "id": "FEAT-004",
+  "type": "feat",
+  "description": "Add unit tests for CartService, AuthService, and ProductService. Tests use Vitest with @angular/core/testing TestBed pattern as seen in existing checkout.service.spec.ts and storage.util.spec.ts.",
+  "status": "pending",
+  "steps": [
+    "1. Create src/app/core/services/cart.service.spec.ts. Test CartService using TestBed. Mock ApiService. Test: addProductToCart adds item and updates signal, addProductToCart with existing product increments quantity, updateQuantity changes quantity correctly, updateQuantity with 0 removes item, removeItem removes by id, removeItem removes by productId, clearCart empties all items, getCartItemCount returns correct sum, isInCart returns true/false correctly, calculateCartTotals computes correct subtotal/total/shippingFee, saveGuestCartToLocalStorage persists to localStorage, loadGuestCartFromLocalStorage restores items. Use beforeEach to reset localStorage. Follow the same pattern as checkout.service.spec.ts.",
+    "2. Create src/app/core/services/auth.service.spec.ts. Test AuthService using TestBed. Mock ApiService. Provide mock localStorage. Test: login sets currentUser signal and stores in localStorage, login with mock data returns correct AuthUser, logout clears currentUser and removes auth data from storage, isLoggedIn computed returns true when user exists, isLoggedIn computed returns false when no user, isAdmin computed returns true for ADMIN role, isAdmin computed returns false for CUSTOMER role, refreshToken returns current user data in mock mode, getCurrentUser returns the signal value. Mock MOCK_USERS or test with mock mode.",
+    "3. Create src/app/core/services/product.service.spec.ts. Test ProductService using TestBed. Mock ApiService. Test: getProducts returns all mock products, getProductById returns correct product, getProductById returns null for non-existent id, getFeaturedProducts returns only featured products, getProductsByCategory filters correctly, searchProducts finds by name, searchProducts finds by description, searchProducts returns empty for no matches. Since USE_MOCK_DATA is true in tests, these test the mock data path."
+  ],
+  "acceptance_criteria": [
+    "cart.service.spec.ts has 12+ test cases covering add/remove/update/clear/count/isInCart/calculateTotals/localStorage",
+    "auth.service.spec.ts has 9+ test cases covering login/logout/isLoggedIn/isAdmin/refreshToken/getCurrentUser",
+    "product.service.spec.ts has 8+ test cases covering getProducts/getById/getFeatured/getByCategory/search",
+    "All tests follow Vitest pattern with describe/it/expect globals (no imports needed due to tsconfig.spec.json)",
+    "All tests use TestBed.configureTestingModule pattern",
+    "Tests would pass if run (correct mocking, correct assertions based on actual service code)"
+  ],
+  "verification": [
+    "Read each spec file to verify test coverage matches acceptance criteria",
+    "Verify test assertions match actual service behavior by cross-referencing with service code",
+    "Run 'npx ng test 2>&1 | tail -30' to check if tests pass (may fail due to environment but shows compilation errors)"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

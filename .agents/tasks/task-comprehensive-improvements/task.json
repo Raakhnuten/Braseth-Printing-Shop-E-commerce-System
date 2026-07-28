@@ -1,0 +1,7 @@
+{
+  "task_id": "task-comprehensive-improvements",
+  "task_description": "Comprehensive refactoring and improvement of the Braseth Printing Shop Angular application: fix production URL, decompose monolithic components, add error handling (toast/confirm), create placeholder pages, add tests, improve accessibility, add OnPush change detection, clean up legacy code, and add barrel files.",
+  "status": "in_progress",
+  "feature_order": ["FEAT-001", "FEAT-002", "FEAT-003", "FEAT-004", "FEAT-005"],
+  "blocked_reason": null
+}

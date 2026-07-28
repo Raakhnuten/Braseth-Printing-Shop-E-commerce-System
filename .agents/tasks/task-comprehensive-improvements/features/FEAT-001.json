@@ -1,0 +1,40 @@
+{
+  "id": "FEAT-001",
+  "type": "feat",
+  "description": "Core infrastructure: ToastService, ToastComponent, ConfirmDialogComponent, SkeletonLoaderComponent, scroll restoration, production URL fix, prefers-reduced-motion, skip-to-content, aria-live cart badge. These are foundational pieces other features depend on.",
+  "status": "in_progress",
+  "steps": [
+    "1. Update src/environments/environment.production.ts: change apiBaseUrl from 'http://localhost:8080/api' to 'https://api.braseth.com/api'.",
+    "2. Create src/app/core/services/toast.service.ts: Injectable providedIn root service with signals. Must have methods: success(message, duration?), error(message, duration?), info(message, duration?), warning(message, duration?). Store toast items as signal<{id, type, message, duration}[]>. Auto-remove after duration (default 4000ms). Expose a readonly toasts signal.",
+    "3. Create src/app/shared/components/toast/ directory with toast.component.ts, toast.component.html, toast.component.scss. Standalone component using ChangeDetectionStrategy.OnPush. Import ToastService via inject(). Display toasts from service with proper animations, dismiss button. Position fixed bottom-right. Use BEM naming. Use design tokens. Add aria-live='polite' and role='status'.",
+    "4. Create src/app/shared/components/confirm-dialog/ directory with confirm-dialog.component.ts, confirm-dialog.component.html, confirm-dialog.component.scss. Standalone component with ChangeDetectionStrategy.OnPush. Create a ConfirmDialogService at src/app/core/services/confirm-dialog.service.ts that exposes an open(config: {title, message, confirmLabel?, cancelLabel?}) method returning Observable<boolean>. The component must have focus trap (trap Tab/Shift+Tab within dialog), aria-modal='true', role='dialog', aria-labelledby, keyboard support (Escape to cancel). Use existing design tokens and BEM.",
+    "5. Create src/app/shared/components/skeleton-loader/ directory with skeleton-loader.component.ts, skeleton-loader.component.html, skeleton-loader.component.scss. Standalone component with ChangeDetectionStrategy.OnPush. Inputs: type ('card'|'text'|'image'), count (number, default 1). Use the existing %skeleton-shimmer placeholder from _design-tokens.scss via @extend or recreate the same gradient animation. BEM naming.",
+    "6. Update src/app/app.config.ts: import withInAppNavigation from @angular/router and add withInAppNavigation({scrollPositionRestoration: 'enabled'}) to provideRouter. The signature becomes provideRouter(routes, withInAppNavigation({scrollPositionRestoration: 'enabled'})).",
+    "7. Update src/styles.scss: Add a @media (prefers-reduced-motion: reduce) block at the end that sets * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }.",
+    "8. Update src/app/layout/public-layout/public-layout.component.html: Add a skip-to-content link before <app-header />: <a class='skip-to-content' href='#main-content'>Skip to content</a>. Change <main class='main-content'> to <main class='main-content' id='main-content'>. Add ToastComponent after the footer.",
+    "9. Update src/app/layout/public-layout/public-layout.component.ts: Import ToastComponent and add to imports array.",
+    "10. Update src/app/layout/public-layout/public-layout.component.scss: Add .skip-to-content styles (visually hidden by default, visible on focus with position absolute, z-index above everything).",
+    "11. Update src/app/layout/header/header.component.html: Add aria-live='polite' to the cart badge span element (the one with class header__cart-badge).",
+    "12. Add ConfirmDialogComponent to the public layout (import it in public-layout.component.ts, add <app-confirm-dialog /> after the toast)."
+  ],
+  "acceptance_criteria": [
+    "environment.production.ts has apiBaseUrl set to 'https://api.braseth.com/api'",
+    "ToastService exists with success/error/info/warning methods using signals",
+    "ToastComponent is a standalone component with OnPush, displays toasts, has dismiss, aria-live",
+    "ConfirmDialogService exists with open() method returning Observable<boolean>",
+    "ConfirmDialogComponent has focus trap, aria-modal, role=dialog, keyboard support",
+    "SkeletonLoaderComponent exists with type and count inputs, uses shimmer animation",
+    "app.config.ts uses withInAppNavigation with scrollPositionRestoration: 'enabled'",
+    "styles.scss has prefers-reduced-motion media query reducing all animations",
+    "PublicLayoutComponent has skip-to-content link (visually hidden, visible on focus)",
+    "Header cart badge has aria-live='polite'",
+    "ToastComponent and ConfirmDialogComponent are rendered in public layout"
+  ],
+  "verification": [
+    "Run 'npx ng build 2>&1 | head -50' to check for TypeScript compilation errors (may fail due to missing deps but should show TS errors if any)",
+    "Verify all new files exist with correct structure using ls and reading key files",
+    "Verify imports are correct by reading the modified files"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

@@ -10,3 +10,24 @@
   width: 100%;
   min-width: 0;
 }
+
+.skip-to-content {
+  position: absolute;
+  top: -100%;
+  left: var(--space-4);
+  z-index: 9999;
+  padding: var(--space-3) var(--space-5);
+  background: var(--color-primary);
+  color: #fff;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  transition: top var(--transition-fast);
+
+  &:focus {
+    top: var(--space-4);
+    outline: none;
+    box-shadow: 0 0 0 3px var(--color-primary-subtle);
+  }
+}

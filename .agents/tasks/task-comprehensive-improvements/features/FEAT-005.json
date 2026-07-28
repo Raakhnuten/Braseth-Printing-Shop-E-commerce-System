@@ -1,0 +1,35 @@
+{
+  "id": "FEAT-005",
+  "type": "chore",
+  "description": "Final integration pass: update login/register templates for signals, update cart.component.html for removed method, add ConfirmDialogComponent and ToastComponent to admin/user layouts if needed, verify all imports are consistent.",
+  "status": "pending",
+  "steps": [
+    "1. Update src/app/features/auth/login/login.component.html: Change all references from 'loading' to 'loading()' and 'error' to 'error()' since they are now signals. For example: [disabled]='loading' becomes [disabled]='loading()', *ngIf='error' or @if(error) becomes @if(error()), {{error}} becomes {{error()}}.",
+    "2. Update src/app/features/auth/register/register.component.html: Same pattern - 'loading' to 'loading()', 'error' to 'error()', 'success' to 'success()'.",
+    "3. Update src/app/features/public/cart/cart.component.html: Ensure it uses getItemLineTotal(item) not getLineTotal(item). Search for any getLineTotal references and replace with getItemLineTotal.",
+    "4. Add ConfirmDialogComponent to admin-layout and user-layout so admin/user pages can also use confirm dialogs. Update src/app/layout/admin-layout/admin-layout.component.ts to import ConfirmDialogComponent and add <app-confirm-dialog /> to its template. Same for src/app/layout/user-layout/user-layout.component.ts.",
+    "5. Add ToastComponent to admin-layout and user-layout templates as well so toast notifications work across all layouts.",
+    "6. Verify that the product-detail.component.html is updated to use the new child components (ProductGalleryComponent, ProductCustomizationComponent, DesignUploadComponent, ProductPricingComponent) with correct input/output bindings.",
+    "7. Ensure the header.component.html is updated to use <app-search-bar> and <app-mobile-menu> child components with correct bindings.",
+    "8. Run a final check: grep for any remaining SafeUrlPipe references in page-header to ensure clean removal. Grep for any remaining LegacyCartItem references. Grep for remaining bare confirm() calls that should have been replaced."
+  ],
+  "acceptance_criteria": [
+    "Login template uses loading() and error() signal accessors",
+    "Register template uses loading(), error(), success() signal accessors",
+    "Cart template uses getItemLineTotal only (no getLineTotal)",
+    "ConfirmDialogComponent and ToastComponent are available in admin and user layouts",
+    "All cross-file references are consistent after the refactoring",
+    "No remaining SafeUrlPipe in page-header imports",
+    "No remaining LegacyCartItem/LegacyCartCustomization references in cart.service.ts"
+  ],
+  "verification": [
+    "Read login.component.html to verify signal accessor syntax",
+    "Read register.component.html to verify signal accessor syntax",
+    "Read cart.component.html to verify no getLineTotal references",
+    "Grep for 'SafeUrlPipe' to ensure no lingering references in page-header",
+    "Grep for 'LegacyCartItem' to ensure complete removal",
+    "Grep for 'confirm(' in admin components to verify replacement (only closeConfirm should remain in reviews)"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

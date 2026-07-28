@@ -1,0 +1,18 @@
+@for (item of items; track item) {
+  <div class="skeleton skeleton--{{ type() }}">
+    @if (type() === 'card') {
+      <div class="skeleton__image"></div>
+      <div class="skeleton__body">
+        <div class="skeleton__line skeleton__line--title"></div>
+        <div class="skeleton__line skeleton__line--short"></div>
+        <div class="skeleton__line skeleton__line--medium"></div>
+      </div>
+    } @else if (type() === 'text') {
+      <div class="skeleton__line skeleton__line--full"></div>
+      <div class="skeleton__line skeleton__line--medium"></div>
+      <div class="skeleton__line skeleton__line--short"></div>
+    } @else if (type() === 'image') {
+      <div class="skeleton__image skeleton__image--standalone"></div>
+    }
+  </div>
+}

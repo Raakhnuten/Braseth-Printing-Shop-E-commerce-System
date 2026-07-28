@@ -1,0 +1,30 @@
+{
+  "id": "FEAT-003",
+  "type": "feat",
+  "description": "Add placeholder pages for /help, /contact, /faq, /refund-policy routes. Replace native confirm() with ConfirmDialogService in admin components. Add image lazy loading where missing.",
+  "status": "pending",
+  "steps": [
+    "1. Create src/app/features/public/help/ with help.component.ts, help.component.html, help.component.scss. Follow the privacy-policy pattern: standalone component importing PageHeaderComponent, using .legal-page BEM structure. Static content about getting help, FAQs link, contact info. Use same SCSS pattern as privacy-policy.",
+    "2. Create src/app/features/public/contact/ with contact.component.ts, contact.component.html, contact.component.scss. Similar to privacy-policy. Static content with email, address, social media links, business hours. Use same SCSS pattern.",
+    "3. Create src/app/features/public/faq/ with faq.component.ts, faq.component.html, faq.component.scss. Standalone with PageHeaderComponent. Static FAQ content with expandable sections (use signals for open/closed state). Questions about ordering, shipping, returns, custom printing. BEM naming.",
+    "4. Create src/app/features/public/refund-policy/ with refund-policy.component.ts, refund-policy.component.html, refund-policy.component.scss. Similar to privacy-policy. Static refund policy content. Same SCSS pattern.",
+    "5. Register all 4 new routes in src/app/app.routes.ts within the public children (before the ** wildcard): /help -> HelpComponent, /contact -> ContactComponent, /faq -> FaqComponent, /refund-policy -> RefundPolicyComponent. Use lazy loading with loadComponent.",
+    "6. Replace confirm() calls in admin components with ConfirmDialogService. Update these files: admin-banners.component.ts, admin-categories.component.ts, admin-coupons.component.ts, admin-order-detail.component.ts, admin-payment-methods.component.ts, admin-products.component.ts, admin-shipping-methods.component.ts, admin-shipping-zones.component.ts. Also user-addresses.component.ts and user-order-detail.component.ts. Inject ConfirmDialogService, replace if(!confirm(...)) with this.confirmDialogService.open({title, message}).subscribe(confirmed => { if(confirmed) { ...existing logic... } }).",
+    "7. Add loading='lazy' attribute to images in product listing templates where not already present. Check products.component.html (the skeleton images don't need it, but product cards already have it). Check home.component.html for any img tags missing loading='lazy'. Check categories.component.html."
+  ],
+  "acceptance_criteria": [
+    "All 4 new page components exist as standalone components with proper content",
+    "Routes are registered in app.routes.ts before the ** wildcard",
+    "All admin confirm() calls replaced with ConfirmDialogService pattern",
+    "User confirm() calls also replaced (addresses, order-detail)",
+    "Images in listing templates have loading='lazy' where appropriate"
+  ],
+  "verification": [
+    "Read app.routes.ts to confirm new routes are registered correctly",
+    "Read each new page component to verify it follows the privacy-policy pattern",
+    "Read admin-banners.component.ts to confirm confirm() is replaced with ConfirmDialogService",
+    "Grep for remaining confirm() calls to ensure all are converted"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}
