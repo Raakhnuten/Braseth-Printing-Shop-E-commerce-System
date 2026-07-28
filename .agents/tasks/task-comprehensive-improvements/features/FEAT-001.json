@@ -2,7 +2,7 @@
   "id": "FEAT-001",
   "type": "feat",
   "description": "Core infrastructure: ToastService, ToastComponent, ConfirmDialogComponent, SkeletonLoaderComponent, scroll restoration, production URL fix, prefers-reduced-motion, skip-to-content, aria-live cart badge. These are foundational pieces other features depend on.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "1. Update src/environments/environment.production.ts: change apiBaseUrl from 'http://localhost:8080/api' to 'https://api.braseth.com/api'.",
     "2. Create src/app/core/services/toast.service.ts: Injectable providedIn root service with signals. Must have methods: success(message, duration?), error(message, duration?), info(message, duration?), warning(message, duration?). Store toast items as signal<{id, type, message, duration}[]>. Auto-remove after duration (default 4000ms). Expose a readonly toasts signal.",
@@ -36,5 +36,5 @@
     "Verify imports are correct by reading the modified files"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "Build/test commands cannot run due to environment issue (node_modules is essentially empty at 104K, and Node.js has a missing proxy-bootstrap.js module). Used withInMemoryScrolling instead of withInAppNavigation (which does not exist in Angular router API). The correct Angular router function for scroll position restoration is withInMemoryScrolling({scrollPositionRestoration: 'enabled'}). All changes verified structurally per context.verification_instructions."
 }
