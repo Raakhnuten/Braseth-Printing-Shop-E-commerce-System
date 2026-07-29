@@ -17,7 +17,7 @@ import { CheckoutDeliveryComponent } from './components/checkout-delivery/checko
 interface PaymentMethod {
   id: string;
   name: string;
-  image: string;
+  image?: string;
   description: string;
   icon: string;
 }
@@ -62,12 +62,11 @@ export class CheckoutComponent implements OnInit {
   selectedShippingZone = signal<ShippingZone | null>(null);
 
   readonly paymentMethods: PaymentMethod[] = [
-    { id: 'pay-to-store', name: 'Pay to Store', image: 'assets/images/payments/c3942570-ba21-4cca-90eb-c793b20308f4.webp', description: 'Direct payment at the store.', icon: 'pi-shop' },
-    { id: 'cod', name: 'Cash on Delivery (COD)', image: 'assets/images/payments/257d7a8d-f349-46a7-a276-9c31df555287.webp', description: 'Pay after you get the item.', icon: 'pi-money-bill' },
-    { id: 'bank-transfer', name: 'Direct Bank Transfer', image: 'assets/images/payments/31e26470-bc36-4605-b664-f69cce52ba02.webp', description: 'Direct transfer between local bank accounts.', icon: 'pi-building-columns' },
+    { id: 'cod', name: 'Cash on Delivery (COD)', description: 'Pay after you get the item.', icon: 'pi-money-bill' },
+    { id: 'bank-transfer', name: 'Direct Bank Transfer', image: 'assets/images/payments/image.png', description: 'Direct transfer between local bank accounts.', icon: 'pi-building-columns' },
   ];
 
-  selectedPayment = signal<PaymentMethod>(this.paymentMethods[1]);
+  selectedPayment = signal<PaymentMethod>(this.paymentMethods[0]);
 
   cartItems = computed(() => this.cartService.items());
   itemCount = computed(() => this.cartItems().reduce((sum, item) => sum + item.quantity, 0));
